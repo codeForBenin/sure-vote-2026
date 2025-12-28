@@ -1,0 +1,58 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Résultats & Statistiques 🇧🇯{% endblock %}
+
+{% block main %}
+    <!-- Flash Messages Absolute Fix -->
+    <div class="fixed top-24 right-5 z-[9999] space-y-3 pointer-events-none w-full max-w-sm">
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="pointer-events-auto bg-white border-l-4 {{ label == 'danger' or label == 'error' ? 'border-red-500' : (label == 'warning' ? 'border-orange-500' : 'border-green-500') }} shadow-2xl rounded p-4 transform transition-all duration-300 animate-slide-in-right flex items-start gap-3">
+                    <div class="shrink-0 pt-0.5">
+                        {% if label == 'danger' or label == 'error' %}
+                            <i class="fas fa-exclamation-circle text-red-500 text-lg"></i>
+                        {% elseif label == 'warning' %}
+                            <i class="fas fa-exclamation-triangle text-orange-500 text-lg"></i>
+                        {% else %}
+                            <i class="fas fa-check-circle text-green-500 text-lg"></i>
+                        {% endif %}
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-800">{{ message|raw }}</p>
+                    </div>
+                    <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+    <div class="dashboard-stats">
+        <div class="stat-card green">
+            <i class="fas fa-users text-benin-green"></i>
+            <div class="value">-%</div>
+            <div class="label">Participation globale</div>
+        </div>
+
+        <div class="stat-card yellow">
+            <i class="fas fa-check-circle text-benin-yellow"></i>
+            <div class="value">0%</div>
+            <div class="label">Bureaux dépouillés</div>
+        </div>
+
+        <div class="stat-card red">
+            <i class="fas fa-exclamation-triangle text-benin-red"></i>
+            <div class="value">0</div>
+            <div class="label">Alertes critiques</div>
+        </div>
+    </div>
+
+    <div class="dashboard-section">
+        <h3>📊 Derniers rapports PV reçus</h3>
+        <div class="empty-state" style="text-align: center; padding: 3rem 0; color: #94a3b8;">
+            <i class="fas fa-inbox fa-3x mb-4"></i>
+            <p class="italic">En attente des premières remontées du terrain...</p>
+        </div>
+    </div>
+{% endblock %}

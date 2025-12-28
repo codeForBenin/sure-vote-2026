@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Acceuil - Sure Vote Bénin{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-slate-50">
+    <nav class="bg-white border-b border-slate-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <div class="flex items-center">
+                    <span class="text-2xl font-black text-slate-900 tracking-tighter">SURE<span class="text-benin-green">VOTE</span></span>
+                </div>
+                <div class="flex items-center gap-4">
+                    {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                        {% set console_path = is_granted('ROLE_ADMIN') ? path('admin') : path('app_assesseur_dashboard') %}
+                        <a href="{{ console_path }}" class="text-sm font-semibold text-slate-600 hover:text-benin-green transition-colors">Console</a>
+                        <a href="{{ path('app_logout') }}" class="bg-red-50 text-red-600 px-4 py-2 rounded-xl text-sm font-bold hover:bg-red-100 transition-colors">Déconnexion</a>
+                    {% else %}
+                        <a href="{{ path('app_login') }}" class="bg-benin-green text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-benin-green/20 hover:bg-benin-green/90 transition-all">Connexion Assesseur</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+            <div class="space-y-8">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-benin-green/10 text-benin-green text-xs font-bold uppercase tracking-widest">
+                    <span class="relative flex h-2 w-2">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-benin-green opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-benin-green"></span>
+                    </span>
+                    En direct des urnes
+                </div>
+                <h1 class="text-6xl font-black text-slate-900 leading-tight">
+                    Suivez les résultats <br/> en <span class="text-benin-green underline decoration-benin-yellow decoration-8 decoration-skip-ink">temps réel</span>.
+                </h1>
+                <p class="text-lg text-slate-500 leading-relaxed max-w-xl">
+                    Visualisez le taux de participation et les premiers décomptes des bureaux de vote à travers tout le territoire national béninois.
+                </p>
+                <div class="flex gap-4">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex-1">
+                        <div class="text-3xl font-black text-slate-900">-%</div>
+                        <div class="text-xs font-bold text-slate-400 uppercase mt-1">Participation Finale</div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex-1">
+                        <div class="text-3xl font-black text-slate-900">0</div>
+                        <div class="text-xs font-bold text-slate-400 uppercase mt-1">Bureaux clôturés</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="relative">
+                <div class="aspect-square bg-linear-to-tr from-benin-green/20 to-benin-red/20 rounded-full blur-3xl absolute inset-0 opacity-50"></div>
+                <div class="relative bg-white p-4 rounded-[2.5rem] shadow-2xl border border-white/50 backdrop-blur-sm overflow-hidden min-h-[400px] flex items-center justify-center italic text-slate-400">
+                    La carte interactive du Bénin apparaîtra ici
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

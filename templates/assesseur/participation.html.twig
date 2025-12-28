@@ -1,0 +1,137 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Pointer Participation - Assesseur{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-slate-50">
+    <nav class="bg-white border-b border-slate-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <div class="flex items-center">
+                    <a href="{{ path('app_assesseur_dashboard') }}" class="mr-6 text-slate-400 hover:text-slate-900 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                    </a>
+                    <span class="text-2xl font-black text-slate-900 tracking-tighter">SURE<span class="text-benin-green">VOTE</span></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-3xl mx-auto px-4 py-12">
+        <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-100">
+            <div class="mb-10 text-center">
+                <div class="h-20 w-20 bg-benin-green/10 text-benin-green rounded-3xl flex items-center justify-center mx-auto mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                </div>
+                <h1 class="text-3xl font-black text-slate-900 mb-2">Pointer la participation</h1>
+                <p class="text-slate-500 font-medium">Bureau: {{ bureau.nom }} (#{{ bureau.code }})</p>
+            </div>
+
+            {% for error in app.flashes('error') %}
+                <div class="mb-6 p-4 bg-red-50 border border-red-100 text-red-700 rounded-2xl font-bold flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                    </svg>
+                    {{ error }}
+                </div>
+            {% endfor %}
+
+            {{ form_start(form, {'attr': {'id': 'participation-form'}}) }}
+                <div class="space-y-8">
+                    <div>
+                        {{ form_label(form.nombreVotants, null, {'label_attr': {'class': 'block text-sm font-black text-slate-400 uppercase tracking-widest mb-4 text-center'}}) }}
+                        {{ form_widget(form.nombreVotants) }}
+                        {{ form_errors(form.nombreVotants) }}
+                        <p class="text-xs text-slate-400 mt-4 text-center">Indiquez le nombre total d'émargements constatés sur la liste électorale à cet instant.</p>
+                    </div>
+
+                    <input type="hidden" name="lat" id="lat">
+                    <input type="hidden" name="lon" id="lon">
+
+                    <div id="geo-status" class="flex items-center justify-center gap-3 py-4 px-6 rounded-2xl bg-slate-50 border border-slate-100 text-sm font-bold text-slate-500">
+                        <div class="animate-spin h-4 w-4 border-2 border-benin-green border-t-transparent rounded-full"></div>
+                        Localisation en cours...
+                    </div>
+
+                    <button type="submit" id="submit-btn" disabled class="w-full bg-slate-200 text-slate-500 py-5 rounded-[2rem] text-xl font-black shadow-xl transition-all cursor-not-allowed">
+                        Enregistrer le pointage
+                    </button>
+                    
+                    <p class="text-[10px] text-slate-400 uppercase font-black text-center tracking-tighter">
+                        En cliquant sur enregistrer, vous certifiez l'exactitude des informations transmises sous peine de sanctions.
+                    </p>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </main>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const geoStatus = document.getElementById('geo-status');
+        const submitBtn = document.getElementById('submit-btn');
+        const latInput = document.getElementById('lat');
+        const lonInput = document.getElementById('lon');
+
+        const options = {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+        };
+
+        function setSuccess(lat, lon) {
+            latInput.value = lat;
+            lonInput.value = lon;
+            
+            geoStatus.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-benin-green" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                </svg>
+                Position récupérée avec succès
+            `;
+            geoStatus.classList.remove('bg-slate-50', 'bg-red-50', 'text-slate-500', 'text-red-600');
+            geoStatus.classList.add('bg-benin-green/5', 'text-benin-green');
+            
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('bg-slate-200', 'text-slate-500', 'cursor-not-allowed');
+            submitBtn.classList.add('bg-benin-green', 'text-white', 'hover:bg-benin-green/90', 'hover:scale-[1.02]');
+        }
+
+        function setError(msg) {
+            geoStatus.innerHTML = `
+                <div class="flex flex-col items-center gap-2">
+                    <div class="flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                        <span>Erreur: ${msg}</span>
+                    </div>
+                    {% if app.environment == 'dev' %}
+                        <button type="button" onclick="window.simulateGeo()" class="text-[10px] underline uppercase font-bold text-slate-400 hover:text-benin-green">Simuler ma position (Dev uniquement)</button>
+                    {% endif %}
+                </div>
+            `;
+            geoStatus.classList.remove('bg-slate-50', 'bg-benin-green/5', 'text-slate-500', 'text-benin-green');
+            geoStatus.classList.add('bg-red-50', 'text-red-600');
+        }
+
+        window.simulateGeo = function() {
+            setSuccess(6.3667, 2.4167); // Cotonou par défaut
+        };
+
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => setSuccess(pos.coords.latitude, pos.coords.longitude),
+                (err) => setError(err.message),
+                options
+            );
+        } else {
+            setError("Géolocalisation non supportée");
+        }
+    });
+</script>
+{% endblock %}
