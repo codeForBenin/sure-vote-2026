@@ -3,6 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\Entity\CentreDeVote;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
@@ -18,9 +20,10 @@ class CentreDeVoteCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('Centre de vote')
+            ->setEntityLabelInSingular('un centre de vote')
             ->setEntityLabelInPlural('Liste des centres de vote')
             ->setPaginatorPageSize(50)
+            ->setDefaultSort(['adresse' => 'ASC'])
             ->showEntityActionsInlined();
     }
 
@@ -34,5 +37,17 @@ class CentreDeVoteCrudController extends AbstractCrudController
             IdField::new('latitude', 'Latitude'),
             IdField::new('longitude', 'Longitude'),
         ];
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        $importAction = Action::new('import', 'Importer CSV')
+            ->linkToRoute('app_admin_import_centres')
+            ->createAsGlobalAction() // Affiche le bouton en haut de la liste
+            ->setCssClass('btn btn-primary')
+            ->setIcon('fa fa-upload');
+
+        return $actions
+            ->add(Crud::PAGE_INDEX, $importAction);
     }
 }

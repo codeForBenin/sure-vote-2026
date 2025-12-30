@@ -22,6 +22,12 @@ class Election
     #[ORM\Column]
     private bool $isActive = true;
 
+    #[ORM\Column(type: 'time', nullable: true)]
+    private ?\DateTimeInterface $heureFermeture = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $nombreInscrits = null;
+
     public function __construct()
     {
         $this->id = Uuid::v7();
@@ -57,5 +63,32 @@ class Election
     {
         $this->isActive = $isActive;
         return $this;
+    }
+
+    public function getHeureFermeture(): ?\DateTimeInterface
+    {
+        return $this->heureFermeture;
+    }
+
+    public function setHeureFermeture(?\DateTimeInterface $heureFermeture): self
+    {
+        $this->heureFermeture = $heureFermeture;
+        return $this;
+    }
+
+    public function getNombreInscrits(): ?int
+    {
+        return $this->nombreInscrits;
+    }
+
+    public function setNombreInscrits(?int $nombreInscrits): self
+    {
+        $this->nombreInscrits = $nombreInscrits;
+        return $this;
+    }
+
+    public function __toString(): string
+    {
+        return $this->nom . ' (' . $this->dateElection->format('d/m/Y') . ')';
     }
 }

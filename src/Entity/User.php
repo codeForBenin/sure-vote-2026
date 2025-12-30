@@ -3,7 +3,9 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\Collection;
 use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -21,9 +23,97 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'uuid', unique: true)]
     private ?Uuid $id = null;
 
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $isVerified = false;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $commune = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $arrondissement = null;
+
+    public function getCommune(): ?string
+    {
+        return $this->commune;
+    }
+
+    public function setCommune(?string $commune): static
+    {
+        $this->commune = $commune;
+        return $this;
+    }
+
+    public function getArrondissement(): ?string
+    {
+        return $this->arrondissement;
+    }
+
+    public function setArrondissement(?string $arrondissement): static
+    {
+        $this->arrondissement = $arrondissement;
+        return $this;
+    }
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $lieuDeResidence = null;
+
+    #[ORM\ManyToMany(targetEntity: BureauDeVote::class)]
+    private Collection $bureauxPreferes;
+
     public function __construct()
     {
         $this->id = Uuid::v7();
+        $this->bureauxPreferes = new ArrayCollection();
+    }
+
+    // ... existing getters/setters until assignedBureau ...
+
+    public function isVerified(): bool
+    {
+        return $this->isVerified;
+    }
+
+    public function setIsVerified(bool $isVerified): static
+    {
+        $this->isVerified = $isVerified;
+
+        return $this;
+    }
+
+    public function getLieuDeResidence(): ?string
+    {
+        return $this->lieuDeResidence;
+    }
+
+    public function setLieuDeResidence(?string $lieuDeResidence): static
+    {
+        $this->lieuDeResidence = $lieuDeResidence;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, BureauDeVote>
+     */
+    public function getBureauxPreferes(): Collection
+    {
+        return $this->bureauxPreferes;
+    }
+
+    public function addBureauxPrefere(BureauDeVote $bureauxPreferere): static
+    {
+        if (!$this->bureauxPreferes->contains($bureauxPreferere)) {
+            $this->bureauxPreferes->add($bureauxPreferere);
+        }
+
+        return $this;
+    }
+
+    public function removeBureauxPrefere(BureauDeVote $bureauxPreferere): static
+    {
+        $this->bureauxPreferes->removeElement($bureauxPreferere);
+
+        return $this;
     }
 
     #[ORM\Column(length: 180)]
@@ -118,12 +208,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+
+
+    private ?string $plainPassword = null;
+
+    public function getPlainPassword(): ?string
+    {
+        return $this->plainPassword;
+    }
+
+    public function setPlainPassword(?string $plainPassword): self
+    {
+        $this->plainPassword = $plainPassword;
+        return $this;
+    }
+
+
+
     /**
      * @see UserInterface
      */
     public function eraseCredentials(): void
     {
         // If you store any temporary, sensitive data on the user, clear it here
+        $this->plainPassword = null;
     }
 
     public function getNom(): ?string
@@ -158,5 +266,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->assignedBureau = $assignedBureau;
 
         return $this;
+    }
+
+    public function __toString()
+    {
+        return $this->getFullName();
+    }
+
+    public function getFullName(): string
+    {
+        return (string) $this->nom . ' ' . $this->prenom;
     }
 }

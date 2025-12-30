@@ -20,9 +20,10 @@ class BureauDeVoteCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('Bureau de vote')
+            ->setEntityLabelInSingular('un bureau de vote')
             ->setEntityLabelInPlural('Liste des bureaux de vote')
             ->setPaginatorPageSize(50)
+            ->setDefaultSort(['code' => 'ASC'])
             ->showEntityActionsInlined();
     }
 

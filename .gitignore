@@ -18,3 +18,9 @@
 /public/assets/
 /assets/vendor/
 ###< symfony/asset-mapper ###
+
+# Local Docker overrides
+compose.override.yaml
+
+# Data files
+centres_test.ods

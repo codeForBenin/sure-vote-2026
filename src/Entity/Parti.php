@@ -22,6 +22,12 @@ class Parti
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $logoUrl = null;
 
+    #[ORM\Column(length: 10, nullable: true)]
+    private ?string $couleur = null;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $affiliation = null;
+
     public function __construct()
     {
         $this->id = Uuid::v7();
@@ -31,24 +37,31 @@ class Parti
     {
         return $this->id;
     }
+
     public function getNom(): ?string
     {
         return $this->nom;
     }
+
     public function setNom(string $nom): self
     {
         $this->nom = $nom;
+
         return $this;
     }
+
     public function getSigle(): ?string
     {
         return $this->sigle;
     }
+
     public function setSigle(string $sigle): self
     {
         $this->sigle = $sigle;
+
         return $this;
     }
+
     public function getLogoUrl(): ?string
     {
         return $this->logoUrl;
@@ -57,5 +70,32 @@ class Parti
     {
         $this->logoUrl = $logoUrl;
         return $this;
+    }
+
+    public function getCouleur(): ?string
+    {
+        return $this->couleur;
+    }
+
+    public function setCouleur(?string $couleur): self
+    {
+        $this->couleur = $couleur;
+        return $this;
+    }
+
+    public function getAffiliation(): ?string
+    {
+        return $this->affiliation;
+    }
+
+    public function setAffiliation(?string $affiliation): self
+    {
+        $this->affiliation = $affiliation;
+        return $this;
+    }
+
+    public function __toString(): string
+    {
+        return $this->nom . ' (' . $this->sigle . ')';
     }
 }

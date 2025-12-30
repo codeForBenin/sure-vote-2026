@@ -25,4 +25,7 @@ return [
     '@hotwired/turbo' => [
         'version' => '7.3.0',
     ],
+    'html-to-image' => [
+        'version' => '1.11.13',
+    ],
 ];

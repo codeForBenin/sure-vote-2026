@@ -82,4 +82,13 @@ class BureauDeVote
         $this->centre = $centre;
         return $this;
     }
+
+    public function __toString(): string
+    {
+        $nom = $this->nom ?? 'Bureau sans nom';
+        $code = $this->code ?? 'N/A';
+        $centreNom = $this->centre ? $this->centre->getNom() : 'Centre inconnu';
+
+        return sprintf('%s (%s) - %s', $nom, $code, $centreNom);
+    }
 }

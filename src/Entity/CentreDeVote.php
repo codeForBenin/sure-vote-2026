@@ -105,4 +105,13 @@ class CentreDeVote
     {
         return $this->bureaux;
     }
+
+    public function __toString(): string
+    {
+        $nom = $this->nom ?? 'Centre sans nom';
+        $code = $this->code ?? 'N/A';
+        $circoNom = $this->circonscription ? $this->circonscription->getNom() : 'Circonscription inconnue';
+
+        return sprintf('%s (%s) - %s', $nom, $code, $circoNom);
+    }
 }

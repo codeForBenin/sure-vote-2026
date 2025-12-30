@@ -27,6 +27,15 @@ class Circonscription
     #[ORM\OneToMany(mappedBy: 'circonscription', targetEntity: CentreDeVote::class)]
     private Collection $centres;
 
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $departement = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $sieges = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $population = null;
+
     public function __construct()
     {
         $this->id = Uuid::v7();
@@ -70,5 +79,46 @@ class Circonscription
     public function getCentres(): Collection
     {
         return $this->centres;
+    }
+
+    public function getDepartement(): ?string
+    {
+        return $this->departement;
+    }
+
+    public function setDepartement(?string $departement): self
+    {
+        $this->departement = $departement;
+
+        return $this;
+    }
+
+    public function getSieges(): ?int
+    {
+        return $this->sieges;
+    }
+
+    public function setSieges(?int $sieges): self
+    {
+        $this->sieges = $sieges;
+
+        return $this;
+    }
+
+    public function getPopulation(): ?int
+    {
+        return $this->population;
+    }
+
+    public function setPopulation(?int $population): self
+    {
+        $this->population = $population;
+
+        return $this;
+    }
+
+    public function __toString(): string
+    {
+        return $this->nom . ' (' . $this->code . ')';
     }
 }

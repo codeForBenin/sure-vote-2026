@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accès Refusé - Sure Vote{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+    <div class="max-w-md w-full text-center">
+        <div class="h-24 w-24 bg-orange-50 text-orange-500 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+        </div>
+        
+        <h1 class="text-3xl font-black text-slate-900 mb-2">Accès Restreint</h1>
+        <p class="text-slate-600 mb-8 font-medium">
+            Désolé, vous n'avez pas les autorisations nécessaires pour accéder à cette page.<br>
+            <span class="text-sm text-slate-400 mt-2 block">Ceci est peut-être réservé aux administrateurs.</span>
+        </p>
+        
+        <div class="space-y-3">
+            <a href="{{ path('app_home') }}" class="block w-full bg-benin-green text-white font-bold py-4 rounded-xl shadow-lg hover:bg-benin-green/90 transition-all">
+                Retour à l'accueil
+            </a>
+            <a href="{{ path('app_logout') }}" class="block w-full bg-white border border-slate-200 text-slate-600 font-bold py-4 rounded-xl hover:bg-slate-50 transition-all">
+                Se déconnecter
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

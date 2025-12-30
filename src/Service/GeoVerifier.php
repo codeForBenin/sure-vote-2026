@@ -5,7 +5,7 @@ namespace App\Service;
 class GeoVerifier
 {
     /**
-     * Calcule la distance en mètres entre deux points (Haversine formula)
+     * Calcule la distance en mètres entre deux points (formule de Haversine)
      */
     public function calculateDistance(float $lat1, float $lon1, float $lat2, float $lon2): float
     {
@@ -23,7 +23,10 @@ class GeoVerifier
         return $earthRadius * $c;
     }
 
-    public function isWithinRange(float $userLat, float $userLon, float $targetLat, float $targetLon, float $maxDistance = 500): bool
+    /**
+     * Vérifie si un point est dans une distance maximale par rapport à un autre point en mètres --> 1000 mètres = 1 km
+     */
+    public function isWithinRange(float $userLat, float $userLon, float $targetLat, float $targetLon, float $maxDistance = 1000): bool
     {
         return $this->calculateDistance($userLat, $userLon, $targetLat, $targetLon) <= $maxDistance;
     }

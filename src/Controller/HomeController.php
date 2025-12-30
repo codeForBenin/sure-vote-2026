@@ -10,12 +10,52 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+use App\Repository\BureauDeVoteRepository;
+use App\Repository\ParticipationRepository;
+use App\Repository\ResultatRepository;
+use App\Repository\ElectionRepository;
+
 class HomeController extends AbstractController
 {
+    public function __construct(
+        private BureauDeVoteRepository $bureauDeVoteRepository,
+        private ParticipationRepository $participationRepository,
+        private ResultatRepository $resultatRepository
+    ) {
+    }
+
     #[Route('/', name: 'app_home')]
-    public function index(): Response
+    public function index(ElectionRepository $electionRepository): Response
     {
-        return $this->render('home/index.html.twig');
+        // 1. Calcul Participation Globale
+        $elections = $electionRepository->findAll();
+        $election = $elections[0] ?? null;
+
+        $totalInscrits = 0;
+        if ($election && $election->getNombreInscrits()) {
+            $totalInscrits = $election->getNombreInscrits();
+        } else {
+            $totalInscrits = $this->bureauDeVoteRepository->getTotalInscrits();
+        }
+
+        $totalVotantsResultats = $this->resultatRepository->getTotalVoix();
+        $totalVotantsParticipation = $this->participationRepository->getGlobalVotantsEstimate();
+
+        // On prend le max pour être cohérent avec l'admin
+        $totalVotants = max($totalVotantsResultats, $totalVotantsParticipation);
+
+        $pourcentageParticipation = 0;
+        if ($totalInscrits > 0) {
+            $pourcentageParticipation = round(($totalVotants / $totalInscrits) * 100, 1);
+        }
+
+        // 2. Calcul Bureaux Dépouillés (nombre absolu pour l'affichage public)
+        $bureauxDepouilles = $this->resultatRepository->countBureauxAvecResultats();
+
+        return $this->render('home/index.html.twig', [
+            'stat_participation' => $pourcentageParticipation,
+            'stat_depouilles' => $bureauxDepouilles,
+        ]);
     }
 
     #[Route('/handle-pv-download/{id}', name: 'app_handle_pv_download')]
@@ -47,5 +87,12 @@ class HomeController extends AbstractController
         );
 
         return $this->file($file);
+    }
+
+
+    #[Route('/projections', name: 'app_projections')]
+    public function projections(): Response
+    {
+        return $this->render('projections/index.html.twig');
     }
 }

@@ -1,193 +1,215 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Tableau de Bord - Assesseur{% endblock %}
+{% block title %}Tableau de Bord - Assesseur
+{% endblock %}
+
 
 {% block body %}
 <div class="min-h-screen bg-slate-50">
-    <nav class="bg-white border-b border-slate-100">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-20 items-center">
-                <div class="flex items-center">
-                    <span class="text-2xl font-black text-slate-900 tracking-tighter">SURE<span class="text-benin-green">VOTE</span></span>
-                    <span class="ml-4 px-2 py-1 bg-benin-green/10 text-benin-green text-xs font-bold rounded uppercase">Espace Assesseur</span>
-                </div>
-                <div class="flex items-center gap-4">
-                    <span class="text-sm text-slate-500 font-medium">{{ app.user.nom }} {{ app.user.prenom }}</span>
-                    <a href="{{ path('app_logout') }}" class="text-sm font-bold text-red-600 hover:text-red-700">Déconnexion</a>
-                </div>
-            </div>
-        </div>
-    </nav>
+	<nav class="bg-white border-b border-slate-100">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="flex justify-between h-20 items-center">
+				<div class="flex items-center">
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        {% for message in app.flashes('success') %}
-            <div class="mb-8 p-4 bg-benin-green/20 border border-benin-green/40 rounded-2xl flex items-center gap-3 text-benin-green animate-fade-in-down">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div class="font-bold">{{ message }}</div>
-            </div>
-        {% endfor %}
+<a href="{{path('app_home')}}">
 
-        <!-- Messages de la Direction (Broadcast) -->
-        {% for message in messages %}
-            <div class="mb-6 p-5 rounded-2xl flex items-start gap-4 shadow-sm border animate-bounce-in
-                {% if message.type == 'URGENT' %}
-                    bg-red-50 border-red-200 text-red-900
-                {% elseif message.type == 'IMPORTANT' %}
-                    bg-orange-50 border-orange-200 text-orange-900
-                {% else %}
-                    bg-blue-50 border-blue-200 text-blue-900
-                {% endif %}">
-                
-                <div class="shrink-0 pt-0.5">
-                    {% if message.type == 'URGENT' %}
-                        <div class="p-2 bg-red-100 text-red-600 rounded-lg animate-pulse">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                            </svg>
-                        </div>
-                    {% else %}
-                        <div class="p-2 bg-white/60 text-current rounded-lg">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                    {% endif %}
-                </div>
-                <div class="flex-1">
-                    <div class="flex justify-between items-start">
-                        <h4 class="font-black text-sm uppercase mb-1 tracking-wide">{{ message.titre }}</h4>
-                        <span class="text-[10px] bg-black/5 px-2 py-1 rounded font-mono opacity-80">{{ message.createdAt|date('H:i') }}</span>
-                    </div>
-                    <p class="text-sm font-medium leading-relaxed opacity-90">{{ message.message|nl2br }}</p>
-                </div>
-            </div>
-        {% endfor %}
 
-        <div class="grid lg:grid-cols-3 gap-8">
-            <!-- Bureau de Vote Info -->
-            <div class="lg:col-span-2 space-y-8">
-                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
-                    <div class="flex justify-between items-start mb-6">
-                        <div>
-                            <h2 class="text-xs font-black text-benin-green uppercase tracking-widest mb-2">Bureau de Vote</h2>
-                            <h1 class="text-4xl font-black text-slate-900">{{ bureau.nom }}</h1>
-                            <p class="text-slate-500 mt-2 font-medium">{{ bureau.centre.nom }} — {{ bureau.centre.circonscription.nom }}</p>
-                        </div>
-                        <div class="bg-slate-900 text-white px-4 py-2 rounded-xl font-mono font-bold">
-                            #{{ bureau.code }}
-                        </div>
-                    </div>
+	<span class="text-2xl font-black text-slate-900 tracking-tighter">SURE<span class="text-benin-green">VOTE</span>
+	</span>
+</a>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
-                        <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100">
-                            <div class="text-3xl font-black text-slate-900">{{ bureau.nombreInscrits }}</div>
-                            <div class="text-xs font-bold text-slate-400 uppercase mt-1">Électeurs Inscrits</div>
-                        </div>
-                        <div class="p-6 bg-benin-yellow/10 rounded-2xl border border-benin-yellow/20">
-                            <div class="text-3xl font-black text-benin-yellow-600">{{ nombreVotants }}</div>
-                            <div class="text-xs font-bold text-benin-yellow-600/60 uppercase mt-1">Votants ({{ tauxParticipation }}%)</div>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Actions -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-                    <a href="{{ path('app_assesseur_participation') }}" class="group bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 hover:border-benin-green transition-all hover:shadow-xl hover:shadow-benin-green/5">
-                        <div class="h-14 w-14 bg-benin-green/10 text-benin-green rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-bold text-slate-900 mb-2">Pointer Participation</h3>
-                        <p class="text-slate-500 text-sm leading-relaxed">Enregistrez un nouvel électeur ayant voté pour mettre à jour le taux de participation.</p>
-                    </a>
+<span class="ml-4 px-2 py-1 bg-benin-green/10 text-benin-green text-xs font-bold rounded uppercase">Espace Assesseur</span></div><div class="flex items-center gap-4">
 
-                    {% if isVoteComplet|default(false) %}
-                        <div class="group opacity-50 cursor-not-allowed bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 relative overflow-hidden">
-                            <div class="absolute inset-0 bg-slate-50/50 backdrop-blur-[1px] flex items-center justify-center z-10">
-                                <span class="bg-slate-900 text-white px-4 py-2 rounded-xl font-bold text-sm shadow-xl transform -rotate-3">COMPLET</span>
-                            </div>
-                            <div class="h-14 w-14 bg-benin-red/10 text-benin-red rounded-2xl flex items-center justify-center mb-6">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
-                            </div>
-                            <h3 class="text-xl font-bold text-slate-900 mb-2">Saisie des Résultats</h3>
-                            <p class="text-slate-500 text-sm leading-relaxed">Le nombre total de voix enregistrées correspond au nombre d'inscrits.</p>
-                        </div>
-                    {% else %}
-                        <a href="{{ path('app_assesseur_resultat') }}" class="group bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 hover:border-benin-red transition-all hover:shadow-xl hover:shadow-benin-red/5">
-                            <div class="h-14 w-14 bg-benin-red/10 text-benin-red rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
-                            </div>
-                            <h3 class="text-xl font-bold text-slate-900 mb-2">Saisie des Résultats</h3>
-                            <p class="text-slate-500 text-sm leading-relaxed">Saisir un résultat de procès-verbal pour un parti.</p>
-                        </a>
-                    {% endif %}
-                </div>
-            </div>
+<a href="{{path('app_home')}}">Accueil
+</a>
 
-            <!-- Aide & Stats -->
-            <div class="space-y-8">
-                <!-- Observations -->
-                <a href="{{ path('app_assesseur_observations') }}" class="group bg-slate-800 p-6 rounded-[2rem] shadow-lg border border-slate-700 hover:bg-slate-700 transition-all flex items-center justify-between mt-6">
-                    <div class="flex items-center gap-5">
-                        <div class="h-12 w-12 bg-white/10 text-white rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-bold text-white mb-1">Journal des Observations</h3>
-                            <p class="text-slate-400 text-xs">Signaler un incident ou une remarque</p>
-                        </div>
-                    </div>
-                    <div class="h-10 w-10 rounded-full bg-white/5 flex items-center justify-center text-white/50 group-hover:bg-white/20 group-hover:text-white transition-all">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                </a>
-                <div class="bg-slate-900 text-white p-8 rounded-[2.5rem] shadow-xl">
-                    <h3 class="text-lg font-bold mb-6">Résumé de la journée</h3>
-                    <div class="space-y-6">
-                        <div class="flex justify-between items-center border-b border-white/10 pb-4">
-                            <span class="text-white/60 text-sm">Ouverture</span>
-                            <span class="font-mono font-bold">07:00</span>
-                        </div>
-                        <div class="flex justify-between items-center border-b border-white/10 pb-4">
-                            <span class="text-white/60 text-sm">Fermeture théorique</span>
-                            <span class="font-mono font-bold">16:00</span>
-                        </div>
-                        <div class="pt-2">
-                            <div class="flex justify-between text-xs font-bold uppercase tracking-wider text-white/40 mb-2">
-                                <span>Taux de participation</span>
-                                <span class="font-mono font-bold text-benin-green text-xl">{{ tauxParticipation }}%</span>
-                            </div>
-                            <div class="h-2 bg-white/10 rounded-full overflow-hidden">
-                                <div class="h-full bg-benin-green transition-all duration-1000" style="width: {{ tauxParticipation }}%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="bg-benin-yellow/10 border border-benin-yellow/20 p-8 rounded-[2.5rem]">
-                    <h3 class="font-bold text-benin-yellow-800 mb-4 flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                        </svg>
-                        Rappel Sécurité
-                    </h3>
-                    <p class="text-sm text-benin-yellow-900/70 leading-relaxed">
-                        Chaque pointage est géolocalisé. Assurez-vous d'être présent dans le centre de vote au moment de l'enregistrement.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </main>
+<span class="text-sm text-slate-500 font-medium">{{ app.user.nom }}
+	{{ app.user.prenom }}</span>
+<a href="{{ path('app_logout') }}" class="text-sm font-bold text-red-600 hover:text-red-700">Déconnexion</a></div></div></div></nav>
+
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+{% include 'partials/_flash_messages.html.twig' %}
+
+
+
+<!-- Messages de la Direction (Broadcast) -->
+{% for message in messages %}
+	<div class="mb-6 p-5 rounded-2xl flex items-start gap-4 shadow-sm border animate-bounce-in
+									                {% if message.type == 'URGENT' %}
+									                    bg-red-50 border-red-200 text-red-900
+									                {% elseif message.type == 'IMPORTANT' %}
+									                    bg-orange-50 border-orange-200 text-orange-900
+									                {% else %}
+									                    bg-blue-50 border-blue-200 text-blue-900
+									                {% endif %}">
+
+		<div class="shrink-0 pt-0.5">
+			{% if message.type == 'URGENT' %}
+				<div class="p-2 bg-red-100 text-red-600 rounded-lg animate-pulse">
+
+<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewbox="0 0 24 24" stroke="currentColor">
+	<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+</svg></div>{% else %}<div class="p-2 bg-white/60 text-current rounded-lg">
+
+<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewbox="0 0 24 24" stroke="currentColor">
+	<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+</svg></div>{% endif %}</div><div class="flex-1"><div class="flex justify-between items-start"><h4 class="font-black text-sm uppercase mb-1 tracking-wide">{{ message.titre }}</h4><span class="text-[10px] bg-black/5 px-2 py-1 rounded font-mono opacity-80">{{ message.createdAt|date('H:i') }}</span></div><p class="text-sm font-medium leading-relaxed opacity-90">{{ message.message|nl2br }}</p></div></div>{% endfor %}
+
+
+<div
+	class="grid lg:grid-cols-3 gap-8">
+	<!-- Bureau de Vote Info -->
+	<div class="lg:col-span-2 space-y-8">
+		<div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+			<div class="flex justify-between items-start mb-6">
+				<div>
+					<h2 class="text-xs font-black text-benin-green uppercase tracking-widest mb-2">Bureau de Vote</h2>
+					<h1 class="text-4xl font-black text-slate-900">{{ bureau.nom }}</h1>
+
+<p class="text-slate-500 mt-2 font-medium">{{ bureau.centre.nom }}
+	—
+	{{ bureau.centre.circonscription.nom }}</p></div><div class="bg-slate-900 text-white px-4 py-2 rounded-xl font-mono font-bold">
+#{{ bureau.code }}</div></div>
+
+
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
+	<div class="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+		<div class="text-3xl font-black text-slate-900">{{ bureau.nombreInscrits }}</div>
+		<div class="text-xs font-bold text-slate-400 uppercase mt-1">Électeurs Inscrits</div>
+	</div>
+	<div class="p-6 bg-benin-yellow/10 rounded-2xl border border-benin-yellow/20">
+		<div class="text-3xl font-black text-benin-yellow-600">{{ nombreVotants }}</div>
+		<div class="text-xs font-bold text-benin-yellow-600/60 uppercase mt-1">Votants ({{ tauxParticipation }}%)</div>
+	</div>
+</div></div>
+
+
+<!-- Actions -->
+
+<div class="space-y-6 mb-8">
+	<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+		<a href="{{ path('app_assesseur_participation') }}" class="group bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 hover:border-benin-green transition-all hover:shadow-xl hover:shadow-benin-green/5">
+			<div class="h-14 w-14 bg-benin-green/10 text-benin-green rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+
+<svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewbox="0 0 24 24" stroke="currentColor">
+	<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+</svg></div><h3 class="text-xl font-bold text-slate-900 mb-2">Pointer Participation</h3><p class="text-slate-500 text-sm leading-relaxed">Enregistrez un nouvel électeur ayant voté pour mettre à jour le taux de participation.</p></a>
+
+{% if not isSaisieOuverte|default(true) %}
+	<div class="group opacity-75 cursor-not-allowed bg-slate-100 p-8 rounded-[2rem] shadow-inner border border-slate-200">
+		<div class="h-14 w-14 bg-slate-300 text-slate-500 rounded-2xl flex items-center justify-center mb-6">
+			<svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewbox="0 0 24 24" stroke="currentColor">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+			</svg>
+		</div>
+
+
+<h3 class="text-xl font-bold text-slate-500 mb-2">Saisie Fermée</h3>
+<p class="text-slate-400 text-sm leading-relaxed">Le délai de transmission des résultats est dépassé.</p></div>{% elseif isVoteComplet|default(false) %}<div class="group opacity-50 cursor-not-allowed bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 relative overflow-hidden">
+<div class="absolute inset-0 bg-slate-50/50 backdrop-blur-[1px] flex items-center justify-center z-10">
+	<span class="bg-slate-900 text-white px-4 py-2 rounded-xl font-bold text-sm shadow-xl transform -rotate-3">COMPLET</span>
 </div>
+<div class="h-14 w-14 bg-benin-red/10 text-benin-red rounded-2xl flex items-center justify-center mb-6">
+
+<svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewbox="0 0 24 24" stroke="currentColor">
+	<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+</svg></div><h3 class="text-xl font-bold text-slate-900 mb-2">Saisie des Résultats</h3><p class="text-slate-500 text-sm leading-relaxed">Le nombre total de voix enregistrées correspond au nombre d'inscrits.</p></div>{% else %}
+
+<a href="{{ path('app_assesseur_saisie_resultats') }}" class="group bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 hover:border-benin-red transition-all hover:shadow-xl hover:shadow-benin-red/5">
+	<div class="h-14 w-14 bg-benin-red/10 text-benin-red rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+
+<svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewbox="0 0 24 24" stroke="currentColor">
+	<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+</svg></div><h3 class="text-xl font-bold text-slate-900 mb-2">Saisie des Résultats</h3>
+
+<p class="text-slate-500 text-sm leading-relaxed">Saisir un résultat de procès-verbal pour l'ensemble des partis en lice .</p></a>{% endif %}</div>{% if mesResultats is defined and mesResultats|length > 0 %}<div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-8 mt-8"><div class="flex items-center justify-between mb-6">
+<h3 class="font-black text-slate-900 text-lg">Résultats Enregistrés</h3>
+<span class="bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1 rounded-full">{{ mesResultats|length }}
+	listes</span></div><div class="flex gap-2 overflow-x-auto pb-4 mb-4">
+{% for res in mesResultats %}
+	<div class="flex-shrink-0 flex flex-col items-center gap-2 p-3 bg-slate-50 rounded-xl min-w-[80px]">
+		<div class="h-8 w-8 rounded-full flex items-center justify-center text-[10px] font-black text-white shadow-sm" style="background-color: {{ res.parti.couleur }}">
+			{{ res.parti.sigle }}
+		</div>
+
+		<span class="font-black text-slate-900">{{ res.nombreVoix }}</span>
+	</div>
+
+{% endfor %}</div>{% if isSaisieOuverte|default(true) %}
+<a href="{{ path('app_assesseur_saisie_resultats') }}" class="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-slate-900/10 hover:shadow-slate-900/20 transform hover:-translate-y-0.5">
+	<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewbox="0 0 20 20" fill="currentColor">
+		<path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+	</svg>
+	Modifier l'ensemble des résultats
+</a>
+
+{% else %}
+
+<div class="w-full py-3 bg-slate-100 text-slate-400 rounded-xl text-sm font-bold text-center border-2 border-dashed border-slate-200 cursor-not-allowed">
+	Modifications Verrouillées
+</div>
+
+
+{% endif %}
+
+</div>{% endif %}
+
+
+</div></div>
+
+
+<!-- Aide & Stats -->
+
+<div
+	class="space-y-8">
+	<!-- Observations -->
+	<a href="{{ path('app_assesseur_observations') }}" class="group bg-slate-800 p-6 rounded-[2rem] shadow-lg border border-slate-700 hover:bg-slate-700 transition-all flex items-center justify-between mt-6">
+		<div class="flex items-center gap-5">
+			<div class="h-12 w-12 bg-white/10 text-white rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+
+<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewbox="0 0 24 24" stroke="currentColor">
+	<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+</svg></div><div>
+<h3 class="text-lg font-bold text-white mb-1">Journal des Observations</h3>
+<p class="text-slate-400 text-xs">Signaler un incident ou une remarque</p></div></div><div class="h-10 w-10 rounded-full bg-white/5 flex items-center justify-center text-white/50 group-hover:bg-white/20 group-hover:text-white transition-all">
+
+<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewbox="0 0 20 20" fill="currentColor">
+	<path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+</svg></div></a><div class="bg-slate-900 text-white p-8 rounded-[2.5rem] shadow-xl"><h3 class="text-lg font-bold mb-6">Résumé de la journée</h3><div class="space-y-6">
+<div class="flex justify-between items-center border-b border-white/10 pb-4">
+	<span class="text-white/60 text-sm">Ouverture</span>
+	<span class="font-mono font-bold">07:00</span>
+</div>
+<div class="flex justify-between items-center border-b border-white/10 pb-4">
+	<span class="text-white/60 text-sm">Fermeture théorique</span>
+
+<span class="font-mono font-bold">
+	{% if election is defined and election and election.heureFermeture %}
+		{{ election.heureFermeture|date('H:i') }}
+	{% else %}
+		16:00
+	{% endif %}
+</span></div><div class="pt-2">
+<div class="flex justify-between text-xs font-bold uppercase tracking-wider text-white/40 mb-2">
+	<span>Taux de participation</span>
+	<span class="font-mono font-bold text-benin-green text-xl">{{ tauxParticipation }}%</span>
+</div>
+<div class="h-2 bg-white/10 rounded-full overflow-hidden">
+	<div class="h-full bg-benin-green transition-all duration-1000" style="width: {{ tauxParticipation }}%"></div>
+</div></div></div></div>
+
+
+<div class="bg-benin-yellow/10 border border-benin-yellow/20 p-8 rounded-[2.5rem]">
+	<h3 class="font-bold text-benin-yellow-800 mb-4 flex items-center gap-2">
+
+<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewbox="0 0 20 20" fill="currentColor">
+	<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+</svg>
+Rappel Sécurité</h3><p class="text-sm text-benin-yellow-900/70 leading-relaxed">
+Chaque pointage est géolocalisé. Assurez-vous d'être présent dans le centre de vote au moment de l'enregistrement.</p></div></div></div></main></div>
+
 {% endblock %}

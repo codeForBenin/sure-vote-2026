@@ -1,0 +1,20 @@
+<nav class="bg-white border-b border-slate-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-20 items-center">
+            <div class="flex items-center">
+                <a href="{{ path('app_home') }}" class="text-2xl font-black text-slate-900 tracking-tighter hover:opacity-80 transition-opacity">SURE<span class="text-benin-green">VOTE</span></a>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="{{ path('app_projections') }}" class="bg-benin-green text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-benin-green/20 hover:bg-benin-green/90 transition-all">Projections</a>
+                {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                    {% set console_path = is_granted('ROLE_ADMIN') ? path('admin') : path('app_assesseur_dashboard') %}
+                    {% set console_name = is_granted('ROLE_ADMIN') ? 'Espace Admin' : 'Espace Assesseur' %}
+                    <a href="{{ console_path }}" class="text-sm font-semibold text-slate-600 hover:text-benin-green transition-colors">{{ console_name }}</a>
+                    <a href="{{ path('app_logout') }}" class="bg-red-50 text-red-600 px-4 py-2 rounded-xl text-sm font-bold hover:bg-red-100 transition-colors">Déconnexion</a>
+                {% else %}
+                    <a href="{{ path('app_login') }}" class="text-sm font-semibold text-slate-600 hover:text-benin-green transition-colors">Connexion</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>

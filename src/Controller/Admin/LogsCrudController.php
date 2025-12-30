@@ -51,6 +51,9 @@ class LogsCrudController extends AbstractCrudController
                         'PV_DOWNLOAD' => 'info',
                         'EXPORT_PARTICIPATION', 'EXPORT_RESULTAT' => 'warning',
                         'IMPORT_CIRCONSCRIPTIONS' => 'primary',
+                        'ACCESS_DENIED' => 'danger',
+                        'IMPORT_CENTRES' => 'primary',
+                        'ERREUR_SYSTEME' => 'warning',
                         default => 'secondary'
                     };
                     return sprintf('<span class="badge badge-%s">%s</span>', $color, $value);

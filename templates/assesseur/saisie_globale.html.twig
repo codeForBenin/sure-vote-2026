@@ -1,0 +1,121 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Saisie des Résultats -
+	{{ managedBureau.nom }}
+{% endblock %}
+
+{% block body %}
+	{% include 'partials/_header.html.twig' %}
+
+	<main class="max-w-4xl mx-auto px-4 py-12">
+		{% include 'partials/_flash_messages.html.twig' %}
+
+		<div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+			<div class="bg-slate-50 border-b border-slate-100 p-8 text-center">
+				<div class="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-white shadow-sm mb-4 text-2xl">🗳️</div>
+				<h1 class="text-2xl font-black text-slate-900 mb-2">Saisie des Résultats</h1>
+				<p class="text-slate-500 font-medium text-lg">
+					Bureau :
+					<span class="text-slate-900 font-bold">{{ managedBureau.nom }}</span>
+					<span class="px-2 py-0.5 bg-slate-200 rounded text-xs ml-2 font-mono">{{ managedBureau.code }}</span>
+				</p>
+			</div>
+
+			<div
+				class="p-8 md:p-12" {{ stimulus_controller('vote-counter', { inscrits: managedBureau.nombreInscrits } ) }}>
+
+				{# Erreurs Globales du Formulaire #}
+				<div class="mb-6">
+					{{ form_errors(form) }}
+				</div>
+
+				{{ form_start(form, {'attr': {'class': 'space-y-10'}}) }}
+
+				{# Section PV #}
+				<div class="p-6 bg-blue-50 border border-blue-100 rounded-3xl">
+					<h2 class="text-lg font-black text-blue-900 mb-4 flex items-center gap-2">
+						<i class="fas fa-camera text-blue-500"></i>
+						Photo du Procès-Verbal (PV)
+					</h2>
+					{% if existingPvName %}
+						<div class="mb-6 flex items-center gap-4 bg-white p-4 rounded-xl border border-blue-100 shadow-sm">
+							<div class="h-16 w-16 bg-slate-100 rounded-lg overflow-hidden shrink-0 relative">
+								<img src="{{ asset('uploads/pv/' ~ existingPvName) }}" class="w-full h-full object-cover">
+							</div>
+							<div>
+								<div class="text-xs font-bold text-blue-400 uppercase tracking-wide">Fichier actuel</div>
+								<div class="text-sm font-bold text-slate-700 truncate max-w-[200px]">{{ existingPvName }}</div>
+								<div class="text-xs text-slate-400">Sélectionnez un fichier pour le remplacer.</div>
+							</div>
+						</div>
+					{% endif %}
+					<div class="form-group">
+						{{ form_widget(form.pvImageFile, {'attr': {'class': 'block w-full text-sm text-slate-500 file:mr-4 file:py-3 file:px-6 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer'}}) }}
+						{{ form_errors(form.pvImageFile) }}
+					</div>
+				</div>
+
+				<hr
+				class="border-slate-100">
+
+				{# Section Votes #}
+				<div>
+					<h2 class="text-xl font-black text-slate-900 mb-6 flex items-center gap-2">
+						<i class="fas fa-list-ol text-benin-green"></i>
+						Suffrages par Parti
+					</h2>
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+						{% for child in form %}
+							{% if child.vars.name starts with 'parti_' %}
+								<div class="bg-white border-2 border-slate-100 rounded-2xl p-4 hover:border-slate-300 transition-colors focus-within:border-benin-green focus-within:ring-4 focus-within:ring-benin-green/10" style="border-left-color: {{ child.vars.attr['data-parti-color'] }}; border-left-width: 6px;">
+									<div class="flex items-center justify-between mb-2">
+										<label for="{{ child.vars.id }}" class="font-bold text-slate-700 block select-none cursor-pointer flex-1">
+											{{ child.vars.label }}
+										</label>
+										<div class="h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-black text-white" style="background-color: {{ child.vars.attr['data-parti-color'] }}">
+											{{ child.vars.attr['data-parti-sigle'] }}
+										</div>
+									</div>
+									{{ form_widget(child, {'attr': {
+                                        'class': 'w-full text-3xl font-black px-6 py-4 rounded-2xl border-2 border-slate-100 focus:border-benin-green outline-none text-right',
+                                        'data-vote-counter-target': 'input',
+                                        'type': 'number'
+                                    }}) }}
+									{{ form_errors(child) }}
+								</div>
+							{% endif %}
+						{% endfor %}
+					</div>
+				</div>
+
+				{# Total Verification Box #}
+				<div class="bg-slate-800 text-white p-6 rounded-2xl flex items-center justify-between sticky bottom-4 shadow-xl z-20">
+					<div>
+						<div class="text-xs uppercase tracking-widest text-slate-400 font-bold mb-1">Total Voix Saisies</div>
+						<div class="text-3xl font-black font-mono">
+							<span data-vote-counter-target="displayTotal">0</span>
+							<span class="text-slate-500 text-lg">/
+								{{ managedBureau.nombreInscrits }}</span>
+						</div>
+					</div>
+					<div data-vote-counter-target="warning" class="hidden text-red-400 font-bold text-sm bg-red-900/30 px-4 py-2 rounded-lg border border-red-500/30">
+						<i class="fas fa-exclamation-circle mr-2"></i>
+						Dépassement du nombre d'inscrits !
+					</div>
+				</div>
+
+				<div class="pt-6">
+					<button type="submit" data-vote-counter-target="submitButton" class="w-full py-4 px-6 bg-benin-green hover:bg-green-700 text-white rounded-2xl font-black text-lg shadow-lg shadow-benin-green/20 transform hover:-translate-y-1 transition-all flex items-center justify-center gap-3">
+						<i class="fas fa-paper-plane"></i>
+						Enregistrer les Résultats
+					</button>
+					<p class="text-center text-xs text-slate-400 mt-4">
+						En cliquant sur enregistrer, vous certifiez l'exactitude des données saisies conformément au procès-verbal.
+					</p>
+				</div>
+
+				{{ form_end(form) }}
+			</div>
+		</div>
+	</main>
+{% endblock %}

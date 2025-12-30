@@ -1,0 +1,39 @@
+{% for label, messages in app.flashes %}
+    {% for message in messages %}
+        {% set bgColor = 'bg-blue-50' %}
+        {% set textColor = 'text-blue-800' %}
+        {% set borderColor = 'border-blue-400' %}
+        {% set icon = 'info-circle' %}
+
+        {% if label == 'success' %}
+            {% set bgColor = 'bg-green-50' %}
+            {% set textColor = 'text-green-800' %}
+            {% set borderColor = 'border-green-400' %}
+            {% set icon = 'check-circle' %}
+        {% elseif label == 'error' or label == 'danger' %}
+            {% set bgColor = 'bg-red-50' %}
+            {% set textColor = 'text-red-800' %}
+            {% set borderColor = 'border-red-400' %}
+            {% set icon = 'exclamation-circle' %}
+        {% elseif label == 'warning' %}
+            {% set bgColor = 'bg-yellow-50' %}
+            {% set textColor = 'text-yellow-800' %}
+            {% set borderColor = 'border-yellow-400' %}
+            {% set icon = 'exclamation-triangle' %}
+        {% endif %}
+
+        <div class="rounded-md {{ bgColor }} p-4 mb-4 border-l-4 {{ borderColor }} shadow-sm relative" role="alert">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-{{ icon }} {{ textColor }}"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium {{ textColor }}">
+                        {{ message|raw }}
+                    </p>
+                </div>
+                {# Bouton de fermeture optionnel (via JS/Stimulus si besoin, ici simple layout) #}
+            </div>
+        </div>
+    {% endfor %}
+{% endfor %}

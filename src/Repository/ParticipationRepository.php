@@ -26,4 +26,30 @@ class ParticipationRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    public function getGlobalVotantsEstimate(): int
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = '
+            SELECT SUM(b_max.votants_estimes) as total
+            FROM (
+                SELECT 
+                    b.id,
+                    GREATEST(
+                        COALESCE((SELECT MAX(p.nombre_votants) FROM participation p WHERE p.bureau_de_vote_id = b.id), 0),
+                        COALESCE((SELECT SUM(r.nombre_voix) FROM resultat r WHERE r.bureau_de_vote_id = b.id), 0)
+                    ) as votants_estimes
+                FROM bureau_de_vote b
+            ) as b_max
+        ';
+
+        try {
+            $result = $conn->executeQuery($sql)->fetchOne();
+            return (int) $result;
+        } catch (\Exception $e) {
+            return 0;
+        }
+    }
+
 }

@@ -6,11 +6,14 @@ use App\Entity\Participation;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
 class ParticipationCrudController extends AbstractCrudController
 {
@@ -47,6 +50,15 @@ class ParticipationCrudController extends AbstractCrudController
             // Keep delete for admin cleanup if needed
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->add(Crud::PAGE_INDEX, $exportAction);
+    }
+
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add(EntityFilter::new('bureauDeVote', 'Bureau de Vote'))
+            ->add(EntityFilter::new('assesseur', 'Assesseur'))
+            ->add(DateTimeFilter::new('heurePointage', 'Heure du pointage'))
+        ;
     }
 
     public function configureFields(string $pageName): iterable

@@ -110,7 +110,7 @@ body {
 }
 
 .sidebar i {
-    color: rgba(255, 255, 255, 0.5) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
 }
 
 .sidebar .menu-item {
@@ -130,6 +130,9 @@ body {
 
 .sidebar .menu-item.active i {
     color: var(--benin-green) !important;
+}
+.content-wrapper {
+    margin: auto !important;
 }
 
 /* Header & Typography */
@@ -155,4 +158,117 @@ body {
 
 .text-benin-red {
     color: var(--benin-red);
+}
+/* Animations */
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: .5;
+    }
+}
+
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Urgent Alerts Styles (Replica of Tailwind logic) */
+.dashboard-section-urgent {
+    background-color: #fef2f2;
+    /* bg-red-50 */
+    border: 1px solid #fee2e2;
+    /* border-red-100 */
+    border-radius: 1rem;
+    /* rounded-2xl approx */
+    padding: 1.5rem;
+    /* p-6 */
+    margin-bottom: 2rem;
+    /* mb-8 */
+}
+
+.dashboard-section-urgent h3 {
+    font-size: 1.25rem;
+    /* text-xl */
+    font-weight: 700;
+    /* font-bold */
+    color: #991b1b;
+    /* text-red-800 */
+    margin-bottom: 1rem;
+    /* mb-4 */
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.alert-card {
+    background-color: white;
+    padding: 1rem;
+    /* p-4 */
+    border-radius: 0.75rem;
+    /* rounded-xl */
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    /* shadow-sm */
+    border-left: 4px solid #ef4444;
+    /* border-l-red-500 */
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+    /* space-y-3 approx */
+}
+
+
+
+.alert-card .content p.title {
+    font-weight: 700;
+    /* font-bold */
+    color: #1f2937;
+    /* text-gray-800 */
+    margin: 0;
+}
+
+.alert-card .content p.meta {
+    font-size: 0.75rem;
+    /* text-xs */
+    color: #6b7280;
+    /* text-gray-500 */
+    margin-top: 0.25rem;
+    margin-bottom: 0;
+}
+
+.alert-card .time-badge {
+    font-size: 0.75rem;
+    /* text-xs */
+    font-family: monospace;
+    /* font-mono */
+    background-color: #fee2e2;
+    /* bg-red-100 */
+    color: #b91c1c;
+    /* text-red-700 */
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    white-space: nowrap;
+    margin-left: 1rem;
+}
+
+.view-all-link {
+    display: block;
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.875rem;
+    /* text-sm */
+    font-weight: 700;
+    /* font-bold */
+    color: #dc2626;
+    /* text-red-600 */
+    text-decoration: underline;
+}
+
+.view-all-link:hover {
+    color: #991b1b;
+    /* text-red-800 */
 }

@@ -12,4 +12,12 @@ class BureauDeVoteRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, BureauDeVote::class);
     }
+
+    public function getTotalInscrits(): int
+    {
+        return (int) $this->createQueryBuilder('b')
+            ->select('SUM(b.nombreInscrits)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }
