@@ -30,4 +30,6 @@ centres_test.ods
 ###> user content ###
 /public/uploads/pv/*
 !/public/uploads/pv/.gitignore
+/public/uploads/logos/*
+!/public/uploads/logos/.gitignore
 ###< user content ###
