@@ -4,10 +4,8 @@
 
 {% block body %}
 
-{% include 'partials/_header.html.twig' %}
 
     <main class="max-w-3xl mx-auto px-4 py-12">
-{% include 'partials/_flash_messages.html.twig' %}
         <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-100">
             <div class="mb-10 text-center">
                 <div class="h-20 w-20 bg-benin-green/10 text-benin-green rounded-3xl flex items-center justify-center mx-auto mb-6">
@@ -33,7 +31,11 @@
                     <div>
                         {{ form_label(form.nombreVotants, null, {'label_attr': {'class': 'block text-sm font-black text-slate-400 uppercase tracking-widest mb-4 text-center'}}) }}
                         {{ form_widget(form.nombreVotants) }}
-                        {{ form_errors(form.nombreVotants) }}
+                        {% for error in form.nombreVotants.vars.errors %}
+                            <div class="text-sm font-bold text-red-500 mt-2 text-center bg-red-50 border border-red-100 p-2 rounded-lg">
+                                <i class="fas fa-exclamation-triangle mr-1"></i> {{ error.message }}
+                            </div>
+                        {% endfor %}
                         <p class="text-xs text-slate-400 mt-4 text-center">Indiquez le nombre total d'émargements constatés sur la liste électorale à cet instant.</p>
                     </div>
 

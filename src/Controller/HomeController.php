@@ -32,7 +32,7 @@ class HomeController extends AbstractController
         $election = $elections[0] ?? null;
 
         $totalInscrits = 0;
-        if ($election && $election->getNombreInscrits()) {
+        if ($election?->getNombreInscrits()) {
             $totalInscrits = $election->getNombreInscrits();
         } else {
             $totalInscrits = $this->bureauDeVoteRepository->getTotalInscrits();
@@ -46,7 +46,7 @@ class HomeController extends AbstractController
 
         $pourcentageParticipation = 0;
         if ($totalInscrits > 0) {
-            $pourcentageParticipation = round(($totalVotants / $totalInscrits) * 100, 1);
+            $pourcentageParticipation = floor(($totalVotants / $totalInscrits) * 100 * 10) / 10;
         }
 
         // 2. Calcul Bureaux Dépouillés (nombre absolu pour l'affichage public)
@@ -55,10 +55,11 @@ class HomeController extends AbstractController
         return $this->render('home/index.html.twig', [
             'stat_participation' => $pourcentageParticipation,
             'stat_depouilles' => $bureauxDepouilles,
+            'total_bureaux' => $this->bureauDeVoteRepository->count([])
         ]);
     }
 
-    #[Route('/handle-pv-download/{id}', name: 'app_handle_pv_download')]
+    #[Route('/pv-download/{id}', name: 'app_pv_download')]
     public function handlePvDownload($id, EntityManagerInterface $entityManagerInterface, RequestStack $requestStack, LogsRepository $logsRepository): Response
     {
         $resultat = $entityManagerInterface->getRepository(Resultat::class)->find($id);
@@ -94,5 +95,71 @@ class HomeController extends AbstractController
     public function projections(): Response
     {
         return $this->render('projections/index.html.twig');
+    }
+
+    #[Route('/informations', name: 'app_infos')]
+    public function infos(ElectionRepository $electionRepository): Response
+    {
+        $elections = $electionRepository->findAll();
+        $election = $elections[0] ?? null;
+
+        return $this->render('home/infos.html.twig', [
+            'election' => $election
+        ]);
+    }
+
+    #[Route('/stats/participation', name: 'app_stats_participation')]
+    public function stats(
+        ElectionRepository $electionRepository
+    ): Response {
+        $elections = $electionRepository->findAll();
+        $election = $elections[0] ?? null;
+
+        // Total Inscrits
+        $totalInscrits = 0;
+        if ($election?->getNombreInscrits()) {
+            $totalInscrits = $election->getNombreInscrits();
+        } else {
+            $totalInscrits = $this->bureauDeVoteRepository->getTotalInscrits();
+        }
+
+        // Heures à analyser (08h à 18h)
+        // On suppose que l'élection est CE JOUR pour l'affichage live, ou la date de l'élection
+        $dateRef = new \DateTime('now', new \DateTimeZone('Africa/Porto-Novo'));
+        if ($election) {
+            $dateRef = \DateTime::createFromInterface($election->getDateElection());
+            $dateRef->setTimezone(new \DateTimeZone('Africa/Porto-Novo'));
+        }
+
+        $hours = [];
+        $data = [];
+        $labels = [];
+
+        // Points horaires : 08, 10, 12, 14, 16, 18
+        $timePoints = [8, 10, 12, 14, 16, 18];
+
+        foreach ($timePoints as $hour) {
+            $checkTime = (clone $dateRef)->setTime($hour, 0);
+            $now = new \DateTime('now', new \DateTimeZone('Africa/Porto-Novo'));
+
+            // Si le point est dans le futur par rapport à "maintenant" (si c'est le jour même), on arrête ou on met null
+            // Sauf si l'élection est passée
+            if ($checkTime > $now && $checkTime->format('Y-m-d') === $now->format('Y-m-d')) {
+                // Futur
+                continue;
+            }
+
+            $count = $this->participationRepository->getVotesCountAtTime($checkTime);
+            $rate = $totalInscrits > 0 ? round(($count / $totalInscrits) * 100, 2) : 0;
+
+            $labels[] = $hour . 'H';
+            $data[] = $rate;
+        }
+
+        return $this->render('home/stats.html.twig', [
+            'labels' => $labels,
+            'data' => $data,
+            'election' => $election
+        ]);
     }
 }

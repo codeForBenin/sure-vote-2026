@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Script d'initialisation pour le projet Sure Vote - Élections Bénin
-# Symfony 7.2 / PHP 8.4 / PostgreSQL / UUIDv7
+# Symfony 7.4 / PHP 8.4 / PostgreSQL / UUIDv7
 # Utilise AssetMapper (No-Node) + TailwindBundle
 
 set -euo pipefail
@@ -17,10 +17,10 @@ need php
 need composer
 need docker
 
-echo "🚀 Initialisation du projet Symfony 7.2 dans ${APP_DIR}..."
+echo "🚀 Initialisation du projet Symfony 7.4 dans ${APP_DIR}..."
 
 if [ "${APP_DIR}" != "." ] && [ ! -d "${APP_DIR}/vendor" ]; then
-    composer create-project symfony/skeleton:7.2.* "${APP_DIR}"
+    composer create-project symfony/skeleton:7.4.* "${APP_DIR}"
     cd "${APP_DIR}"
 fi
 

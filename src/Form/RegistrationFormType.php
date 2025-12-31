@@ -4,12 +4,14 @@ namespace App\Form;
 
 use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -61,6 +63,26 @@ class RegistrationFormType extends AbstractType
                 'attr' => [
                     'placeholder' => 'Votre quartier de résidence'
                 ]
+            ])
+            ->add('agreeTerms', CheckboxType::class, [
+                'mapped' => false,
+                'label' => 'J\'accepte le traitement de mes données personnelles pour l\'analyse électorale.',
+                'constraints' => [
+                    new IsTrue([
+                        'message' => 'Vous devez accepter les conditions d\'utilisation.',
+                    ]),
+                ],
+                'attr' => ['class' => 'h-4 w-4 rounded border-gray-300 text-benin-green focus:ring-benin-green']
+            ])
+            ->add('agreeGeolocation', CheckboxType::class, [
+                'mapped' => false,
+                'label' => 'J\'accepte d\'être géolocalisé lors de mes actions (pointage, saisie).',
+                'constraints' => [
+                    new IsTrue([
+                        'message' => 'Vous devez consentir à la géolocalisation pour garantir l\'intégrité des résultats.',
+                    ]),
+                ],
+                'attr' => ['class' => 'h-4 w-4 rounded border-gray-300 text-benin-green focus:ring-benin-green']
             ])
         ;
     }

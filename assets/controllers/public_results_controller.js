@@ -163,7 +163,7 @@ export default class extends Controller {
         container.innerHTML = '';
 
         if (data.resultats.length === 0) {
-            container.innerHTML = '<div class="text-center text-slate-400 italic py-8">Aucun résultat remonté pour le moment.</div>';
+            container.innerHTML = '<div class="text-center  text-slate-400 italic py-8">Aucun résultat remonté pour le moment.</div>';
             return;
         }
 
@@ -179,7 +179,7 @@ export default class extends Controller {
                     <div class="flex justify-between items-end mb-1">
                         <div>
                             <span class="font-black text-slate-800 text-lg">${result.parti.sigle}</span>
-                            <span class="text-xs font-bold text-slate-400 ml-2 uppercase">${result.parti.nom}</span>
+                            <span class="text-xs font-bold text-slate-400 uppercase hidden md:block">${result.parti.nom}</span>
                         </div>
                         <div class="text-right">
                             <span class="font-black text-2xl text-slate-900">${percent}%</span>

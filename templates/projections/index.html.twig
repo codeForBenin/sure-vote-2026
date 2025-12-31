@@ -4,27 +4,8 @@
 {% endblock %}
 
 {% block body %}
-	<div
-		class="min-h-screen bg-slate-50">
-		{# Navigation (Simplifiée par rapport à l'accueil) #}
-		<nav class="bg-white border-b border-slate-100 mb-8">
-			<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div class="flex justify-between h-20 items-center">
-					<div class="flex items-center gap-8">
-						<a href="{{ path('app_home') }}" class="text-2xl font-black text-slate-900 tracking-tighter">SURE<span class="text-benin-green">VOTE</span>
-						</a>
-						<span class="px-3 py-1 rounded-full bg-slate-100 text-slate-500 text-xs font-bold uppercase tracking-wide">Projections</span>
-					</div>
-					<a href="{{ path('app_home') }}" class="text-sm font-bold text-slate-500 hover:text-benin-green transition-colors">
-						<i class="fas fa-arrow-left mr-2"></i>
-						Retour au direct
-					</a>
-				</div>
-			</div>
-		</nav>
-
-
-		<main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-12" data-controller="projections">
+	<div>
+		<main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 mt-6" data-controller="projections">
 
 			{% include 'partials/_flash_messages.html.twig' %}
 			<div class="text-center mb-10">
@@ -88,7 +69,7 @@
 							<table class="w-full text-left border-collapse">
 								<thead class="bg-slate-50 text-xs uppercase text-slate-500 font-bold tracking-wider">
 									<tr>
-										<th class="px-6 py-4 border-b border-slate-200">Parti Politique</th>
+										<th class="px-6 py-4 border-b border-slate-200 sticky left-0 bg-white border-r border-slate-100">Parti Politique</th>
 										<th class="px-6 py-4 border-b border-slate-200 text-right">Suffrages</th>
 										<th class="px-6 py-4 border-b border-slate-200 text-center w-32">Siège Femme</th>
 										<th class="px-6 py-4 border-b border-slate-200 text-center w-32">Sièges Ordinaires</th>
@@ -102,7 +83,8 @@
 						</div>
 						<div class="p-6 bg-slate-50 border-t border-slate-100 text-xs text-slate-400 text-center italic">
 							Les sièges sont attribués selon le quotient électoral et la règle de la plus forte moyenne.
-																																																	                            Le siège femme est attribué à la liste ayant obtenu le plus de voix.
+														Le siège femme est attribué à la liste ayant obtenu le plus de voix.
+
 						</div>
 					</div>
 
@@ -110,7 +92,7 @@
 			</div>
 
 			{# Section Vérification Éligibilité (Seuil 20%) #}
-			<div class="mt-12 bg-white rounded-[2rem] shadow-xl border border-slate-200 overflow-hidden">
+			<div class="mt-12 mb-12 bg-white rounded-[2rem] shadow-xl border border-slate-200 overflow-hidden">
 				<div class="p-8 border-b border-slate-100 bg-slate-50/50">
 					<h2 class="text-2xl font-black text-slate-900 mb-2">Vérification d'Éligibilité</h2>
 					<p class="text-sm text-slate-500 mb-6">
@@ -132,7 +114,6 @@
 				</div>
 			</div>
 
-			<div class="h-12"></div>
 
 		</main>
 	</div>

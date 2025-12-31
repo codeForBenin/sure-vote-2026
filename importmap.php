@@ -28,4 +28,10 @@ return [
     'html-to-image' => [
         'version' => '1.11.13',
     ],
+    'chart.js/auto' => [
+        'version' => '4.5.1',
+    ],
+    '@kurkle/color' => [
+        'version' => '0.3.4',
+    ],
 ];

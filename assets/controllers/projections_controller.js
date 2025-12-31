@@ -121,7 +121,7 @@ export default class extends Controller {
                 <table class="w-full text-left border-collapse">
                     <thead class="bg-slate-100 text-xs uppercase text-slate-500 font-bold tracking-wider">
                         <tr>
-                            <th class="px-6 py-4 border-b border-slate-200">Circonscription</th>
+                            <th class="px-6 py-4 border-b border-slate-200 sticky left-0 bg-white border-r border-slate-100">Circonscription</th>
                             <th class="px-6 py-4 border-b border-slate-200 text-right">Voix Parti</th>
                             <th class="px-6 py-4 border-b border-slate-200 text-right">Total Valides</th>
                             <th class="px-6 py-4 border-b border-slate-200 text-center">Pourcentage</th>
@@ -134,7 +134,7 @@ export default class extends Controller {
         details.forEach(d => {
             html += `
                 <tr class="hover:bg-slate-50 transition-colors">
-                    <td class="px-6 py-4 font-bold text-slate-700">${d.circonscription}</td>
+                    <td class="px-6 py-4 font-bold text-slate-700 sticky left-0 bg-white border-r border-slate-100">${d.circonscription}</td>
                     <td class="px-6 py-4 text-right font-medium text-slate-600">${d.votes_parti.toLocaleString()}</td>
                     <td class="px-6 py-4 text-right text-sm text-slate-400">${d.votes_valides_total.toLocaleString()}</td>
                     <td class="px-6 py-4 text-center">
@@ -249,12 +249,12 @@ export default class extends Controller {
             const tr = document.createElement('tr');
             tr.className = "hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-0";
             tr.innerHTML = `
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center">
+                <td class="px-6 py-4 whitespace-nowrap sticky left-0 bg-white border-r border-slate-100">
+                    <div class="flex items-center ">
                         <span class="w-3 h-3 rounded-full mr-3" style="background-color: ${r.parti.couleur || '#ccc'}"></span>
                         <div>
                             <div class="text-sm font-bold text-slate-900">${r.parti.sigle}</div>
-                            <div class="text-xs text-slate-500">${r.parti.nom}</div>
+                            <div class="text-xs text-slate-500 hidden md:block">${r.parti.nom}</div>
                         </div>
                     </div>
                 </td>

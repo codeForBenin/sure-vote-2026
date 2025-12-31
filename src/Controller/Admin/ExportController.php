@@ -105,7 +105,7 @@ class ExportController extends AbstractController
                 $assesseur = $resultat->getAssesseur();
 
                 $pvImageUrl = $resultat->getPvImageName()
-                    ? $urlGenerator->generate('app_handle_pv_download', ['id' => $resultat->getId()], UrlGeneratorInterface::ABSOLUTE_URL)
+                    ? $urlGenerator->generate('app_pv_download', ['id' => $resultat->getId()], UrlGeneratorInterface::ABSOLUTE_URL)
                     : '';
 
                 fputcsv($handle, [

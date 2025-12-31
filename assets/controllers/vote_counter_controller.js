@@ -24,7 +24,7 @@ export default class extends Controller {
         });
 
         if (this.hasDisplayTotalTarget) {
-            this.displayTotalTarget.textContent = total;
+            this.displayTotalTarget.textContent = total.toLocaleString('fr-FR');
         }
 
         const max = this.inscritsValue;

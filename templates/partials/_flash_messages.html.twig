@@ -1,4 +1,11 @@
-{% for label, messages in app.flashes %}
+{% set flashes = app.flashes %}
+{% if flashes|length > 0 %}
+	<div class="my-4 sm:p-6 w-full md:max-w-2xl mx-auto" data-controller="flash">
+
+
+		{% for label, messages in flashes %}
+
+
     {% for message in messages %}
         {% set bgColor = 'bg-blue-50' %}
         {% set textColor = 'text-blue-800' %}
@@ -22,18 +29,30 @@
             {% set icon = 'exclamation-triangle' %}
         {% endif %}
 
-        <div class="rounded-md {{ bgColor }} p-4 mb-4 border-l-4 {{ borderColor }} shadow-sm relative" role="alert">
+<div class="rounded-md {{ bgColor }} p-4 mb-4 border-l-4 {{ borderColor }} shadow-sm relative transition-opacity duration-300" role="alert" data-controller="flash">
+
+
             <div class="flex">
                 <div class="flex-shrink-0">
                     <i class="fas fa-{{ icon }} {{ textColor }}"></i>
                 </div>
-                <div class="ml-3">
+<div class="ml-3 pr-8">
+
+
                     <p class="text-sm font-medium {{ textColor }}">
                         {{ message|raw }}
                     </p>
                 </div>
-                {# Bouton de fermeture optionnel (via JS/Stimulus si besoin, ici simple layout) #}
+{# Bouton de fermeture via Stimulus #}
+<button type="button" data-action="click->flash#close" class="absolute top-2 right-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 rounded-full p-1" aria-label="Close">
+	<i class="fas fa-times"></i>
+</button>
+
+
             </div>
         </div>
     {% endfor %}
 {% endfor %}
+
+</div>{% endif %}
+

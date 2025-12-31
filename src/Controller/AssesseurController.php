@@ -122,7 +122,7 @@ class AssesseurController extends AbstractController
             'bureau' => $bureau,
             'isVoteComplet' => $isVoteComplet,
             'sommeVoix' => $sommeVoix,
-            'tauxParticipation' => round($tauxParticipation, 2),
+            'tauxParticipation' => floor($tauxParticipation * 100) / 100,
             'nombreVotants' => $nombreVotants,
             'messages' => $messages,
             'election' => $election,
@@ -132,7 +132,7 @@ class AssesseurController extends AbstractController
     }
 
     #[Route('/participation', name: 'app_assesseur_participation', methods: ['GET', 'POST'])]
-    public function participation(Request $request, EntityManagerInterface $em, GeoVerifier $geoVerifier, LoggerInterface $logger): Response
+    public function participation(Request $request, EntityManagerInterface $em, GeoVerifier $geoVerifier, LoggerInterface $logger, LogsRepository $logsRepository): Response
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -230,6 +230,20 @@ class AssesseurController extends AbstractController
                 $em->persist($freshParticipation);
                 $em->flush();
 
+                $logsRepository->logAction(
+                    "PARTICIPATION_ENREGISTRE",
+                    $freshUser,
+                    $request->getClientIp(),
+                    $request->headers->get("User-Agent"),
+                    [
+                        "bureauDeVote" => $freshBureau->getNom(),
+                        "assesseur" => $freshUser->getNom(),
+                        "nombreVotants" => $participation->getNombreVotants(),
+                        "heurePointage" => $participation->getHeurePointage()->format('d/m/Y H:i:s'),
+                        "metadataLocation" => $participation->getMetadataLocation()
+                    ]
+                );
+
                 $this->addFlash('success', 'Pointage de participation enregistré !');
                 return $this->redirectToRoute('app_assesseur_dashboard');
             }
@@ -252,7 +266,8 @@ class AssesseurController extends AbstractController
         PartiRepository $partiRepository,
         BureauDeVoteRepository $bureauDeVoteRepository,
         ElectionRepository $electionRepository,
-        UploadHandler $uploadHandler
+        UploadHandler $uploadHandler,
+        LogsRepository $logsRepository
     ): Response {
         /** @var User $user */
         $user = $this->getUser();
@@ -330,14 +345,11 @@ class AssesseurController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             // Validation: Total vs Inscrits
             $totalVoixSaisies = 0;
             foreach ($partis as $parti) {
                 $totalVoixSaisies += (int) $form->get('parti_' . $parti->getId())->getData();
             }
-
-            // dd($totalVoixSaisies);
 
             if ($totalVoixSaisies > $managedBureau->getNombreInscrits()) {
                 $form->addError(new FormError(sprintf(
@@ -352,67 +364,111 @@ class AssesseurController extends AbstractController
                 ]);
             }
 
-            // 1. Gestion Upload Unique
+            // Gestion Upload
             $pvFile = $form->get('pvImageFile')->getData();
             $newFilename = $existingPvName;
 
-            if ($pvFile instanceof UploadedFile) {
-                try {
-                    // Utilisation de VichUploader pour gérer l'upload et le nommage
-                    $tempResultat = new Resultat();
-                    $tempResultat->setPvImageFile($pvFile);
-                    $uploadHandler->upload($tempResultat, 'pvImageFile');
-
-                    $newFilename = $tempResultat->getPvImageName();
-                } catch (\Exception $e) {
-                    $this->addFlash('error', 'Erreur lors de l\'upload du PV: ' . $e->getMessage());
-                    return $this->redirectToRoute('app_assesseur_saisie_resultats');
-                }
+            // Vérification si aucun fichier n'existe et aucun n'est envoyé
+            if (!$pvFile && !$existingPvName) {
+                $this->addFlash('error', 'Vous devez uploader une photo du PV.');
+                return $this->redirectToRoute('app_assesseur_saisie_resultats');
             }
 
-            if (!$newFilename) {
-                // Si aucun fichier n'a été uploadé (ni avant ni maintenant)
-                if (!$existingPvName) {
-                    $this->addFlash('error', 'Vous devez uploader une photo du PV.');
-                    return $this->redirectToRoute('app_assesseur_saisie_resultats');
-                }
-            }
+            $em->getConnection()->beginTransaction();
+            try {
+                // 1. Verrouillage / Reload des dépendances
+                // On utilise PESSIMISTIC_WRITE sur le bureau pour éviter les accès concurrents
+                $bureauId = $managedBureau->getId();
+                $em->clear();
 
-            // Reload user specifically for persistence context
-            $managedUser = $em->find(User::class, $user->getId());
+                $freshBureau = $em->find(BureauDeVote::class, $bureauId, LockMode::PESSIMISTIC_WRITE);
+                $freshUser = $em->find(User::class, $user->getId());
 
-            // 2. Traitement des Votes
-            foreach ($partis as $parti) {
-                $fieldName = 'parti_' . $parti->getId();
-                $voix = $form->get($fieldName)->getData();
+                if (!$freshBureau)
+                    throw new \Exception("Bureau introuvable lors de la transaction.");
 
-                // Chercher existant ou Créer
-                $resultat = null;
-                foreach ($resultatsExistants as $existing) {
-                    if ($existing->getParti()->getId() === $parti->getId()) {
-                        $resultat = $existing;
-                        break;
+                // 2. Traitement des Votes
+                $freshPartis = $partiRepository->findAll(); // Reload partis
+                $freshResultatsExistants = $resultatRepository->findBy(['bureauDeVote' => $freshBureau]);
+
+                // Identifier le premier resultat pour l'upload
+                $firstResultatForUpload = null;
+                $resultatsToProcess = [];
+
+                foreach ($freshPartis as $parti) {
+                    $fieldName = 'parti_' . $parti->getId();
+                    // Note: Le formulaire n'est pas "relié" à l'upload dans la transaction, on utilise les données récupérées avant le clear()
+                    // MAIS $form->getData() contient les valeurs soumises. Le clear() ne vide pas l'objet Form PHP en mémoire.
+                    $voix = $form->get($fieldName)->getData();
+
+                    $resultat = null;
+                    foreach ($freshResultatsExistants as $existing) {
+                        if ($existing->getParti()->getId() === $parti->getId()) {
+                            $resultat = $existing;
+                            break;
+                        }
+                    }
+
+                    if (!$resultat) {
+                        $resultat = new Resultat();
+                        $resultat->setBureauDeVote($freshBureau); // Relation maitrisée
+                        $resultat->setParti($parti);
+                    }
+
+                    $resultat->setAssesseur($freshUser);
+                    $resultat->setNombreVoix((int) $voix);
+                    $resultat->setUpdatedAt(new \DateTimeImmutable());
+
+                    $resultatsToProcess[] = $resultat;
+
+                    // On garde le premier pour l'upload
+                    if ($pvFile && !$firstResultatForUpload) {
+                        $firstResultatForUpload = $resultat;
                     }
                 }
 
-                if (!$resultat) {
-                    $resultat = new Resultat();
-                    $resultat->setBureauDeVote($managedBureau);
-                    $resultat->setParti($parti);
-                    $em->persist($resultat);
+                // 3. Gestion de l'upload (si nouveau fichier)
+                if ($pvFile && $firstResultatForUpload) {
+                    // Mettre à jour le fichier
+                    $firstResultatForUpload->setPvImageFile($pvFile);
+                    $uploadHandler->upload($firstResultatForUpload, 'pvImageFile');
+                    // Récupérer le nom généré
+                    $newFilename = $firstResultatForUpload->getPvImageName();
                 }
 
-                $resultat->setAssesseur($managedUser);
-                $resultat->setNombreVoix((int) $voix);
-                $resultat->setPvImageName($newFilename);
-                $resultat->setUpdatedAt(new \DateTimeImmutable());
-                $em->persist($resultat);
+                // 4. Persistence des résultats avec le nom de fichier
+                foreach ($resultatsToProcess as $res) {
+                    if ($newFilename) {
+                        $res->setPvImageName($newFilename);
+                    }
+                    $em->persist($res);
+                }
+
+                $em->flush();
+                $em->getConnection()->commit();
+
+                $logsRepository->logAction(
+                    "RESULTATS_ENREGISTRE",
+                    $freshUser,
+                    $request->getClientIp(),
+                    $request->headers->get("User-Agent"),
+                    [
+                        "bureauDeVote" => $freshBureau->getNom(),
+                        "assesseur" => $freshUser->getNom(),
+                        "nombreVoix" => count($resultatsToProcess),
+                        "pvImageName" => $newFilename
+                    ]
+                );
+
+
+                $this->addFlash('success', 'Résultats enregistrés avec succès !');
+                return $this->redirectToRoute('app_assesseur_dashboard');
+
+            } catch (\Exception $e) {
+                $em->getConnection()->rollBack();
+                $this->addFlash('error', 'Erreur Transaction : ' . $e->getMessage());
+                return $this->redirectToRoute('app_assesseur_saisie_resultats');
             }
-
-            $em->flush();
-
-            $this->addFlash('success', 'Résultats enregistrés avec succès !');
-            return $this->redirectToRoute('app_assesseur_dashboard');
         }
 
         return $this->render('assesseur/saisie_globale.html.twig', [
@@ -422,268 +478,19 @@ class AssesseurController extends AbstractController
         ]);
     }
 
-    #[Route('/resultat/{id}', name: 'app_assesseur_resultat', defaults: ['id' => null], methods: ['GET', 'POST'])]
-    public function resultat(
-        Request $request,
-        EntityManagerInterface $em,
-        ResultatRepository $resultatRepository,
-        GeoVerifier $geoVerifier,
-        LogsRepository $logsRepository,
-        ElectionRepository $electionRepository,
-        ?string $id = null,
-        LoggerInterface $loggerInterface
-    ): Response {
-        /** @var User $user */
-        $user = $this->getUser();
-        $bureau = $user->getAssignedBureau();
 
-        if (!$bureau) {
-            $loggerInterface->warning('erreur 1');
-            $this->addFlash('error', 'Vous devez être assigné à un bureau de vote pour saisir un résultat.');
-            return $this->redirectToRoute('app_assesseur_dashboard');
-        }
-
-        // --- Check Time Window ---
-        $elections = $electionRepository->findAll();
-        $election = $elections[0] ?? null;
-
-        if ($election && $election->getHeureFermeture()) {
-            $dateElection = $election->getDateElection();
-            $heureFermeture = $election->getHeureFermeture();
-
-            $fermetureDateTime = \DateTime::createFromFormat(
-                'Y-m-d H:i:s',
-                $dateElection->format('Y-m-d') . ' ' . $heureFermeture->format('H:i:s'),
-                new \DateTimeZone('Africa/Porto-Novo')
-            );
-
-            $limiteSaisie = (clone $fermetureDateTime)->modify('+4 hours');
-            $now = new \DateTime('now', new \DateTimeZone('Africa/Porto-Novo'));
-
-            if ($now > $limiteSaisie) {
-                $loggerInterface->warning("Tentative de saisie hors délai", ["date_election" => $dateElection->format("Y-m-d"), "now" => $now, 'limit' => $limiteSaisie]);
-                $this->addFlash('error', 'La période de saisie des résultats est fermée (Délai dépassé).');
-                return $this->redirectToRoute('app_assesseur_dashboard');
-            }
-        }
-        // -------------------------
-
-        // Reload the bureau from database to ensure it's managed by Doctrine
-        $managedBureau = $em->find(BureauDeVote::class, $bureau->getId());
-
-        if (!$managedBureau) {
-            throw new \Exception('Bureau de vote introuvable');
-        }
-
-        $modeEdition = false;
-        $anciensVoix = 0;
-
-        if ($id) {
-            $resultat = $resultatRepository->find($id);
-            if (!$resultat || $resultat->getBureauDeVote()->getId() !== $managedBureau->getId()) {
-                $this->addFlash('error', 'Résultat introuvable ou accès refusé.');
-                return $this->redirectToRoute('app_assesseur_dashboard');
-            }
-            $modeEdition = true;
-            $anciensVoix = $resultat->getNombreVoix();
-        } else {
-            $resultat = new Resultat();
-            $resultat->setBureauDeVote($managedBureau);
-            $resultat->setAssesseur($user);
-        }
-
-        $form = $this->createForm(ResultatsType::class, $resultat);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            // 1. Validation de base (Soft Check)
-            if ($resultat->getNombreVoix() > $managedBureau->getNombreInscrits()) {
-                $form->get('nombreVoix')->addError(new FormError(
-                    sprintf(
-                        'Le nombre de voix (%d) dépasse le nombre d\'inscrits (%d).',
-                        $resultat->getNombreVoix(),
-                        $managedBureau->getNombreInscrits()
-                    )
-                ));
-            }
-
-            // 2. Validation de l'unicité parti/bureau (Soft Check)
-            $existingResultat = $resultatRepository->findOneBy([
-                'bureauDeVote' => $managedBureau,
-                'parti' => $resultat->getParti()
-            ]);
-
-            if ($existingResultat) {
-                if (!$modeEdition || ($existingResultat->getId() !== $resultat->getId())) {
-                    $form->get('parti')->addError(new FormError(
-                        sprintf('Un résultat pour le parti "%s" a déjà été saisi pour ce bureau.', $resultat->getParti()->getNom())
-                    ));
-                }
-            }
-
-            // 3. Validation de la somme totale (Soft Check)
-            if (count($form->getErrors(true)) === 0) {
-                $sommeActuelle = $resultatRepository->getSommeVoixParBureau((string) $managedBureau->getId());
-
-                if ($modeEdition) {
-                    $sommeActuelle -= $anciensVoix;
-                }
-
-                $nouveauTotal = $sommeActuelle + $resultat->getNombreVoix();
-
-                if ($nouveauTotal > $managedBureau->getNombreInscrits()) {
-                    $form->get('nombreVoix')->addError(new FormError(
-                        sprintf(
-                            'Impossible ! La somme totale des voix (%d) dépasserait le nombre d\'inscrits (%d). Total actuel: %d.',
-                            $nouveauTotal,
-                            $managedBureau->getNombreInscrits(),
-                            $sommeActuelle
-                        )
-                    ));
-                }
-            }
-
-            if ($form->isValid()) {
-                // Geo check
-                $lat = $request->request->get('lat');
-                $lon = $request->request->get('lon');
-                $ipAddress = $request->getClientIp();
-                $userClient = $request->headers->get("User-Agent");
-
-                // --- PREPARATION DONNEES AVANT CLEAR ---
-                $newDataVoix = $resultat->getNombreVoix();
-                $newDataPartiId = $resultat->getParti()->getId();
-                $newDataFile = $resultat->getPvImageFile();
-
-                // --- DÉBUT TRANSACTION ---
-                $em->getConnection()->beginTransaction();
-                try {
-                    $loggerInterface->info("Début Transaction Resultat", ['mode' => $modeEdition ? 'EDIT' : 'CREATE', 'id' => $id]);
-
-                    // 1. VERROUILLAGE PESSIMISTE
-                    $bureauId = $managedBureau->getId();
-                    $lockedBureau = $em->find(BureauDeVote::class, $bureauId, LockMode::PESSIMISTIC_WRITE);
-
-                    if (!$lockedBureau) {
-                        throw new \Exception("Impossible de verrouiller le bureau de vote.");
-                    }
-
-                    // 2. CLEAN
-                    $em->clear();
-
-                    // 3. RECHARGEMENT DES ENTITÉS
-                    $freshBureau = $em->find(BureauDeVote::class, $bureauId);
-                    $freshUser = $em->find(User::class, $user->getId());
-                    $freshParti = $em->find(Parti::class, $newDataPartiId);
-
-                    if (!$freshBureau || !$freshUser || !$freshParti) {
-                        throw new \Exception("Erreur rechargement entités (bureau/user/parti).");
-                    }
-
-                    // 4. LOGIQUE CREATE OU UPDATE
-                    if ($modeEdition && $id) {
-                        // --- UPDATE ---
-                        $freshResultat = $em->find(Resultat::class, $id);
-                        if (!$freshResultat) {
-                            throw new \Exception("Résultat introuvable après reload (ID: $id).");
-                        }
-
-                        // Check Unicité (si parti changé)
-                        if ($freshResultat->getParti()->getId() !== $freshParti->getId()) {
-                            $check = $resultatRepository->findOneBy(['bureauDeVote' => $freshBureau, 'parti' => $freshParti]);
-                            if ($check)
-                                throw new \Exception("Doublon parti détecté (changement de parti vers un existant).");
-                        }
-
-                        // Check Somme
-                        $sommeDb = $resultatRepository->getSommeVoixParBureau((string) $bureauId);
-                        $oldVoix = $freshResultat->getNombreVoix();
-                        // La somme en base inclut l'ancienne valeur, donc on la retire pour vérifier la nouvelle
-                        $sommeSansMoi = $sommeDb - $oldVoix;
-
-                        if (($sommeSansMoi + $newDataVoix) > $freshBureau->getNombreInscrits()) {
-                            throw new \Exception(sprintf("Quota dépassé (%d > %d)", ($sommeSansMoi + $newDataVoix), $freshBureau->getNombreInscrits()));
-                        }
-
-                        // Update
-                        $freshResultat->setNombreVoix($newDataVoix);
-                        $freshResultat->setParti($freshParti);
-                        $freshResultat->setAssesseur($freshUser);
-                        if ($newDataFile) {
-                            $freshResultat->setPvImageFile($newDataFile);
-                        }
-                        $freshResultat->setUpdatedAt(new \DateTimeImmutable());
-
-                    } else {
-                        // --- CREATE ---
-                        $check = $resultatRepository->findOneBy(['bureauDeVote' => $freshBureau, 'parti' => $freshParti]);
-                        if ($check)
-                            throw new \Exception("Doublon parti détecté.");
-
-                        $sommeDb = $resultatRepository->getSommeVoixParBureau((string) $bureauId);
-                        if (($sommeDb + $newDataVoix) > $freshBureau->getNombreInscrits()) {
-                            throw new \Exception(sprintf("Quota dépassé (%d > %d)", ($sommeDb + $newDataVoix), $freshBureau->getNombreInscrits()));
-                        }
-
-                        $freshResultat = new Resultat();
-                        $freshResultat->setBureauDeVote($freshBureau);
-                        $freshResultat->setAssesseur($freshUser);
-                        $freshResultat->setParti($freshParti);
-                        $freshResultat->setNombreVoix($newDataVoix);
-                        if ($newDataFile) {
-                            $freshResultat->setPvImageFile($newDataFile);
-                        }
-                        $em->persist($freshResultat);
-                    }
-
-                    // 5. COMMIT
-                    $em->flush();
-                    $em->getConnection()->commit();
-                    $loggerInterface->info("Transaction OK");
-
-                    // 6. LOGS
-                    $logsRepository->logAction(
-                        $modeEdition ? "MODIFICATION_PV" : "AJOUT_PV",
-                        $freshUser,
-                        $ipAddress,
-                        $userClient,
-                        [
-                            'parti' => $freshParti->getNom(),
-                            'nombreAncienneVoix' => $anciensVoix,
-                            'nombreVoix' => $newDataVoix,
-                            'bureau' => $freshBureau->getCode(),
-                            'mode' => $modeEdition ? 'UPDATE' : 'CREATE'
-                        ]
-                    );
-
-                    $this->addFlash('success', 'Votre modification a été prise en compte !');
-                    return $this->redirectToRoute('app_assesseur_dashboard');
-
-                } catch (\Exception $e) {
-                    $em->getConnection()->rollBack();
-                    $loggerInterface->error("Transaction Error: " . $e->getMessage());
-                    $this->addFlash('error', 'Erreur Transaction : ' . $e->getMessage());
-                }
-            }
-        }
-
-        return $this->render('assesseur/resultat.html.twig', [
-            'form' => $form,
-            'bureau' => $bureau,
-        ], new Response(null, ($form->isSubmitted() && !$form->isValid()) ? 422 : 200));
-    }
 
     #[Route('/observations', name: 'app_assesseur_observations', methods: ['GET', 'POST'])]
-    public function observations(Request $request, EntityManagerInterface $em, LogsRepository $logsRepository, TokenInterface $token, ObservationRepository $observationRepository): Response
+    public function observations(Request $request, EntityManagerInterface $em, LogsRepository $logsRepository, ObservationRepository $observationRepository): Response
     {
         /** @var User $user */
-        $user = $token->getUser();
+        $user = $this->getUser();
         if (!$user)
             return $this->redirectToRoute('app_login');
 
         $managedBureau = $user->getAssignedBureau();
         if (!$managedBureau) {
-            $this->addFlash('error', 'Vous n\'êtes assigné à aucun bureau de vote.');
+            $this->addFlash('error', "Vous n'êtes assigné à aucun bureau de vote.");
             return $this->redirectToRoute('app_home');
         }
 
@@ -710,7 +517,7 @@ class AssesseurController extends AbstractController
                 ]
             );
 
-            $this->addFlash('success', 'Observation enregistrée.');
+            $this->addFlash('success', "Observation enregistrée.");
             return $this->redirectToRoute('app_assesseur_observations');
         }
 

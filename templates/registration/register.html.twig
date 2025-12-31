@@ -4,8 +4,6 @@
 {% endblock %}
 
 {% block body %}
-	{% include 'partials/_header.html.twig' %}
-	{% include 'partials/_flash_messages.html.twig' %}
 	<div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
 		<div class="sm:mx-auto sm:w-full sm:max-w-md p-2 sm:p-0">
 			<h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
@@ -71,6 +69,35 @@
 					<span class="text-sm mt-2 ml-2 text-gray-500">Précisez votre quartier ou village pour faciliter votre affectation.</span>
 				</div>
 
+				<hr class="border-gray-200 my-6"/>
+
+				<div class="space-y-4">
+					<div class="flex items-start">
+						<div class="flex items-center h-5">
+							{{ form_widget(registrationForm.agreeGeolocation, {'attr': {'class': 'focus:ring-benin-green h-4 w-4 text-benin-green border-gray-300 rounded'}}) }}
+						</div>
+						<div class="ml-3 text-sm">
+							{{ form_label(registrationForm.agreeGeolocation, null, {'label_attr': {'class': 'font-medium text-gray-700'}}) }}
+							<p class="text-gray-500 text-xs mt-0.5">La géolocalisation permet de certifier que vous êtes physiquement présent sur les lieux.</p>
+							{{ form_errors(registrationForm.agreeGeolocation) }}
+						</div>
+					</div>
+
+					<div class="flex items-start">
+						<div class="flex items-center h-5">
+							{{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'focus:ring-benin-green h-4 w-4 text-benin-green border-gray-300 rounded'}}) }}
+						</div>
+						<div class="ml-3 text-sm">
+							{{ form_label(registrationForm.agreeTerms, null, {'label_attr': {'class': 'font-medium text-gray-700'}}) }}
+							<p class="text-gray-500 text-xs mt-0.5">En cochant cette case, vous acceptez nos
+								<a href="{{ path('app_infos') }}" class="text-benin-green hover:underline">Conditions d'Utilisation</a>
+								et notre Politique de Confidentialité.</p>
+							{{ form_errors(registrationForm.agreeTerms) }}
+						</div>
+					</div>
+				</div>
+
+
 				<div class="pt-6">
 					<button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-benin-green hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-benin-green">
 						S'inscrire
@@ -100,5 +127,6 @@
 
 			</div>
 		</div>
+
 	</div>
 {% endblock %}

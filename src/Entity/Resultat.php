@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\File\File;
 
 #[ORM\Entity(repositoryClass: ResultatRepository::class)]
 #[Vich\Uploadable]
+#[ORM\HasLifecycleCallbacks]
 class Resultat
 {
     #[ORM\Id]
@@ -130,5 +131,16 @@ class Resultat
     {
         $this->isValidated = $isValidated;
         return $this;
+    }
+
+    #[ORM\PrePersist]
+    public function setCreatedAtValue(): void
+    {
+        $this->updatedAt = new \DateTimeImmutable();
+    }
+    #[ORM\PreUpdate]
+    public function setUpdatedAtValue(): void
+    {
+        $this->updatedAt = new \DateTimeImmutable();
     }
 }

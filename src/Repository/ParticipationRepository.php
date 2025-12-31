@@ -52,4 +52,26 @@ class ParticipationRepository extends ServiceEntityRepository
         }
     }
 
+    public function getVotesCountAtTime(\DateTimeInterface $time): int
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = '
+            SELECT SUM(p.nombre_votants)
+            FROM participation p
+            INNER JOIN (
+                SELECT p2.bureau_de_vote_id, MAX(p2.heure_pointage) as max_time
+                FROM participation p2
+                WHERE p2.heure_pointage <= :time
+                GROUP BY p2.bureau_de_vote_id
+            ) latest_p ON p.bureau_de_vote_id = latest_p.bureau_de_vote_id AND p.heure_pointage = latest_p.max_time
+        ';
+
+        try {
+            $result = $conn->executeQuery($sql, ['time' => $time->format('Y-m-d H:i:s')])->fetchOne();
+            return (int) $result;
+        } catch (\Exception $e) {
+            return 0;
+        }
+    }
 }

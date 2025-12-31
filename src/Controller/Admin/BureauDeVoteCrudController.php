@@ -4,11 +4,14 @@ namespace App\Controller\Admin;
 
 use App\Entity\BureauDeVote;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
 class BureauDeVoteCrudController extends AbstractCrudController
 {
@@ -22,9 +25,19 @@ class BureauDeVoteCrudController extends AbstractCrudController
         return $crud
             ->setEntityLabelInSingular('un bureau de vote')
             ->setEntityLabelInPlural('Liste des bureaux de vote')
-            ->setPaginatorPageSize(50)
+            ->setPaginatorPageSize(25)
             ->setDefaultSort(['code' => 'ASC'])
             ->showEntityActionsInlined();
+    }
+
+    // configuration du filter 
+
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add(TextFilter::new('nom')->setFormTypeOption('label', 'Nom'))
+            ->add(TextFilter::new('code')->setFormTypeOption('label', 'Code'))
+            ->add(EntityFilter::new('centre'));
     }
 
     public function configureFields(string $pageName): iterable

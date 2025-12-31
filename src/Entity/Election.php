@@ -28,6 +28,12 @@ class Election
     #[ORM\Column(nullable: true)]
     private ?int $nombreInscrits = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $siegesPourvoir = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $nombreBureauxDeVote = null;
+
     public function __construct()
     {
         $this->id = Uuid::v7();
@@ -86,6 +92,31 @@ class Election
         $this->nombreInscrits = $nombreInscrits;
         return $this;
     }
+
+
+    public function getSiegesPourvoir(): ?int
+    {
+        return $this->siegesPourvoir;
+    }
+
+    public function setSiegesPourvoir(?int $siegesPourvoir): self
+    {
+        $this->siegesPourvoir = $siegesPourvoir;
+        return $this;
+    }
+
+
+    public function getNombreBureauxDeVote(): ?int
+    {
+        return $this->nombreBureauxDeVote;
+    }
+
+    public function setNombreBureauxDeVote(?int $nombreBureauxDeVote): self
+    {
+        $this->nombreBureauxDeVote = $nombreBureauxDeVote;
+        return $this;
+    }
+
 
     public function __toString(): string
     {

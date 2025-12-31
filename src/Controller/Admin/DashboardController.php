@@ -128,7 +128,8 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Résultats PV', 'fas fa-file-invoice', Resultat::class);
 
         yield MenuItem::section('Configuration');
-        yield MenuItem::linkToCrud('Utilisateurs & Assesseurs', 'fas fa-user-shield', User::class);
+        yield MenuItem::linkToCrud('Utilisateurs', 'fas fa-user-shield', User::class);
+        yield MenuItem::linkToCrud('Assesseurs', 'fas fa-user-shield', User::class);
 
         yield MenuItem::section('Import');
         yield MenuItem::linkToUrl("Circonscriptions", "fas fa-file-import", '/admin/import/circonscriptions');

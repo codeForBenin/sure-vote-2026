@@ -1,0 +1,158 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Informations & Transparence
+{% endblock %}
+
+{% block body %}
+	<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+		<div class="text-center mb-16">
+			<h1 class="text-4xl font-black text-slate-900 mb-4 tracking-tight">Informations & Transparence</h1>
+			<p class="text-xl text-slate-500 max-w-2xl mx-auto">
+				Tout ce que vous devez savoir sur le dispositif SureVote, l'élection en cours et notre engagement pour l'intégrité des données.
+			</p>
+		</div>
+
+		<div
+			class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+			{# Carte Données Clés Élection #}
+			<div class="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-lg transition-all">
+				<div class="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+					<i class="fas fa-calendar-alt text-9xl text-benin-green"></i>
+				</div>
+				<h2 class="text-2xl font-black text-slate-900 mb-6 flex items-center gap-3">
+					<span class="bg-benin-green/10 text-benin-green p-3 rounded-xl">
+						<i class="fas fa-info-circle"></i>
+					</span>
+					L'Élection en Chiffres
+				</h2>
+				{% if election %}
+					<dl class="space-y-4 relative z-10">
+						<div class="flex justify-between items-center pb-4 border-b border-slate-50">
+							<dt class="text-slate-500 font-medium">Date du Scrutin</dt>
+							<dd class="text-slate-900 font-bold text-lg">{{ election.dateElection|date('d F Y') }}</dd>
+						</div>
+						<div class="flex justify-between items-center pb-4 border-b border-slate-50">
+							<dt class="text-slate-500 font-medium">Nombre d'Inscrits</dt>
+							<dd class="text-slate-900 font-bold text-lg">{{ election.nombreInscrits|number_format(0, ',', ' ') }}</dd>
+						</div>
+						<div class="flex justify-between items-center pb-4 border-b border-slate-50">
+							<dt class="text-slate-500 font-medium">Sièges à pourvoir</dt>
+							<dd class="text-slate-900 font-bold text-lg text-benin-green">{{ election.siegesPourvoir }}</dd>
+						</div>
+						<div class="flex justify-between items-center">
+							<dt class="text-slate-500 font-medium">Fermeture des bureaux</dt>
+							<dd class="text-slate-900 font-bold text-lg">{{ election.heureFermeture ? election.heureFermeture|date('H:i') : '16:00' }}</dd>
+						</div>
+					</dl>
+				{% else %}
+					<div class="bg-slate-50 rounded-xl p-6 text-center text-slate-500 italic">
+						Aucune élection active n'est configurée actuellement.
+					</div>
+				{% endif %}
+			</div>
+
+			{# Carte Objectifs Projet #}
+			<div class="bg-slate-900 rounded-[2rem] p-8 shadow-xl text-white relative overflow-hidden">
+				<div class="absolute -bottom-10 -right-10 w-64 h-64 bg-benin-yellow rounded-full blur-[80px] opacity-20"></div>
+				<h2 class="text-2xl font-black text-white mb-6 flex items-center gap-3">
+					<span class="bg-white/10 text-white p-3 rounded-xl">
+						<i class="fas fa-bullseye"></i>
+					</span>
+					Notre Mission
+				</h2>
+				<div class="space-y-6 text-slate-300 leading-relaxed font-medium relative z-10">
+					<p>
+						<strong class="text-white">SureVote</strong>
+						est une plateforme indépendante de remontée et de centralisation des résultats électoraux, conçue pour renforcer la transparence et la confiance dans le processus démocratique.
+					</p>
+					<ul class="space-y-3">
+						<li class="flex items-start gap-3">
+							<i class="fas fa-check text-benin-green mt-1"></i>
+							<span>Fiabilisation de la collecte des résultats via les PV numérisés.</span>
+						</li>
+						<li class="flex items-start gap-3">
+							<i class="fas fa-check text-benin-green mt-1"></i>
+							<span>Traçabilité complète des opérations de saisie et de modification.</span>
+						</li>
+						<li class="flex items-start gap-3">
+							<i class="fas fa-check text-benin-green mt-1"></i>
+							<span>Projections statistiques en temps réel pour une visibilité accrue.</span>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div
+			class="grid grid-cols-1 md:grid-cols-2 gap-8">
+			{# Carte Données Collectées #}
+			<div class="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100">
+				<h2 class="text-2xl font-black text-slate-900 mb-6 flex items-center gap-3">
+					<span class="bg-blue-50 text-blue-600 p-3 rounded-xl">
+						<i class="fas fa-user-shield"></i>
+					</span>
+					Données & Confidentialité
+				</h2>
+				<p class="text-slate-600 mb-6">
+					Dans le cadre de la sécurisation et de l'auditabilité de la plateforme, certaines données techniques sont collectées automatiquement lors de votre navigation et de vos actions (connexion, saisie de résultats).
+				</p>
+				<div class="bg-slate-50 rounded-xl p-5 border border-slate-100">
+					<h3 class="font-bold text-slate-800 mb-3 text-sm uppercase tracking-wide">Données Techniques Enregistrées</h3>
+					<ul class="grid gap-3">
+						<li class="flex items-center gap-3 text-sm text-slate-600">
+							<span class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400">
+								<i class="fas fa-network-wired"></i>
+							</span>
+							Adresse IP de connexion
+						</li>
+						<li class="flex items-center gap-3 text-sm text-slate-600">
+							<span class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400">
+								<i class="fas fa-laptop-code"></i>
+							</span>
+							Identifiant du navigateur (User-Agent)
+						</li>
+						<li class="flex items-center gap-3 text-sm text-slate-600">
+							<span class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400">
+								<i class="fas fa-clock"></i>
+							</span>
+							Horodatage précis des actions
+						</li>
+					</ul>
+				</div>
+				<p class="text-xs text-slate-400 mt-4 italic">
+					Ces données sont conservées uniquement à des fins d'audit de sécurité et de vérification de l'intégrité du scrutin. Elles ne sont ni partagées ni vendues à des tiers.
+				</p>
+			</div>
+
+			{# Conditions d'utilisation #}
+			<div class="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100">
+				<h2 class="text-2xl font-black text-slate-900 mb-6 flex items-center gap-3">
+					<span class="bg-orange-50 text-orange-600 p-3 rounded-xl">
+						<i class="fas fa-file-contract"></i>
+					</span>
+					Conditions d'Utilisation
+				</h2>
+				<div class="prose prose-slate prose-sm text-slate-600 leading-relaxed">
+					<p class="mb-4">
+						L'accès à cette plateforme est strictement réservé au personnel accrédité (Assesseurs, Superviseurs, Administrateurs). Toute tentative d'accès non autorisé est enregistrée et passible de poursuites.
+					</p>
+					<p class="mb-4">
+						En utilisant SureVote, les utilisateurs s'engagent à :
+					</p>
+					<ul class="list-disc pl-5 space-y-2 mb-4">
+						<li>Saisir des informations sincères et conformes aux procès-verbaux physiques.</li>
+						<li>Ne pas divulguer leurs identifiants de connexion personnels.</li>
+						<li>Signaler immédiatement toute anomalie ou suspicion de compromission de compte.</li>
+					</ul>
+					<div class="bg-orange-50 border-l-4 border-orange-400 p-4 rounded-r-xl">
+						<p class="text-orange-800 font-bold text-xs">
+							<i class="fas fa-exclamation-triangle mr-1"></i>
+							Important : La falsification de résultats électoraux est une infraction grave punie par le Code Électoral.
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
+{% endblock %}
