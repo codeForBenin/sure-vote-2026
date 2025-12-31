@@ -26,3 +26,8 @@ compose.override.yaml
 
 # Data files
 centres_test.ods
+
+###> user content ###
+/public/uploads/pv/*
+!/public/uploads/pv/.gitignore
+###< user content ###
