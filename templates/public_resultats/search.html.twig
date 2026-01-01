@@ -1,0 +1,91 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Trouver mon bureau de vote - Sure Vote
+{% endblock %}
+
+{% block body %}
+	<div class="min-h-screen bg-slate-50 py-12">
+		<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+
+			<div class="text-center mb-12">
+				<h1 class="text-4xl font-black text-slate-900 mb-4">Trouver mon Bureau de Vote</h1>
+				<p class="text-lg text-slate-500">Entrez votre arrondissement, quartier ou le nom de votre centre de vote pour consulter les résultats.</p>
+			</div>
+
+			<div class="bg-white rounded-2xl shadow-xl p-8 mb-8 border border-slate-100">
+				<form action="{{ path('app_public_resultats_search') }}" method="get" class="relative">
+					<div class="relative" data-controller="search-preview" data-search-preview-url-value="{{ path('app_public_resultats_suggestions') }}">
+
+						<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+							<i class="fas fa-search text-slate-400 text-xl"></i>
+						</div>
+						<input
+						type="text" name="q" value="{{ query }}" class="block w-full pl-12 pr-4 py-4 bg-slate-50 border-transparent text-slate-900 placeholder-slate-400 focus:bg-white focus:border-benin-green focus:ring-benin-green rounded-xl text-lg font-medium transition-all" placeholder="Ex: Cotonou, Godomey, nom d'école..." autofocus autocomplete="off" data-search-preview-target="input" data-action="input->search-preview#onInput focus->search-preview#onInput">
+
+						{# Results container #}
+						<div data-search-preview-target="results"></div>
+
+					</div>
+					<button type="submit" class="absolute right-2 top-2 bottom-2 px-6 bg-benin-green hover:bg-benin-green/90 text-white font-bold rounded-lg transition-colors z-20">
+						Rechercher
+					</button>
+				</form>
+			</div>
+
+			{% if query %}
+				<div class="space-y-4">
+					<div class="flex items-center justify-between mb-6">
+						<h2 class="text-xl font-bold text-slate-800">Résultats de recherche</h2>
+						<span class="text-sm font-medium text-slate-500">{{ bureaux|length }}
+							bureau(x) trouvé(s)</span>
+					</div>
+
+					{% if bureaux is empty %}
+						<div class="text-center py-12 bg-white rounded-2xl border border-slate-100 border-dashed">
+							<div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-50 mb-4">
+								<i class="fas fa-search-minus text-slate-400 text-2xl"></i>
+							</div>
+							<h3 class="text-lg font-bold text-slate-900 mb-1">Aucun résultat trouvé pour "{{ query }}"</h3>
+							<p class="text-slate-500">Essayez avec le nom de votre arrondissement ou centre de vote.</p>
+						</div>
+					{% else %}
+						<div class="grid gap-4">
+							{% for bureau in bureaux %}
+								{% set centre = bureau.centre %}
+								{% set circo = centre.circonscription %}
+								<a href="{{ path('app_public_resultats_show', {id: bureau.id}) }}" class="group block bg-white rounded-xl p-6 border border-slate-100 hover:border-benin-green hover:shadow-lg transition-all duration-300">
+									<div class="flex items-start justify-between">
+										<div class="flex-1">
+											<div class="flex items-center gap-2 mb-2">
+												<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 group-hover:bg-benin-green/10 group-hover:text-benin-green transition-colors">
+													{{ bureau.code }}
+												</span>
+												<span class="text-xs font-medium text-slate-400">
+													<i class="fas fa-map-marker-alt text-[10px] mr-1"></i>
+													{{ circo.nom }}
+												</span>
+											</div>
+											<h3 class="text-lg font-bold text-slate-900 group-hover:text-benin-green transition-colors mb-1">
+												{{ bureau.nom }}
+											</h3>
+											<p class="text-sm text-slate-500 group-hover:text-slate-600">
+												{{ centre.nom }}
+												{% if centre.adresse %}
+													<span class="text-slate-300 mx-1">•</span>
+													{{ centre.adresse }}
+												{% endif %}
+											</p>
+										</div>
+										<div class="flex items-center justify-center w-10 h-10 rounded-full bg-slate-50 text-slate-400 group-hover:bg-benin-green group-hover:text-white transition-all">
+											<i class="fas fa-chevron-right"></i>
+										</div>
+									</div>
+								</a>
+							{% endfor %}
+						</div>
+					{% endif %}
+				</div>
+			{% endif %}
+		</div>
+	</div>
+{% endblock %}

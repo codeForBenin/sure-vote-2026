@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\BureauDeVote;
 use App\Entity\CentreDeVote;
 use App\Entity\Circonscription;
 use App\Entity\User;
@@ -90,7 +91,9 @@ class ImportController extends AbstractController
                     $em->flush();
 
                     // On reload l'utilisateur car le $em->clear() l'a détaché
-                    $user = $em->getRepository(\App\Entity\User::class)->find($this->getUser()->getId());
+                    $currentUser = $this->getUser();
+                    /** @var User $currentUser */
+                    $user = $em->getRepository(User::class)->find($currentUser->getId());
 
                     $logsRepository->logAction(
                         action: 'IMPORT_CIRCONSCRIPTIONS',
@@ -248,5 +251,117 @@ class ImportController extends AbstractController
             'form' => $form->createView(),
             'title' => 'Importer des Centres de Vote'
         ], new Response(null, $form->isSubmitted() && !$form->isValid() ? 422 : 200));
+    }
+    #[Route('/bureaux-de-vote', name: 'app_admin_import_bureaux', methods: ['GET', 'POST'])]
+    public function importBureauxDeVote(Request $request, EntityManagerInterface $em, LogsRepository $logsRepository, TokenInterface $token, LoggerInterface $logger): Response
+    {
+        $form = $this->createForm(ImportType::class);
+        $form->handleRequest($request);
+
+        /** @var User $user */
+        $user = $token->getUser();
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $file = $form->get('file')->getData();
+
+            if ($file) {
+                try {
+                    $spreadsheet = IOFactory::load($file->getPathname());
+                    $worksheet = $spreadsheet->getActiveSheet();
+                    $rows = $worksheet->toArray();
+
+                    $importedCount = 0;
+                    $isFirstRow = true;
+
+                    // Cache des IDs de CentreDeVote
+                    $centreMap = [];
+                    // Pour éviter de charger 5000 objets, on fait un select code, id
+                    $centres = $em->getRepository(CentreDeVote::class)->findAll();
+                    foreach ($centres as $c) {
+                        if ($c->getCode()) {
+                            $centreMap[strtoupper(trim($c->getCode()))] = $c->getId();
+                        }
+                    }
+
+                    $errors = [];
+                    $rowIndex = 1;
+
+                    foreach ($rows as $data) {
+                        $rowIndex++;
+                        if ($isFirstRow) {
+                            $isFirstRow = false;
+                            continue;
+                        }
+
+                        // Col 0: Nom, Col 1: Code Bureau, Col 2: Code Centre, Col 3: Inscrits
+                        $nom = trim($data[0] ?? '');
+                        $code = trim($data[1] ?? '');
+                        $codeCentre = strtoupper(trim($data[2] ?? ''));
+                        $inscrits = (int) ($data[3] ?? 0);
+
+                        if (empty($code) || empty($codeCentre)) {
+                            $errors[] = "Ligne $rowIndex : Code Bureau ou Code Centre manquant";
+                            continue;
+                        }
+
+                        if (!isset($centreMap[$codeCentre])) {
+                            $errors[] = "Ligne $rowIndex : Centre de rattachement '$codeCentre' introuvable";
+                            continue;
+                        }
+
+                        // Check doublon
+                        $existing = $em->getRepository(BureauDeVote::class)->findOneBy(['code' => $code]);
+                        if ($existing) {
+                            $errors[] = "Ligne $rowIndex : Bureau '$code' déjà existant";
+                            continue;
+                        }
+
+                        $bureau = new BureauDeVote();
+                        $bureau->setNom($nom ?: 'Bureau ' . $code);
+                        $bureau->setCode($code);
+                        $bureau->setNombreInscrits($inscrits);
+                        $bureau->setCentre($em->getReference(CentreDeVote::class, $centreMap[$codeCentre]));
+
+                        $em->persist($bureau);
+                        $importedCount++;
+
+                        if ($importedCount % 50 === 0) {
+                            $em->flush();
+                            $em->clear();
+                        }
+                    }
+
+                    $em->flush();
+
+                    // Reload user
+                    $user = $em->getRepository(User::class)->find($user->getId());
+
+                    $logsRepository->logAction('IMPORT_BUREAUX', $user, $request->getClientIp(), $request->headers->get('User-Agent'), ['count' => $importedCount, 'errors' => count($errors)]);
+
+                    if ($importedCount > 0) {
+                        $this->addFlash('success', "$importedCount bureaux importés avec succès !");
+                    } else {
+                        $this->addFlash('warning', "Aucun bureau n'a été importé.");
+                    }
+
+                    if (count($errors) > 0) {
+                        $msg = implode('<br>', array_slice($errors, 0, 5));
+                        if (count($errors) > 5)
+                            $msg .= '<br>... et ' . (count($errors) - 5) . ' autres.';
+                        $this->addFlash('danger', "<strong>" . count($errors) . " erreurs :</strong><br>" . $msg);
+                    }
+
+                    return $this->redirectToRoute('admin');
+
+                } catch (\Exception $e) {
+                    $this->addFlash('danger', 'Erreur import : ' . $e->getMessage());
+                }
+            }
+        }
+
+        return $this->render('admin/import/bureaux_de_vote.html.twig', [
+            'form' => $form->createView(),
+            'title' => 'Importer des Bureaux de Vote'
+        ]);
     }
 }

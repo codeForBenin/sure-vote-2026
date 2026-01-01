@@ -97,7 +97,7 @@ class DashboardController extends AbstractDashboardController
     {
         return Dashboard::new()
             ->setTitle('Sure Vote <span class="text-benin-green">Bénin</span>')
-            ->setFaviconPath('favicon.svg');
+            ->setFaviconPath('/uploads/metadata/favicon.png');
     }
 
     public function configureAssets(): Assets
@@ -134,6 +134,7 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::section('Import');
         yield MenuItem::linkToUrl("Circonscriptions", "fas fa-file-import", '/admin/import/circonscriptions');
         yield MenuItem::linkToUrl("Centres de Vote", "fas fa-file-import", '/admin/import/centres-de-vote');
+        yield MenuItem::linkToUrl("Bureaux de Vote", "fas fa-file-import", '/admin/import/bureaux-de-vote');
 
         yield MenuItem::section('Technique');
         yield MenuItem::linkToCrud('Logs Système', 'fas fa-history', Logs::class);

@@ -20,4 +20,20 @@ class BureauDeVoteRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    public function search(string $query)
+    {
+        return $this->createQueryBuilder('b')
+            ->leftJoin('b.centre', 'c')
+            ->leftJoin('c.circonscription', 'ci')
+            ->where('b.nom LIKE :query')
+            ->orWhere('b.code LIKE :query')
+            ->orWhere('c.nom LIKE :query')
+            ->orWhere('c.adresse LIKE :query')
+            ->orWhere('ci.nom LIKE :query')
+            ->setParameter('query', '%' . $query . '%')
+            ->setMaxResults(50)
+            ->getQuery()
+            ->getResult();
+    }
 }
