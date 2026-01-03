@@ -41,5 +41,5 @@ centres_test.ods
 /docker-entrypoint.sh
 /migrations/*
 !/migrations/.gitignore
-!/src/DataFixtures/*
+/src/DataFixtures/*
 
