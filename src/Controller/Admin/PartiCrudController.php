@@ -8,6 +8,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ColorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Vich\UploaderBundle\Form\Type\VichImageType;
 
 
 class PartiCrudController extends AbstractCrudController
@@ -34,11 +35,13 @@ class PartiCrudController extends AbstractCrudController
                     'Opposition' => 'warning',
                     'Coalition gouvernementale' => 'info',
                 ]),
-            ImageField::new('logoUrl', 'Logo')
-                ->setBasePath('uploads/logos')
-                ->setUploadDir('public/uploads/logos')
-                ->setUploadedFileNamePattern('[slug]-[timestamp].[extension]')
-                ->setRequired(false),
+            TextField::new('logoUrl', 'Logo')
+                ->setTemplatePath('admin/field/vich_logo.html.twig')
+                ->onlyOnIndex(),
+
+            TextField::new('logoFile', 'Fichier Logo')
+                ->setFormType(VichImageType::class)
+                ->onlyOnForms(),
         ];
     }
 }

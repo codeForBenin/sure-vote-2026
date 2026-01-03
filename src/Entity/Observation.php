@@ -25,8 +25,12 @@ class Observation
     private ?User $assesseur = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?BureauDeVote $bureauDeVote = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?CentreDeVote $centreDeVote = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
@@ -98,6 +102,18 @@ class Observation
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getCentreDeVote(): ?CentreDeVote
+    {
+        return $this->centreDeVote;
+    }
+
+    public function setCentreDeVote(?CentreDeVote $centreDeVote): static
+    {
+        $this->centreDeVote = $centreDeVote;
 
         return $this;
     }

@@ -12,6 +12,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 
 class UserCrudController extends AbstractCrudController
 {
@@ -38,6 +39,8 @@ class UserCrudController extends AbstractCrudController
             IdField::new('id')->hideOnForm()->hideOnIndex(),
 
             TextField::new('email', 'Adresse Email'),
+            BooleanField::new('isVerified', 'Vérifié')
+                ->renderAsSwitch(),
             TextField::new('nom', 'Nom'),
             TextField::new('prenom', 'Prénom'),
 
@@ -51,13 +54,32 @@ class UserCrudController extends AbstractCrudController
                 ->setChoices([
                     'Administrateur' => 'ROLE_ADMIN',
                     'Assesseur' => 'ROLE_ASSESSEUR',
-                    'Superviseur' => 'ROLE_SUPERVISEUR'
+                    'Superviseur' => 'ROLE_SUPERVISEUR',
+                    'Utilisateur Simple' => 'ROLE_USER',
                 ])
                 ->allowMultipleChoices()
                 ->renderAsBadges(),
 
-            AssociationField::new('assignedBureau', 'Bureau de Vote Assigné')
-                ->autocomplete(),
+            ChoiceField::new('departement', 'Département (Zone de supervision)')
+                ->setChoices([
+                    'Alibori' => 'Alibori',
+                    'Atacora' => 'Atacora',
+                    'Atlantique' => 'Atlantique',
+                    'Borgou' => 'Borgou',
+                    'Collines' => 'Collines',
+                    'Couffo' => 'Couffo',
+                    'Donga' => 'Donga',
+                    'Littoral' => 'Littoral',
+                    'Mono' => 'Mono',
+                    'Ouémé' => 'Ouémé',
+                    'Plateau' => 'Plateau',
+                    'Zou' => 'Zou',
+                ])
+                ->setHelp('Pour un Superviseur, définit la zone qu\'il gère.'),
+
+            AssociationField::new('assignedCentre', 'Centre de Vote Affecté')
+                ->autocomplete()
+                ->setHelp('L\'utilisateur sera assesseur ou superviseur pour ce centre.'),
         ];
     }
 

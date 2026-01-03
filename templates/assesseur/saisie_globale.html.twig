@@ -6,7 +6,7 @@
 
 {% block body %}
 
-<main class="max-w-4xl mx-auto px-4 py-12">
+	<main class="max-w-4xl mx-auto px-4 py-12">
 
 
 		<div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
@@ -21,7 +21,7 @@
 			</div>
 
 			<div
-				class="p-8 md:p-12" {{ stimulus_controller('vote-counter', { inscrits: managedBureau.nombreInscrits } ) }}>
+				class="p-8 md:p-12" data-controller="vote-counter geolocation" data-vote-counter-inscrits-value="{{ managedBureau.nombreInscrits }}">
 
 				{# Erreurs Globales du Formulaire #}
 				<div class="mb-6">
@@ -29,6 +29,20 @@
 				</div>
 
 				{{ form_start(form, {'attr': {'class': 'space-y-10'}}) }}
+
+				{# Champs cachés pour la géolocalisation #}
+				<input type="hidden" name="lat" data-geolocation-target="lat">
+				<input
+				type="hidden" name="lon" data-geolocation-target="lon">
+
+				{# Status GPS #}
+				<div class="flex items-center justify-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100 text-sm font-bold text-slate-500 mb-6" data-geolocation-target="status">
+					<svg class="animate-spin h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24">
+						<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+						<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+					</svg>
+					Acquisition de la position GPS...
+				</div>
 
 				{# Section PV #}
 				<div class="p-6 bg-blue-50 border border-blue-100 rounded-3xl">
@@ -38,8 +52,18 @@
 					</h2>
 					{% if existingPvName %}
 						<div class="mb-6 flex items-center gap-4 bg-white p-4 rounded-xl border border-blue-100 shadow-sm">
-							<div class="h-16 w-16 bg-slate-100 rounded-lg overflow-hidden shrink-0 relative">
-								<img src="{{ asset('uploads/pv/' ~ existingPvName) }}" class="w-full h-full object-cover">
+							<div
+								class="h-16 w-16 bg-slate-100 rounded-lg overflow-hidden shrink-0 relative">
+								{# Utilisation de Vich pour générer l'URL (Azure ou Local) #}
+								{% if resultatWithPv %}
+									<img src="{{ vich_uploader_asset(resultatWithPv, 'pvImageFile') }}" class="w-full h-full object-cover">
+								{% else %}
+									{# Fallback legacy #}
+
+									<img src="{{ asset('uploads/pv/' ~ existingPvName) }}" class="w-full h-full object-cover">
+
+								{% endif %}
+
 							</div>
 							<div>
 								<div class="text-xs font-bold text-blue-400 uppercase tracking-wide">Fichier actuel</div>
@@ -94,7 +118,7 @@
 						<div class="text-3xl font-black font-mono">
 							<span data-vote-counter-target="displayTotal">0</span>
 							<span class="text-slate-500 text-lg">/
-{{ managedBureau.nombreInscrits|number_format(0, ',', ' ') }}</span>
+								{{ managedBureau.nombreInscrits|number_format(0, ',', ' ') }}</span>
 
 
 						</div>
@@ -106,9 +130,10 @@
 				</div>
 
 				<div class="pt-6">
-					<button type="submit" data-vote-counter-target="submitButton" class="w-full py-4 px-6 bg-benin-green hover:bg-green-700 text-white rounded-2xl font-black text-lg shadow-lg shadow-benin-green/20 transform hover:-translate-y-1 transition-all flex items-center justify-center gap-3">
+					<button type="submit" data-vote-counter-target="submitButton" data-geolocation-target="submit" disabled class="w-full py-4 px-6 bg-slate-200 text-slate-500 cursor-not-allowed rounded-2xl font-black text-lg shadow-lg transition-all flex items-center justify-center gap-3">
 						<i class="fas fa-paper-plane"></i>
-						{% if existingPvName %}Modifier{% else %}Enregistrer{% endif %}
+						{% if existingPvName %}Modifier{% else %}Enregistrer
+						{% endif %}
 						le Résultat
 					</button>
 					<p class="text-center text-xs text-slate-400 mt-4">

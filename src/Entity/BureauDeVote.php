@@ -19,7 +19,7 @@ class BureauDeVote
     #[ORM\Column(length: 100)]
     private ?string $nom = null;
 
-    #[ORM\Column(length: 20, unique: true)]
+    #[ORM\Column(length: 100, unique: true)]
     private ?string $code = null;
 
     #[ORM\Column]
@@ -86,9 +86,9 @@ class BureauDeVote
     public function __toString(): string
     {
         $nom = $this->nom ?? 'Bureau sans nom';
-        $code = $this->code ?? 'N/A';
         $centreNom = $this->centre ? $this->centre->getNom() : 'Centre inconnu';
+        $centreArrondissement = $this->centre ? $this->centre->getArrondissement() : 'Arrondissement inconnu';
 
-        return sprintf('%s (%s) - %s', $nom, $code, $centreNom);
+        return sprintf('%s (%s) - %s', $nom, $centreNom, $centreArrondissement);
     }
 }

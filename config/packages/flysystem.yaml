@@ -1,0 +1,25 @@
+# Read the documentation at https://github.com/thephpleague/flysystem-bundle/blob/master/docs/1-getting-started.md
+services:
+  # Service Client Azure Blob Storage
+  AzureOss\Storage\Blob\BlobServiceClient:
+    factory: ['AzureOss\Storage\Blob\BlobServiceClient', "fromConnectionString"]
+    arguments:
+      - "%env(AZURE_STORAGE_CONNECTION_STRING)%"
+
+  # Container Client spécifique (Factory via le Service Client)
+  app.azure_container_client:
+    class: AzureOss\Storage\Blob\BlobContainerClient
+    factory: ['@AzureOss\Storage\Blob\BlobServiceClient', "getContainerClient"]
+    arguments:
+      - "%env(string:AZURE_STORAGE_CONTAINER)%"
+
+  # Adaptateur Flysystem utilisant le Container Client
+  app.flysystem.azure_adapter:
+    class: AzureOss\FlysystemAzureBlobStorage\AzureBlobStorageAdapter
+    arguments:
+      - "@app.azure_container_client"
+
+flysystem:
+  storages:
+    vote_reports.storage:
+      adapter: "app.flysystem.azure_adapter"

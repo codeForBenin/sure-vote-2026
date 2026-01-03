@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
@@ -32,6 +33,36 @@ class RegistrationFormType extends AbstractType
                 'label' => 'Adresse Email',
                 'attr' => ['placeholder' => 'exemple@email.com']
             ])
+            ->add('departement', ChoiceType::class, [
+                'label' => 'Département de résidence',
+                'placeholder' => 'Choisir un département',
+                'choices' => [
+                    'Alibori' => 'Alibori',
+                    'Atacora' => 'Atacora',
+                    'Atlantique' => 'Atlantique',
+                    'Borgou' => 'Borgou',
+                    'Collines' => 'Collines',
+                    'Couffo' => 'Couffo',
+                    'Donga' => 'Donga',
+                    'Littoral' => 'Littoral',
+                    'Mono' => 'Mono',
+                    'Ouémé' => 'Ouémé',
+                    'Plateau' => 'Plateau',
+                    'Zou' => 'Zou',
+                ],
+            ])
+            ->add('commune', TextType::class, [
+                'label' => 'Commune',
+                'attr' => ['placeholder' => 'Ex: Cotonou, Abomey-Calavi...']
+            ])
+            ->add('arrondissement', TextType::class, [
+                'label' => 'Arrondissement',
+                'attr' => ['placeholder' => 'Ex: 13ème Arrondissement, Godomey...']
+            ])
+            ->add('lieuDeResidence', TextType::class, [
+                'label' => 'Quartier / Village',
+                'attr' => ['placeholder' => 'Votre quartier de résidence']
+            ])
             ->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
                 'mapped' => false,
@@ -47,22 +78,6 @@ class RegistrationFormType extends AbstractType
                         max: 4096,
                     ),
                 ],
-            ])
-
-            // Localisation Manuelle
-            ->add('commune', TextType::class, [
-                'label' => 'Commune',
-                'attr' => ['placeholder' => 'Ex: Cotonou, Abomey-Calavi...']
-            ])
-            ->add('arrondissement', TextType::class, [
-                'label' => 'Arrondissement',
-                'attr' => ['placeholder' => 'Ex: 13ème Arrondissement, Godomey...']
-            ])
-            ->add('lieuDeResidence', TextType::class, [
-                'label' => 'Quartier / Village',
-                'attr' => [
-                    'placeholder' => 'Votre quartier de résidence'
-                ]
             ])
             ->add('agreeTerms', CheckboxType::class, [
                 'mapped' => false,

@@ -5,8 +5,11 @@ namespace App\Entity;
 use App\Repository\PartiRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
+use Symfony\Component\HttpFoundation\File\File;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ORM\Entity(repositoryClass: PartiRepository::class)]
+#[Vich\Uploadable]
 class Parti
 {
     #[ORM\Id]
@@ -28,10 +31,31 @@ class Parti
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $affiliation = null;
 
+    #[Vich\UploadableField(mapping: 'party_logos', fileNameProperty: 'logoUrl')]
+    private ?File $logoFile = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $updatedAt = null;
+
+    public function setLogoFile(?File $logoFile = null): void
+    {
+        $this->logoFile = $logoFile;
+        if (null !== $logoFile) {
+            $this->updatedAt = new \DateTimeImmutable();
+        }
+    }
+
+    public function getLogoFile(): ?File
+    {
+        return $this->logoFile;
+    }
+
     public function __construct()
     {
         $this->id = Uuid::v7();
     }
+
+    // ... rest of getters/setters
 
     public function getId(): ?Uuid
     {

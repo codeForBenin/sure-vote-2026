@@ -39,7 +39,7 @@ export default class extends Controller {
             });
     }
 
-    // Utility function for debounce
+    // Fonction de debounce
     debounce(func, wait) {
         let timeout;
         return function(...args) {
@@ -48,7 +48,7 @@ export default class extends Controller {
         };
     }
     
-    // Close suggestions on outside click (optional but nice)
+    // Fermer les suggestions si on clique en dehors
     close(event) {
          if (!this.element.contains(event.target)) {
             this.resultsTarget.innerHTML = '';

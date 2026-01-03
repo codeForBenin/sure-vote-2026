@@ -16,44 +16,62 @@
 
 			<div class="flex flex-wrap justify-center items-center gap-4">
 
-				{% if app.request.get('_route') != 'app_home' %}
+				{% if is_granted('IS_AUTHENTICATED_FULLY') %}
+					{# --- MENU CONNECTÉ : ÉPURÉ --- #}
 					<a href="{{ path('app_home') }}" class="text-sm font-bold text-slate-500 hover:text-benin-green transition-colors">
 						Accueil
 					</a>
-				{% endif %}
-				{% if app.request.get('_route') != 'app_public_resultats_search' %}
-					<a href="{{ path('app_public_resultats_search') }}" class="text-sm font-bold text-slate-500 hover:text-benin-green transition-colors">
-						<i class="fas fa-search mr-1"></i> Trouver mon bureau
-					</a>
-				{% endif %}
-				{% if app.request.get('_route') != 'app_stats_participation' %}
-					<a href="{{ path('app_stats_participation') }}" class="text-sm font-bold text-slate-500 hover:text-benin-green transition-colors">
-						Statistiques
-					</a>
-				{% endif %}
-				{% if app.request.get('_route') != 'app_projections' %}
-					<a href="{{ path('app_projections') }}" class="text-sm font-bold text-slate-500 hover:text-benin-green transition-colors">
-						Projections
-					</a>
-				{% endif %}
-				{% if app.request.get('_route') != 'app_infos' %}
-					<a href="{{ path('app_infos') }}" class="text-sm font-bold text-benin-green hover:text-green-700 transition-colors flex items-center gap-2">
-						<i class="fas fa-info-circle"></i>
-						Infos & Transparence
-					</a>
-				{% endif %}
 
-				{% if is_granted('IS_AUTHENTICATED_FULLY') %}
-					{% set console_path = is_granted('ROLE_ADMIN') ? path('admin') : path('app_assesseur_dashboard') %}
-					{% set console_name = is_granted('ROLE_ADMIN') ? 'Espace Admin' : 'Espace Assesseur' %}
-					{% if app.request.get('_route') == 'app_assesseur_dashboard' %}
-						<span class=" px-2 py-1 text-benin-green text-xs font-bold rounded uppercase">{{ app.user.fullName }}</span>
+					{% set dashboard_path = is_granted('ROLE_ADMIN') ? path('admin') : path('app_assesseur_dashboard') %}
+					{% set dashboard_label = is_granted('ROLE_ADMIN') ? 'Espace Administrateur' : 'Tableau de Bord' %}
+
+					{% if app.request.get('_route') != 'app_assesseur_dashboard' and app.request.get('_route') != 'admin' %}
+						<a href="{{ dashboard_path }}" class="text-sm font-bold text-benin-green hover:text-green-700 transition-colors">
+							{{ dashboard_label }}
+						</a>
 					{% else %}
-						<a href="{{ console_path }}" class="text-sm font-semibold text-slate-600 hover:text-benin-green transition-colors">{{ console_name }}</a>
+                         {# On est déjà sur le dashboard, on affiche peut être le nom de l'utilisateur #}
+                        <span class="text-xs font-bold text-slate-400 uppercase">{{ app.user.fullName }}</span>
+                    {% endif %}
+
+					<a href="{{ path('app_logout') }}" class="bg-red-50 text-red-600 px-4 py-2 rounded-xl text-sm font-bold hover:bg-red-100 transition-colors">
+						Déconnexion
+					</a>
+
+				{% else %}
+					{# --- MENU PUBLIC : COMPLET --- #}
+
+					{% if app.request.get('_route') != 'app_home' %}
+						<a href="{{ path('app_home') }}" class="text-sm font-bold text-slate-500 hover:text-benin-green transition-colors">
+							Accueil
+						</a>
 					{% endif %}
 
-					<a href="{{ path('app_logout') }}" class="bg-red-50 text-red-600 px-4 py-2 rounded-xl text-sm font-bold hover:bg-red-100 transition-colors">Déconnexion</a>
-				{% else %}
+					{% if app.request.get('_route') != 'app_public_resultats_search' %}
+						<a href="{{ path('app_public_resultats_search') }}" class="text-sm font-bold text-slate-500 hover:text-benin-green transition-colors">
+							<i class="fas fa-search mr-1"></i> Trouver mon Centre de Vote
+						</a>
+					{% endif %}
+
+					{% if app.request.get('_route') != 'app_stats_participation' %}
+						<a href="{{ path('app_stats_participation') }}" class="text-sm font-bold text-slate-500 hover:text-benin-green transition-colors">
+							Statistiques
+						</a>
+					{% endif %}
+
+					{% if app.request.get('_route') != 'app_projections' %}
+						<a href="{{ path('app_projections') }}" class="text-sm font-bold text-slate-500 hover:text-benin-green transition-colors">
+							Projections
+						</a>
+					{% endif %}
+
+					{% if app.request.get('_route') != 'app_infos' %}
+						<a href="{{ path('app_infos') }}" class="text-sm font-bold text-benin-green hover:text-green-700 transition-colors flex items-center gap-2">
+							<i class="fas fa-info-circle"></i>
+							Infos & Transparence
+						</a>
+					{% endif %}
+
 					<a href="{{ path('app_login') }}" class="text-sm font-semibold text-slate-600 hover:text-benin-green transition-colors">Connexion</a>
 				{% endif %}
 			</div>

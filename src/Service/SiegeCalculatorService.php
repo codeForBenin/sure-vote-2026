@@ -82,9 +82,6 @@ class SiegeCalculatorService
 
                 foreach ($projection as $id => $data) {
                     // Moyenne = Voix / (Sièges Déjà Obtenus + 1 [celui qu'on convoite])
-                    // Attention: on parle des sièges ordinaires pour le diviseur dans le cadre de la PFM sur les ordinaires
-                    // ou du total ? Le code dit "sièges attribués à la liste".
-                    // Généralement PFM s'applique sur le pool qu'on distribue.
                     $diviseur = $data['sieges_ordinaire'] + 1;
                     $moyenne = $data['voix'] / $diviseur;
 

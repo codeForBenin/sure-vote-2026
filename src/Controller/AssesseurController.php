@@ -46,108 +46,114 @@ class AssesseurController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
+        $assignedCentre = $user->getAssignedCentre();
 
-        $managedBureau = $user->getAssignedBureau();
+        $bureaux = [];
+        $isSupervisor = false; // Tout le monde est "un peu" superviseur de son centre maintenant, ou on garde le role pour d'autres droits ?
+        // On considère que tout le monde voit la liste des bureaux de son centre.
 
+        if ($assignedCentre) {
+            // Check role if needed, or just assuming assignedCentre means access to its bureaux
+            $bureaux = $assignedCentre->getBureaux()->toArray();
 
-        $bureau = $managedBureau;
-
-
-        if (!$bureau) {
+            // Si on veut garder la distinction visuelle "Superviseur"
+            if ($this->isGranted('ROLE_SUPERVISEUR')) {
+                $isSupervisor = true;
+            }
+        } else {
             if ($this->isGranted('ROLE_ADMIN')) {
-                $this->addFlash('warning', 'Vous êtes administrateur sans bureau assigné. Veuillez en assigner un ou utiliser le dashboard admin.');
+                $this->addFlash('warning', 'Vous êtes administrateur sans centre assigné. Veuillez en assigner un ou utiliser le dashboard admin.');
                 return $this->redirectToRoute('admin');
             }
-            // Assesseur sans bureau
-            throw $this->createAccessDeniedException('Aucun bureau de vote ne vous est assigné. Contactez l\'administrateur.');
+            throw $this->createAccessDeniedException('Aucun centre de vote ne vous est assigné. Contactez l\'administrateur.');
         }
-
-        // Calculs ...
-        $isVoteComplet = false;
-        $sommeVoix = $resultatRepository->getSommeVoixParBureau((string) $bureau->getId());
-
-        if ($sommeVoix >= $bureau->getNombreInscrits()) {
-            $isVoteComplet = true;
-        }
-
-        // Calcul Taux de Participation
-        $latestParticipation = $participationRepository->findLatestByBureau($bureau->getId());
-
-        $nombreVotantsParticipation = $latestParticipation ? $latestParticipation->getNombreVotants() : 0;
-
-        $nombreVotants = max($nombreVotantsParticipation, $sommeVoix);
-
-        $tauxParticipation = 0;
-
-        if ($bureau->getNombreInscrits() > 0) {
-            $tauxParticipation = ($nombreVotants / $bureau->getNombreInscrits()) * 100;
-        }
-
-        // Récupération des messages
-        $messages = $broadcastMessageRepository->findActiveMessages();
 
         // --- Gestion de la plage horaire ---
         $elections = $electionRepository->findAll();
         $election = $elections[0] ?? null;
         $isSaisieOuverte = true;
-        $heureFermetureStr = '16:00'; // Default
 
-        if ($election) {
+        if ($election && $election->getHeureFermeture()) {
             $dateElection = $election->getDateElection();
             $heureFermeture = $election->getHeureFermeture();
-
-            if ($heureFermeture) {
-                $heureFermetureStr = $heureFermeture->format('H:i');
-                // Créer le DateTime de fermeture
-                $fermetureDateTime = \DateTime::createFromFormat(
-                    'Y-m-d H:i:s',
-                    $dateElection->format('Y-m-d') . ' ' . $heureFermeture->format('H:i:s'),
-                    new \DateTimeZone('Africa/Porto-Novo')
-                );
-
-                // Ajouter 2 heures de tolérance (comme demandé: "2 à 3 heures")
-                $limiteSaisie = (clone $fermetureDateTime)->modify('+2 hours');
-                $now = new \DateTime('now', new \DateTimeZone('Africa/Porto-Novo'));
-
-                if ($now > $limiteSaisie) {
-                    $isSaisieOuverte = false;
-                }
+            $fermetureDateTime = \DateTime::createFromFormat(
+                'Y-m-d H:i:s',
+                $dateElection->format('Y-m-d') . ' ' . $heureFermeture->format('H:i:s'),
+                new \DateTimeZone('Africa/Porto-Novo')
+            );
+            $limiteSaisie = (clone $fermetureDateTime)->modify('+4 hours'); // Tolérance élargie (4h)
+            $now = new \DateTime('now', new \DateTimeZone('Africa/Porto-Novo'));
+            if ($now > $limiteSaisie && $this->getParameter('kernel.environment') !== 'dev') {
+                $isSaisieOuverte = false;
             }
         }
 
-        // Resultats déjà saisis pour affichage/modif
-        $mesResultats = $resultatRepository->findBy(['bureauDeVote' => $bureau]);
+        // Calculer les stats pour chaque bureau
+        $bureauxStats = [];
+        foreach ($bureaux as $bureau) {
+            $sommeVoix = $resultatRepository->getSommeVoixParBureau((string) $bureau->getId());
+            $isVoteComplet = ($sommeVoix >= $bureau->getNombreInscrits()) && $bureau->getNombreInscrits() > 0;
+
+            $latestParticipation = $participationRepository->findLatestByBureau($bureau->getId());
+            $nombreVotants = $latestParticipation ? $latestParticipation->getNombreVotants() : 0;
+            $nombreVotants = max($nombreVotants, $sommeVoix);
+
+            $tauxParticipation = 0;
+            if ($bureau->getNombreInscrits() > 0) {
+                $tauxParticipation = ($nombreVotants / $bureau->getNombreInscrits()) * 100;
+            }
+
+            // Resultats saisis ?
+            $resultats = $resultatRepository->findBy(['bureauDeVote' => $bureau], ['nombreVoix' => 'DESC']);
+            $isSaisi = count($resultats) > 0;
+
+            $bureauxStats[] = [
+                'entity' => $bureau,
+                'sommeVoix' => $sommeVoix,
+                'isVoteComplet' => $isVoteComplet,
+                'nombreVotants' => $nombreVotants,
+                'tauxParticipation' => floor($tauxParticipation * 100) / 100,
+                'isSaisi' => $isSaisi,
+                'detailsResultats' => $resultats
+            ];
+        }
+
+        // Récupération des messages
+        $messages = $broadcastMessageRepository->findActiveMessages();
 
         return $this->render('assesseur/index.html.twig', [
-            'bureau' => $bureau,
-            'isVoteComplet' => $isVoteComplet,
-            'sommeVoix' => $sommeVoix,
-            'tauxParticipation' => floor($tauxParticipation * 100) / 100,
-            'nombreVotants' => $nombreVotants,
+            'isSupervisor' => $isSupervisor,
+            'bureauxStats' => $bureauxStats, // Liste de stats
             'messages' => $messages,
             'election' => $election,
             'isSaisieOuverte' => $isSaisieOuverte,
-            'mesResultats' => $mesResultats
+            // Pour compatibilité template
+            'singleBureauStat' => null
         ]);
     }
 
-    #[Route('/participation', name: 'app_assesseur_participation', methods: ['GET', 'POST'])]
-    public function participation(Request $request, EntityManagerInterface $em, GeoVerifier $geoVerifier, LoggerInterface $logger, LogsRepository $logsRepository): Response
-    {
+    #[Route('/participation/{id}', name: 'app_assesseur_participation', methods: ['GET', 'POST'])]
+    public function participation(
+        Request $request,
+        EntityManagerInterface $em,
+        GeoVerifier $geoVerifier,
+        LoggerInterface $logger,
+        LogsRepository $logsRepository,
+        string $id
+    ): Response {
         /** @var User $user */
         $user = $this->getUser();
-        $bureau = $user->getAssignedBureau();
+        $assignedCentre = $user->getAssignedCentre();
 
-        if (!$bureau) {
-            $this->addFlash('error', 'Vous devez être assigné à un bureau de vote pour effectuer un pointage.');
-            return $this->redirectToRoute('app_assesseur_dashboard');
-        }
-
-        // Reload the bureau from database to ensure it's managed by Doctrine
-        $managedBureau = $em->find(BureauDeVote::class, $bureau->getId());
+        $managedBureau = $em->getRepository(BureauDeVote::class)->find($id);
 
         if (!$managedBureau) {
-            throw new \Exception('Bureau de vote introuvable');
+            throw $this->createNotFoundException('Bureau introuvable');
+        }
+
+        // Check Access: Bureau must belong to user's assigned centre
+        if (!$assignedCentre || $managedBureau->getCentre()->getId() !== $assignedCentre->getId()) {
+            throw $this->createAccessDeniedException('Vous n\'avez pas accès à ce bureau.');
         }
 
         $participation = new Participation();
@@ -186,7 +192,7 @@ class AssesseurController extends AbstractController
                     throw new \Exception('Assesseur is null after form handling!');
                 }
 
-                // Vérification Géolocalisation via les champs cachés remplis en JS
+                // Vérification Géolocalisation
                 $lat = $request->request->get('lat');
                 $lon = $request->request->get('lon');
 
@@ -212,14 +218,20 @@ class AssesseurController extends AbstractController
 
                 $logger->info((string) $participation);
 
-                // efface les entités du cache
+                // --- FIX DOCTRINE DETACHED ENTITY ---
+                // On efface pour nettoyer l'unité de travail
                 $em->clear();
 
-                // recharge les entités pour s'assurer qu'elles sont bien gérées
+                // On recharge les entités "fraîches"
                 $freshBureau = $em->find(BureauDeVote::class, $managedBureau->getId());
                 $freshUser = $em->find(User::class, $user->getId());
 
-                // Créer une nouvelle participation avec les entités gérées
+                if (!$freshBureau || !$freshUser) {
+                    // Should not happen unless concurrent deleted
+                    throw new \Exception("Erreur critique: Impossible de recharger les entités.");
+                }
+
+                // On recrée l'objet Participation avec ces entités fraîches
                 $freshParticipation = new Participation();
                 $freshParticipation->setBureauDeVote($freshBureau);
                 $freshParticipation->setAssesseur($freshUser);
@@ -251,41 +263,44 @@ class AssesseurController extends AbstractController
 
         return $this->render('assesseur/participation.html.twig', [
             'form' => $form,
-            'bureau' => $bureau,
+            'bureau' => $managedBureau,
         ]);
     }
 
     /**
      * Pointage des résultats
      */
-    #[Route('/saisie-resultats', name: 'app_assesseur_saisie_resultats', methods: ['GET', 'POST'])]
+    #[Route('/saisie-resultats/{id}', name: 'app_assesseur_saisie_resultats', methods: ['GET', 'POST'])]
     public function saisieGlobale(
         Request $request,
         EntityManagerInterface $em,
+        GeoVerifier $geoVerifier,
         ResultatRepository $resultatRepository,
         PartiRepository $partiRepository,
         BureauDeVoteRepository $bureauDeVoteRepository,
         ElectionRepository $electionRepository,
         UploadHandler $uploadHandler,
-        LogsRepository $logsRepository
+        LogsRepository $logsRepository,
+        string $id
     ): Response {
         /** @var User $user */
         $user = $this->getUser();
         if (!$user)
             return $this->redirectToRoute('app_login');
 
-        // Vérification Affectation
-        $assignedBureau = $user->getAssignedBureau();
-        if (!$assignedBureau) {
-            $this->addFlash('warning', 'Vous n\'êtes affecté à aucun bureau de vote.');
-            return $this->redirectToRoute('app_assesseur_dashboard');
-        }
+        // Resolve Bureau
+        $assignedCentre = $user->getAssignedCentre();
 
-        // RECHARGEMENT DE L'ENTITÉ POUR ÉVITER L'ERREUR "DETACHED ENTITY"
-        $managedBureau = $bureauDeVoteRepository->find($assignedBureau->getId());
+        $managedBureau = $bureauDeVoteRepository->find($id);
         if (!$managedBureau) {
             throw $this->createNotFoundException('Bureau introuvable.');
         }
+
+        // Access Check
+        if (!$assignedCentre || $managedBureau->getCentre()->getId() !== $assignedCentre->getId()) {
+            throw $this->createAccessDeniedException('Accès refusé pour ce bureau.');
+        }
+
 
         // Vérification Période Saisie
         $elections = $electionRepository->findAll();
@@ -325,11 +340,13 @@ class AssesseurController extends AbstractController
         // Préparation Data Form
         $formData = [];
         $existingPvName = null;
+        $resultatWithPv = null;
 
         foreach ($resultatsExistants as $res) {
             $formData['parti_' . $res->getParti()->getId()] = $res->getNombreVoix();
             if ($res->getPvImageName()) {
                 $existingPvName = $res->getPvImageName();
+                $resultatWithPv = $res;
             }
         }
 
@@ -345,6 +362,43 @@ class AssesseurController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            // 1. SECURITY: Geolocation Check
+            $lat = $request->request->get('lat');
+            $lon = $request->request->get('lon');
+            $centre = $managedBureau->getCentre();
+
+            // Bypass en dev local si lat/lon absents
+            $isDev = $this->getParameter('kernel.environment') === 'dev';
+
+            if ((!$lat || !$lon) && !$isDev) {
+                $this->addFlash('error', 'Erreur de géolocalisation: Coordonnées manquantes. Activez votre GPS.');
+                return $this->redirectToRoute('app_assesseur_saisie_resultats', ['id' => $id]);
+            }
+
+            if ($lat && $lon && $centre && $centre->getLatitude() && $centre->getLongitude()) {
+                $isNear = $geoVerifier->isWithinRange(
+                    (float) $lat,
+                    (float) $lon,
+                    $centre->getLatitude(),
+                    $centre->getLongitude()
+                );
+
+                if (!$isNear && !$isDev) {
+                    // LOG FRAUDE POTENTIELLE
+                    $logsRepository->logAction(
+                        "FRAUDE_TENTATIVE_DISTANCE",
+                        $user,
+                        $request->getClientIp(),
+                        $request->headers->get("User-Agent"),
+                        ['bureau' => $managedBureau->getNom(), 'lat' => $lat, 'lon' => $lon]
+                    );
+
+                    $this->addFlash('error', '⛔ Position non valide : Vous êtes trop loin du centre de vote pour saisir les résultats.');
+                    return $this->redirectToRoute('app_assesseur_saisie_resultats', ['id' => $id]);
+                }
+            }
+
             // Validation: Total vs Inscrits
             $totalVoixSaisies = 0;
             foreach ($partis as $parti) {
@@ -360,7 +414,8 @@ class AssesseurController extends AbstractController
                 return $this->render('assesseur/saisie_globale.html.twig', [
                     'form' => $form->createView(),
                     'managedBureau' => $managedBureau,
-                    'existingPvName' => $existingPvName
+                    'existingPvName' => $existingPvName,
+                    'resultatWithPv' => $resultatWithPv
                 ]);
             }
 
@@ -371,7 +426,7 @@ class AssesseurController extends AbstractController
             // Vérification si aucun fichier n'existe et aucun n'est envoyé
             if (!$pvFile && !$existingPvName) {
                 $this->addFlash('error', 'Vous devez uploader une photo du PV.');
-                return $this->redirectToRoute('app_assesseur_saisie_resultats');
+                return $this->redirectToRoute('app_assesseur_saisie_resultats', ['id' => $id]);
             }
 
             $em->getConnection()->beginTransaction();
@@ -467,14 +522,15 @@ class AssesseurController extends AbstractController
             } catch (\Exception $e) {
                 $em->getConnection()->rollBack();
                 $this->addFlash('error', 'Erreur Transaction : ' . $e->getMessage());
-                return $this->redirectToRoute('app_assesseur_saisie_resultats');
+                return $this->redirectToRoute('app_assesseur_saisie_resultats', ['id' => $id]);
             }
         }
 
         return $this->render('assesseur/saisie_globale.html.twig', [
             'form' => $form->createView(),
             'managedBureau' => $managedBureau,
-            'existingPvName' => $existingPvName
+            'existingPvName' => $existingPvName,
+            'resultatWithPv' => $resultatWithPv
         ]);
     }
 
@@ -488,9 +544,10 @@ class AssesseurController extends AbstractController
         if (!$user)
             return $this->redirectToRoute('app_login');
 
-        $managedBureau = $user->getAssignedBureau();
-        if (!$managedBureau) {
-            $this->addFlash('error', "Vous n'êtes assigné à aucun bureau de vote.");
+        $assignedCentre = $user->getAssignedCentre();
+
+        if (!$assignedCentre) {
+            $this->addFlash('error', "Vous n'êtes assigné à aucun centre de vote.");
             return $this->redirectToRoute('app_home');
         }
 
@@ -500,33 +557,36 @@ class AssesseurController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $observation->setAssesseur($user);
-            $observation->setBureauDeVote($managedBureau);
+            $observation->setCentreDeVote($assignedCentre);
 
             $em->persist($observation);
             $em->flush();
 
+            $logDetails = [
+                'observation' => $observation->getContenu() ?? "",
+                'niveau' => $observation->getNiveau() ?? "",
+                'centre' => $assignedCentre->getId()
+            ];
+
             $logsRepository->logAction(
-                "OSERVATION_SIGNALEE",
+                "OBSERVATION_SIGNALEE",
                 $user,
                 ip: $request->getClientIp(),
                 userAgent: $request->headers->get('User-Agent'),
-                details: [
-                    'bureau' => $managedBureau->getId(),
-                    'observation' => $observation->getContenu() ?? "",
-                    'niveau' => $observation->getNiveau() ?? "",
-                ]
+                details: $logDetails
             );
 
             $this->addFlash('success', "Observation enregistrée.");
             return $this->redirectToRoute('app_assesseur_observations');
         }
 
-        $historique = $observationRepository->findByBureau((string) $managedBureau->getId() ?? '');
+        $historique = $observationRepository->findByCentre((string) $assignedCentre->getId());
 
         return $this->render('assesseur/observations.html.twig', [
             'form' => $form->createView(),
             'historique' => $historique,
-            'bureau' => $managedBureau
+            'bureau' => null,
+            'centre' => $assignedCentre
         ]);
     }
 }

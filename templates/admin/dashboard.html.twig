@@ -52,9 +52,17 @@
 				<p class="title">{{ alert.contenu }}</p>
 				<p class="meta">
 					<i class="fas fa-map-marker-alt mr-1"></i>
-					{{ alert.bureauDeVote.nom }}
-					({{ alert.bureauDeVote.code }}) 
-													                            -
+{% if alert.bureauDeVote %}
+	{{ alert.bureauDeVote.nom }}
+	({{ alert.bureauDeVote.code }})
+{% elseif alert.centreDeVote %}
+	{{ alert.centreDeVote.nom }}
+	(Centre)
+{% else %}
+	Lieu inconnu
+{% endif %}
+-
+
 					<span style="font-weight: 600">{{ alert.assesseur.fullName }}</span>
 				</p>
 			</div>

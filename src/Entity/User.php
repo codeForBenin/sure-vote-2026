@@ -55,7 +55,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     #[ORM\Column(length: 255, nullable: true)]
+    private ?string $departement = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $lieuDeResidence = null;
+
+    public function getDepartement(): ?string
+    {
+        return $this->departement;
+    }
+
+    public function setDepartement(?string $departement): static
+    {
+        $this->departement = $departement;
+        return $this;
+    }
 
     #[ORM\ManyToMany(targetEntity: BureauDeVote::class)]
     private Collection $bureauxPreferes;
@@ -65,8 +79,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->id = Uuid::v7();
         $this->bureauxPreferes = new ArrayCollection();
     }
-
-    // ... existing getters/setters until assignedBureau ...
 
     public function isVerified(): bool
     {
@@ -138,10 +150,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $prenom = null;
 
-    #[ORM\ManyToOne(targetEntity: BureauDeVote::class)]
-    #[ORM\JoinColumn(onDelete: 'SET NULL')]
-    private ?BureauDeVote $assignedBureau = null;
-
     public function getId(): ?Uuid
     {
         return $this->id;
@@ -208,8 +216,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-
-
     private ?string $plainPassword = null;
 
     public function getPlainPassword(): ?string
@@ -222,8 +228,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->plainPassword = $plainPassword;
         return $this;
     }
-
-
 
     /**
      * @see UserInterface
@@ -256,15 +260,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getAssignedBureau(): ?BureauDeVote
+    #[ORM\ManyToOne(targetEntity: CentreDeVote::class)]
+    #[ORM\JoinColumn(onDelete: 'SET NULL')]
+    private ?CentreDeVote $assignedCentre = null;
+
+    public function getAssignedCentre(): ?CentreDeVote
     {
-        return $this->assignedBureau;
+        return $this->assignedCentre;
     }
 
-    public function setAssignedBureau(?BureauDeVote $assignedBureau): static
+    public function setAssignedCentre(?CentreDeVote $assignedCentre): static
     {
-        $this->assignedBureau = $assignedBureau;
-
+        $this->assignedCentre = $assignedCentre;
         return $this;
     }
 
@@ -276,5 +283,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getFullName(): string
     {
         return (string) $this->nom . ' ' . $this->prenom;
+    }
+
+    public function getAdresse(): string
+    {
+        $adresse = (string) $this->lieuDeResidence . ', ' . $this->arrondissement . ', ' . $this->commune;
+
+        return trim(implode(" ", explode(",", $adresse))) !== '' ? $adresse : 'Non fournie';
     }
 }

@@ -1,7 +1,14 @@
 vich_uploader:
-    db_driver: orm
-    mappings:
-        vote_reports:
-            uri_prefix: /uploads/pv
-            upload_destination: '%kernel.project_dir%/public/uploads/pv'
-            namer: vich_uploader.namer_uniqid
+  db_driver: orm
+  storage: flysystem
+
+  mappings:
+    vote_reports:
+        uri_prefix: '%env(AZURE_PUBLIC_URL)%/%env(AZURE_STORAGE_CONTAINER)%'
+        upload_destination: vote_reports.storage
+        namer: vich_uploader.namer_uniqid
+    
+    party_logos:
+        uri_prefix: '%env(AZURE_PUBLIC_URL)%/%env(AZURE_STORAGE_CONTAINER)%'
+        upload_destination: vote_reports.storage
+        namer: vich_uploader.namer_uniqid

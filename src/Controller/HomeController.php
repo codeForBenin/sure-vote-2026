@@ -162,4 +162,11 @@ class HomeController extends AbstractController
             'election' => $election
         ]);
     }
+
+    #[Route('/test-erreur', name: 'app_test_error')]
+    public function testError(): Response
+    {
+        // Cela va déclencher l'événement kernel.exception
+        throw new \Exception('Ceci est un test pour mon Subscriber !');
+    }
 }

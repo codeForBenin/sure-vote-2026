@@ -8,6 +8,7 @@ use App\Entity\CentreDeVote;
 use App\Entity\Circonscription;
 use App\Entity\Election;
 use App\Entity\Logs;
+use App\Entity\Observation;
 use App\Entity\Parti;
 use App\Entity\Participation;
 use App\Entity\Resultat;
@@ -109,36 +110,39 @@ class DashboardController extends AbstractDashboardController
     public function configureMenuItems(): iterable
     {
         yield MenuItem::linkToDashboard('Vue d’ensemble', 'fa fa-home');
-        yield MenuItem::linkToCrud('Élections', 'fas fa-calendar-alt', Election::class);
+
+        // Menu Spécial Superviseurs
+        yield MenuItem::section('Validation & Accréditation')
+            ->setPermission('ROLE_SUPERVISEUR');
+        yield MenuItem::linkToCrud('File de Validation', 'fas fa-check-double', User::class)
+            ->setController(ValidationUserCrudController::class)
+            ->setPermission('ROLE_SUPERVISEUR');
+
+        // Admin Only
+        yield MenuItem::section('Gestion Élections')->setPermission('ROLE_ADMIN');
+        yield MenuItem::linkToCrud('Élections', 'fas fa-calendar-alt', Election::class)->setPermission('ROLE_ADMIN');
 
         yield MenuItem::section('Terrain');
-        yield MenuItem::linkToCrud('Observations Remontées', 'fas fa-eye', \App\Entity\Observation::class);
-        yield MenuItem::linkToCrud('Messages à Diffuser', 'fas fa-bullhorn', BroadcastMessage::class);
+        yield MenuItem::linkToCrud('Observations Remontées', 'fas fa-eye', Observation::class); // Accessible Superviseur
+        yield MenuItem::linkToCrud('Messages à Diffuser', 'fas fa-bullhorn', BroadcastMessage::class)->setPermission('ROLE_ADMIN');
 
-        yield MenuItem::section('Structure Électorale');
-        yield MenuItem::linkToCrud('Circonscriptions', 'fas fa-map-marker-alt', Circonscription::class);
-        yield MenuItem::linkToCrud('Centres de Vote', 'fas fa-building', CentreDeVote::class);
-        yield MenuItem::linkToCrud('Bureaux de Vote', 'fas fa-door-open', BureauDeVote::class);
+        yield MenuItem::section('Structure Électorale')->setPermission('ROLE_ADMIN');
+        yield MenuItem::linkToCrud('Circonscriptions', 'fas fa-map-marker-alt', Circonscription::class)->setPermission('ROLE_ADMIN');
+        yield MenuItem::linkToCrud('Centres de Vote', 'fas fa-building', CentreDeVote::class)->setPermission('ROLE_ADMIN');
+        yield MenuItem::linkToCrud('Bureaux de Vote', 'fas fa-door-open', BureauDeVote::class)->setPermission('ROLE_ADMIN');
 
-        yield MenuItem::section('Compétiteurs');
-        yield MenuItem::linkToCrud('Partis Politiques', 'fas fa-flag', Parti::class);
+        yield MenuItem::section('Compétiteurs')->setPermission('ROLE_ADMIN');
+        yield MenuItem::linkToCrud('Partis Politiques', 'fas fa-flag', Parti::class)->setPermission('ROLE_ADMIN');
 
         yield MenuItem::section('Données de Vote');
-        yield MenuItem::linkToCrud('Participation', 'fas fa-users', Participation::class);
-        yield MenuItem::linkToCrud('Résultats PV', 'fas fa-file-invoice', Resultat::class);
+        yield MenuItem::linkToCrud('Participation', 'fas fa-users', Participation::class)->setPermission('ROLE_ADMIN'); // Ou superviseur ?
+        yield MenuItem::linkToCrud('Résultats PV', 'fas fa-file-invoice', Resultat::class)->setPermission('ROLE_ADMIN'); // La validation des résultats est admin
 
-        yield MenuItem::section('Configuration');
-        yield MenuItem::linkToCrud('Utilisateurs', 'fas fa-user-shield', User::class);
-        yield MenuItem::linkToCrud('Assesseurs', 'fas fa-user-shield', User::class);
+        yield MenuItem::section('Configuration')->setPermission('ROLE_ADMIN');
+        yield MenuItem::linkToCrud('Utilisateurs (Admin)', 'fas fa-user-shield', User::class)->setPermission('ROLE_ADMIN');
 
-        yield MenuItem::section('Import');
-        yield MenuItem::linkToUrl("Circonscriptions", "fas fa-file-import", '/admin/import/circonscriptions');
-        yield MenuItem::linkToUrl("Centres de Vote", "fas fa-file-import", '/admin/import/centres-de-vote');
-        yield MenuItem::linkToUrl("Bureaux de Vote", "fas fa-file-import", '/admin/import/bureaux-de-vote');
-
-        yield MenuItem::section('Technique');
-        yield MenuItem::linkToCrud('Logs Système', 'fas fa-history', Logs::class);
-
+        yield MenuItem::section('Autres');
+        yield MenuItem::linkToUrl('Logs ', 'fas fa-list', '/admin/logs')->setPermission('ROLE_ADMIN');
         yield MenuItem::linkToUrl('Retour au site', 'fas fa-globe', '/');
     }
 }

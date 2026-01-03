@@ -1,93 +1,103 @@
-# Sure Vote
+# Sure Vote 🇧🇯
 
-Sure Vote est une application Symfony conçue pour la gestion des élections. Elle permet de gérer les circonscriptions, les bureaux de vote, ainsi que la saisie et le suivi de la participation et des résultats électoraux.
+**Sure Vote** est une plateforme open-source de **compilation citoyenne des résultats électoraux**. Elle permet de collecter, sécuriser et visualiser en temps réel les données issues des bureaux de vote, garantissant transparence et fiabilité grâce à un processus de validation rigoureux.
 
-## Fonctionnalités
+## 🚀 Fonctionnalités Clés
 
-- **Gestion des entités électorales** : Administration des circonscriptions et des centres/bureaux de vote.
-- **Suivi de la participation** : Saisie et visualisation des taux de participation.
-- **Gestion des résultats** : Enregistrement et suivi des résultats des élections.
-- **Import/Export** : Fonctionnalités d'importation et d'exportation de données (ex: bureaux de vote, résultats) via fichiers CSV/Excel/ODS.
-- **Tableau de bord** : Interface administrateur intuitive (basée sur EasyAdmin).
+### 🗳️ Surveillance Électorale
+- **Rôles Hiérarchiques** :
+  - **Admin Global** : Gestion technique et configuration des élections.
+  - **Superviseur** : Responsable d'une zone (Département/Circonscription), valide les inscriptions des assesseurs.
+  - **Assesseur** : Citoyen sur le terrain, assigné à un bureau de vote spécifique.
+- **Processus de Validation** : Les assesseurs s'inscrivent et doivent être **validés et assignés** à un bureau par un Superviseur avant de pouvoir agir.
 
-## Prérequis
+### 🛡️ Sécurité & Fiabilité
+- **Géolocalisation Obligatoire** : La saisie des résultats et le pointage de la participation sont bloqués si l'assesseur n'est pas physiquement proche du centre de vote (Vérification GPS serveur).
+- **Preuve par l'Image** : Le téléchargement de la photo du **Procès-Verbal (PV)** est obligatoire pour soumettre un résultat.
+- **Traçabilité** : Chaque action sensible est loguée avec IP, User-Agent et localisation.
 
+### 📊 Visualisation & Data
+- **Tableau de Bord Live** : Taux de participation et résultats en temps réel.
+- **Projections de Sièges** : Algorithme de calcul des sièges selon le code électoral béninois (Méthode du quotient électoral + 10% national, 20% circonscription).
+- **Cartographie** : Recherche intuitive des centres et visualisation des données.
+
+---
+
+## 🛠️ Installation
+
+### Prérequis
 - PHP 8.2+
 - Composer
 - Symfony CLI
-- Docker (pour la base de données et le mailer)
+- Docker (recommandé pour la base de données PostgreSQL)
 
-## Installation Rapide (Script)
+### 1. Initialisation du projet
 
-Un script d'initialisation est disponible pour configurer rapidement le projet (dépendances, Docker, variables d'environnement).
-
+Clonez le dépôt et installez les dépendances :
 ```bash
-chmod +x init.sh
-./init.sh
+git clone https://github.com/codeForBenin/sure-vote-2026.git
+cd sure-vote-2026
+composer install
 ```
 
-Une fois le script terminé, finalisez l'installation en créant la base de données :
+### 2. Configuration de l'environnement
 
+Copiez le fichier d'exemple et configurez vos variables (Base de données, Mailer...) :
+```bash
+cp .env.example .env.local
+```
+
+Générez un **APP_SECRET** sécurisé pour votre application :
+```bash
+# Affiche une clé aléatoire hexadécimale
+php generate-secret.php
+```
+Copiez cette clé dans votre fichier `.env.local` pour la variable `APP_SECRET`.
+
+### 3. Base de Données
+
+Lancez les conteneurs Docker (PostgreSQL) :
+```bash
+docker compose up -d
+```
+
+Créez la base et appliquez les migrations (Note: les migrations ne sont pas versionnées, générez-les si besoin ou utilisez le schéma) :
 ```bash
 php bin/console doctrine:database:create
-php bin/console doctrine:migrations:migrate
+php bin/console doctrine:schema:update --force
+# OU si vous avez des migrations locales
+# php bin/console doctrine:migrations:migrate
 ```
 
-## Installation Manuelle
+### 4. Lancement
 
-1.  **Cloner le dépôt** :
-    ```bash
-    git clone https://github.com/votre-utilisateur/sure-vote.git
-    cd sure-vote
-    ```
+Compilez les assets (TailwindCSS) et lancez le serveur :
+```bash
+php bin/console tailwind:build
+symfony server:start
+```
+Accédez à `https://127.0.0.1:8000`.
 
-2.  **Installer les dépendances** :
-    ```bash
-    composer install
-    ```
+---
 
-3.  **Configuration de l'environnement** :
-    - Copiez le fichier d'exemple `.env.example` (ou utilisez `.env` par défaut) :
-      ```bash
-      # Si vous avez besoin de personnaliser, créez un .env.local
-      cp .env .env.local
-      ```
-    - Configurez votre base de données dans `.env.local` si nécessaire.
-    - Si vous utilisez Docker, les services sont définis dans `compose.yaml`. Vous pouvez surcharger la configuration locale avec `compose.override.yaml` (voir `compose.override.yaml.example`).
+## 🏗️ Architecture Technique
 
-4.  **Démarrer les services (Docker)** :
-    ```bash
-    docker compose up -d
-    ```
+- **Framework** : Symfony 7.x
+- **Admin** : EasyAdmin Bundle
+- **Frontend** : Twig, TailwindCSS, Stimulus (UX Turbo)
+- **Base de données** : PostgreSQL
+- **Uploads** : VichUploader (PVs stockés localement ou S3 compatible)
 
-5.  **Initialiser la base de données** :
-    ```bash
-    php bin/console doctrine:database:create
-    php bin/console doctrine:migrations:migrate
-    ```
+## 🤝 Contribution
 
-6.  **Compiler les assets (Tailwind CSS / AssetMapper)** :
-    ```bash
-    php bin/console asset-map:compile
-    # Ou en mode dev
-    php bin/console tailwind:build --watch
-    ```
+Les contributions pour améliorer la transparence électorale sont les bienvenues. Merci de respecter le code de conduite.
 
-7.  **Lancer le serveur de développement** :
-    ```bash
-    symfony server:start
-    ```
+1. Forkez le projet
+2. Créez votre branche (`git checkout -b feature/AmazingFeature`)
+3. Commitez vos changements (`git commit -m 'Add some AmazingFeature'`)
+4. Poussez vers la branche (`git push origin feature/AmazingFeature`)
+5. Ouvrez une Pull Request
 
-## Structure du projet
+## 📄 Licence
 
-- `src/Entity` : Modèles de données (Circonscription, Bureau de vote, etc.)
-- `src/Controller/Admin` : Contrôleurs pour l'interface d'administration EasyAdmin.
-- `src/Form` : Formulaires, notamment pour les imports.
-
-## Contribution
-
-Les contributions sont les bienvenues ! Veuillez consulter le fichier pour plus de détails sur la procédure de contribution (si disponible).
-
-## Licence
-
-Ce projet est sous licence propriétaire.
+Ce projet est sous licence propriétaire/fermée pour le moment. Contactez l'auteur pour toute demande d'utilisation.

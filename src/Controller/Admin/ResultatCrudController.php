@@ -56,7 +56,7 @@ class ResultatCrudController extends AbstractCrudController
         return $actions
             // Disable manual creation - results should only be created by assesseurs
             ->disable(Action::NEW)
-            // Disable editing to maintain data integrity
+            // Edit is allowed mainly for validation
             ->disable(Action::EDIT)
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->add(Crud::PAGE_INDEX, $exportAction);
@@ -99,8 +99,8 @@ class ResultatCrudController extends AbstractCrudController
                 })
                 ->setTemplatePath('admin/field/html.html.twig'),
 
-            ImageField::new('pvImageName', 'Preuve PV')
-                ->setBasePath('uploads/pv')
+            TextField::new('pvImageName', 'Preuve PV')
+                ->setTemplatePath('admin/field/vich_image.html.twig')
                 ->setSortable(false),
 
             AssociationField::new('assesseur', 'Assesseur')

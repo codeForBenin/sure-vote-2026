@@ -40,7 +40,9 @@
 						<a href="{{ path('app_stats_participation') }}" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex-1 hover:border-benin-green hover:shadow-xl hover:scale-105 transition-all duration-300 group cursor-pointer">
 							<div class="text-3xl font-black text-slate-900 group-hover:text-benin-green transition-colors">{{ stat_depouilles }}
 								<span class="text-lg text-slate-400 font-medium group-hover:text-benin-green/60 transition-colors">/
-									{{ total_bureaux }}</span>
+{{ total_bureaux | number_format(0, ',',' ') }}</span>
+
+
 							</div>
 							<div class="text-xs font-bold text-slate-400 uppercase mt-1">Bureaux dépouillés</div>
 							<div class="mt-2 text-[10px] font-bold text-benin-green flex items-center opacity-0 group-hover:opacity-100 transition-opacity">

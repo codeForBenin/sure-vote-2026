@@ -63,18 +63,19 @@ class GlobalErrorSubscriber implements EventSubscriberInterface
             ]);
         }
 
-        $user = $this->tokenStorage->getToken()?->getUser();
-        $request = $this->requestStack->getCurrentRequest();
+        // $user = $this->tokenStorage->getToken()?->getUser();
+        // $request = $this->requestStack->getCurrentRequest();
 
-        $this->logsRepository->logAction(
-            "ERREUR_SYSTEME",
-            $user,
-            $request?->getClientIp() ?? 'unknown',
-            $request?->headers->get('User-Agent') ?? 'unknown',
-            [
-                "message" => $exception->getMessage()
-            ]
-        );
+        // $this->logsRepository->logAction(
+        //     "ERREUR_SYSTEME",
+        //     $user,
+        //     $request?->getClientIp() ?? 'unknown',
+        //     $request?->headers->get('User-Agent') ?? 'unknown',
+        //     [
+        //         "route" => $request?->getUri(),
+        //         "message" => $exception->getMessage()
+        //     ]
+        // );
 
 
         // On affiche la belle page d'erreur

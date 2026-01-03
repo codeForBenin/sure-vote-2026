@@ -25,12 +25,10 @@ class BureauDeVoteCrudController extends AbstractCrudController
         return $crud
             ->setEntityLabelInSingular('un bureau de vote')
             ->setEntityLabelInPlural('Liste des bureaux de vote')
-            ->setPaginatorPageSize(25)
+            ->setPaginatorPageSize(50)
             ->setDefaultSort(['code' => 'ASC'])
             ->showEntityActionsInlined();
     }
-
-    // configuration du filter 
 
     public function configureFilters(Filters $filters): Filters
     {

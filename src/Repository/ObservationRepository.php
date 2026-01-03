@@ -28,4 +28,17 @@ class ObservationRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @return Observation[]
+     */
+    public function findByCentre(string $centreId): array
+    {
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.centreDeVote = :centreId')
+            ->setParameter('centreId', $centreId)
+            ->orderBy('o.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

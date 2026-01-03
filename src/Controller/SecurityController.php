@@ -22,7 +22,7 @@ class SecurityController extends AbstractController
                 return $this->redirectToRoute('assesseur');
             }
 
-            return $this->redirectToRoute('admin');
+            return $this->redirectToRoute('resultats-public');
         }
 
         // get the login error if there is one

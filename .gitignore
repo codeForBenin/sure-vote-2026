@@ -33,3 +33,12 @@ centres_test.ods
 /public/uploads/logos/*
 !/public/uploads/logos/.gitignore
 ###< user content ###
+/convert_import.py
+/import_electoral_data.csv
+/centres_test.ods
+/Dockerfile
+/docker-entrypoint.sh
+/migrations/*
+!/migrations/.gitignore
+/src/DataFixtures/AppFixtures.php
+

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Confirmez votre adresse e-mail</title>
+	</head>
+	<body style="font-family: sans-serif; background-color: #f8fafc; padding: 20px;">
+		<div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+			<div style="text-align: center; margin-bottom: 20px;">
+				<img src="{{ absolute_url(asset('uploads/metadata/favicon.png')) }}" alt="SureVote Logo" style="width: 64px; height: auto;">
+			</div>
+			<h1 style="color: #0f172a; text-align: center; margin-bottom: 20px;">Bienvenue sur SureVote !</h1>
+
+			<p style="color: #475569; font-size: 16px; line-height: 1.5; margin-bottom: 30px; text-align: center;">
+				Merci de vous être inscrit. Pour activer votre compte et accéder à la plateforme, veuillez confirmer votre adresse e-mail en cliquant sur le bouton ci-dessous :
+			</p>
+
+			<div style="text-align: center; margin-bottom: 30px;">
+				<a href="{{ signedUrl }}" style="background-color: #009739; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Confirmer mon e-mail</a>
+			</div>
+
+			<p style="color: #94a3b8; font-size: 12px; text-align: center;">
+				Ce lien expirera dans
+				{{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}.
+			</p>
+
+			<p style="color: #cbd5e1; font-size: 10px; text-align: center; margin-top: 40px;">
+				Si vous n'avez pas demandé cette inscription, vous pouvez ignorer cet e-mail.
+			</p>
+		</div>
+	</body>
+</html>

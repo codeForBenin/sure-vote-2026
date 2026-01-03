@@ -21,14 +21,26 @@ class CentreDeVote
     #[ORM\Column(length: 50, unique: true)]
     private ?string $code = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $adresse = null;
-
     #[ORM\Column(type: 'float', nullable: true)]
     private ?float $latitude = null;
 
     #[ORM\Column(type: 'float', nullable: true)]
     private ?float $longitude = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $departement = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $commune = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $arrondissement = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $villageQuartier = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $searchContent = null;
 
     #[ORM\ManyToOne(inversedBy: 'centres')]
     #[ORM\JoinColumn(nullable: false)]
@@ -65,15 +77,6 @@ class CentreDeVote
         $this->code = $code;
         return $this;
     }
-    public function getAdresse(): ?string
-    {
-        return $this->adresse;
-    }
-    public function setAdresse(?string $adresse): self
-    {
-        $this->adresse = $adresse;
-        return $this;
-    }
     public function getLatitude(): ?float
     {
         return $this->latitude;
@@ -92,6 +95,51 @@ class CentreDeVote
         $this->longitude = $longitude;
         return $this;
     }
+
+    public function getDepartement(): ?string
+    {
+        return $this->departement;
+    }
+
+    public function setDepartement(?string $departement): self
+    {
+        $this->departement = $departement;
+        return $this;
+    }
+
+    public function getCommune(): ?string
+    {
+        return $this->commune;
+    }
+
+    public function setCommune(?string $commune): self
+    {
+        $this->commune = $commune;
+        return $this;
+    }
+
+    public function getArrondissement(): ?string
+    {
+        return $this->arrondissement;
+    }
+
+    public function setArrondissement(?string $arrondissement): self
+    {
+        $this->arrondissement = $arrondissement;
+        return $this;
+    }
+
+    public function getVillageQuartier(): ?string
+    {
+        return $this->villageQuartier;
+    }
+
+    public function setVillageQuartier(?string $villageQuartier): self
+    {
+        $this->villageQuartier = $villageQuartier;
+        return $this;
+    }
+
     public function getCirconscription(): ?Circonscription
     {
         return $this->circonscription;
@@ -106,12 +154,46 @@ class CentreDeVote
         return $this->bureaux;
     }
 
+    public function getSearchContent(): ?string
+    {
+        return $this->searchContent;
+    }
+
+    public function setSearchContent(?string $searchContent): self
+    {
+        $this->searchContent = $searchContent;
+        return $this;
+    }
+
+    public function updateSearchContent(): void
+    {
+        $raw = implode(' ', [
+            $this->getCode() ?? '',
+            $this->getNom() ?? '',
+            $this->getCommune() ?? '',
+            $this->getArrondissement() ?? '',
+            $this->getVillageQuartier() ?? '',
+            $this->getDepartement() ?? '',
+            $this->getCirconscription() ? $this->getCirconscription()->getNom() : ''
+        ]);
+
+        // 1. Transliterate (Accents -> ASCII) & Lowercase
+        $normalized = \transliterator_transliterate('Any-Latin; Latin-ASCII; Lower()', $raw);
+
+        // 2. Replace non-alphanumeric characters (dashes, quotes, etc.) with spaces
+        $normalized = preg_replace('/[^a-z0-9]/', ' ', $normalized);
+
+        // 3. Remove double spaces
+        $this->searchContent = trim(preg_replace('/\s+/', ' ', $normalized));
+    }
+
     public function __toString(): string
     {
         $nom = $this->nom ?? 'Centre sans nom';
-        $code = $this->code ?? 'N/A';
-        $circoNom = $this->circonscription ? $this->circonscription->getNom() : 'Circonscription inconnue';
+        $arrondissementCommune = $this->arrondissement ? $this->arrondissement . ' - ' : '';
+        $arrondissementCommune .= $this->commune ?? 'Commune inconnue';
+        $departement = $this->departement ?? 'Departement inconnu';
 
-        return sprintf('%s (%s) - %s', $nom, $code, $circoNom);
+        return sprintf('%s (%s) - %s', $nom, $arrondissementCommune, $departement);
     }
 }

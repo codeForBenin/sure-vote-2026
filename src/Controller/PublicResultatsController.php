@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\BureauDeVote;
 use App\Repository\BureauDeVoteRepository;
+use App\Repository\CentreDeVoteRepository;
 use App\Repository\ResultatRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,23 +15,23 @@ use Symfony\Component\Routing\Annotation\Route;
 class PublicResultatsController extends AbstractController
 {
     #[Route('/', name: 'app_public_resultats_search')]
-    public function search(Request $request, BureauDeVoteRepository $bureauDeVoteRepository): Response
+    public function search(Request $request, CentreDeVoteRepository $centreDeVoteRepository): Response
     {
         $query = $request->query->get('q');
-        $bureaux = [];
+        $centres = [];
 
         if ($query) {
-            $bureaux = $bureauDeVoteRepository->search($query);
+            $centres = $centreDeVoteRepository->search($query);
         }
 
         return $this->render('public_resultats/search.html.twig', [
             'query' => $query,
-            'bureaux' => $bureaux,
+            'centres' => $centres,
         ]);
     }
 
     #[Route('/suggestions', name: 'app_public_resultats_suggestions')]
-    public function suggestions(Request $request, BureauDeVoteRepository $bureauDeVoteRepository): Response
+    public function suggestions(Request $request, CentreDeVoteRepository $centreDeVoteRepository): Response
     {
         $query = $request->query->get('q');
 
@@ -38,11 +39,11 @@ class PublicResultatsController extends AbstractController
             return new Response('');
         }
 
-        $bureaux = $bureauDeVoteRepository->search($query);
-        $bureaux = array_slice($bureaux, 0, 5);
+        $centres = $centreDeVoteRepository->search($query);
+        $centres = array_slice($centres, 0, 5);
 
         return $this->render('public_resultats/_suggestions.html.twig', [
-            'bureaux' => $bureaux
+            'centres' => $centres
         ]);
     }
 
@@ -55,13 +56,11 @@ class PublicResultatsController extends AbstractController
 
         $resultats = $resultatRepository->findBy(['bureauDeVote' => $bureau]);
 
-        // On récupère le PV s'il existe (il est lié au Résultat, mais potentiellement chaque résultat a le même PV ou lien)
-        // Généralement un PV est pour tout le bureau. Dans notre modèle Resultat a pvImageName.
-        // On suppose que s'il y a un PV, il est accessible via l'un des résultats.
-        $pvImage = null;
+        // On récupère le PV s'il existe (il est lié au Résultat)
+        $resultatWithPv = null;
         foreach ($resultats as $res) {
             if ($res->getPvImageName()) {
-                $pvImage = $res->getPvImageName();
+                $resultatWithPv = $res;
                 break;
             }
         }
@@ -69,7 +68,7 @@ class PublicResultatsController extends AbstractController
         return $this->render('public_resultats/show.html.twig', [
             'bureau' => $bureau,
             'resultats' => $resultats,
-            'pvImage' => $pvImage
+            'resultatWithPv' => $resultatWithPv
         ]);
     }
 }
