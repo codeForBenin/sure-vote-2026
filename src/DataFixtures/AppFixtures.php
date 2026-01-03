@@ -29,17 +29,18 @@ class AppFixtures extends Fixture
         $election->setNom('Législatives 2026');
         $election->setDateElection(new \DateTimeImmutable('2026-01-11'));
         $election->setIsActive(true);
-        // $election->setNombreInscrits(rand(4000000, 6500000)); // On laisse null pour le calcul dynamique
-        $election->setNombreBureauxDeVote(rand(1000, 3000));
+        $election->setNombreInscrits(6600572); // On laisse null pour le calcul dynamique
+        $election->setNombreBureauxDeVote(9632);
         $election->setSiegesPourvoir(109);
+        $election->setHeureFermeture(new \DateTime('18:30:00'));
         $manager->persist($election);
 
-        // 1. Partis Politiques (Couleurs officiellles approx)
+        // 1. Partis Politiques (Couleurs officielles approx)
         $partisData = [
             ['Union Progressiste pour le Renouveau', 'UP-R', '#FCD116', 'Mouvance'], // Jaune
             ['Bloc Républicain', 'BR', '#009739', 'Mouvance'], // Vert
             ['Les Démocrates', 'LD', '#EF4135', 'Opposition'], // Rouge feu (pas orange)
-            ['Force Cauris pour un Bénin Emergent', 'FCBE', '#0000ff', 'Opposition'],
+            ['Force Cauris pour un Bénin Emergent', 'FCBE', '#06421eff', 'Coalition gouvernementale'],
             ['Bulletins Nuls', 'NULS', '#94a3b8', 'Autre'], // Gris Slate 400
             ['Votes Blancs', 'BLANCS', '#cbd5e1', 'Autre'], // Gris Slate 300
         ];
@@ -59,14 +60,14 @@ class AppFixtures extends Fixture
             ['Première circonscription électorale', 'C01', ['Kandi', 'Malanville', 'Karimama'], 3 + 1, 'Alibori'],
             ['Deuxième circonscription électorale', 'C02', ['Gogounou', 'Banikoara', 'Ségbana'], 3 + 1, 'Alibori'],
             ['Troisième circonscription électorale', 'C03', ['Boukoumbé', 'Cobly', 'Matéri', 'Tanguiéta'], 3 + 1, 'Atacora'],
-            ['Quatrième circonscription électorale', 'C04', ['Kérou', 'Kouandé', 'Natitingou', 'Péhunco', 'Toucountouna'], 4 + 1, 'Atacora'],
+            ['Quatrième circonscription électorale', 'C04', ['Kérou', 'Kouandé', 'Natitingou', 'Ouassa-Péhunco', 'Toukountouna'], 4 + 1, 'Atacora'],
             ['Cinquième circonscription électorale', 'C05', ['Allada', 'Kpomassè', 'Ouidah', 'Toffo', 'Tori-Bossito'], 5 + 1, 'Atlantique'],
             ['Sixième circonscription électorale', 'C06', ['Abomey-Calavi', 'Sô-Ava', 'Zè'], 7 + 1, 'Atlantique'],
             ['Septième circonscription électorale', 'C07', ['Nikki', 'Bembèrèkè', 'Sinendé', 'Kalalé'], 4 + 1, 'Borgou'],
             ['Huitième circonscription électorale', 'C08', ['Pèrèrè', 'Parakou', 'Tchaourou', "N'Dali"], 5 + 1, 'Borgou'],
             ['Neuvième circonscription électorale', 'C09', ['Bantè', 'Dassa-Zoumè', 'Savalou'], 3 + 1, 'Collines'],
             ['Dixième circonscription électorale', 'C10', ['Ouèssè', 'Glazoué', 'Savè'], 3 + 1, 'Collines'],
-            ['Onzième circonscription électorale', 'C11', ['Aplahoué', 'Djakotomè', 'Klouékanmè'], 3 + 1, 'Couffo'],
+            ['Onzième circonscription électorale', 'C11', ['Aplahoué', 'Djakotomey', 'Klouékanmey'], 3 + 1, 'Couffo'],
             ['Douzième circonscription électorale', 'C12', ['Dogbo', 'Lalo', 'Toviklin'], 3 + 1, 'Couffo'],
             ['Treizième circonscription électorale', 'C13', ['Djougou'], 2 + 1, 'Donga'],
             ['Quatorzième circonscription électorale', 'C14', ['Bassila', 'Copargo', 'Ouaké'], 2 + 1, 'Donga'],
@@ -74,7 +75,7 @@ class AppFixtures extends Fixture
             ['Seizième circonscription électorale', 'C16', ['Cotonou (7ème au 13ème arrondissement)'], 4 + 1, 'Littoral'],
             ['Dix-septième circonscription électorale', 'C17', ['Athiémé', 'Comè', 'Grand-Popo'], 2 + 1, 'Mono'],
             ['Dix-huitième circonscription électorale', 'C18', ['Bopa', 'Lokossa', 'Houéyogbé'], 3 + 1, 'Mono'],
-            ['Dix-neuvième circonscription électorale', 'C19', ['Adjarra', 'Aguégués', 'Porto-Novo', 'Sèmè-Kpodji'], 5 + 1, 'Ouémé'],
+            ['Dix-neuvième circonscription électorale', 'C19', ['Adjarra', 'Aguégués', 'Porto-Novo', 'Sèmè-podji'], 5 + 1, 'Ouémé'],
             ['Vingtième circonscription électorale', 'C20', ['Adjohoun', 'Akpro-Missérété', 'Avrankou', 'Bonou', 'Dangbo'], 5 + 1, 'Ouémé'],
             ['Vingt-et-une circonscription électorale', 'C21', ['Adja-Ouèrè', 'Ifangni', 'Sakété'], 3 + 1, 'Plateau'],
             ['Vingt-deuxième circonscription électorale', 'C22', ['Kétou', 'Pobè'], 2 + 1, 'Plateau'],
@@ -89,7 +90,7 @@ class AppFixtures extends Fixture
             $circo->setVilles($data[2]);
             $circo->setSieges($data[3]);
             $circo->setDepartement($data[4]); // On utilise l'info de département
-            $circo->setPopulation(0); // Pas d'info population précise
+            $circo->setPopulation(rand(30000, 720000)); // Pas d'info population précise
             $manager->persist($circo);
         }
 
@@ -112,38 +113,6 @@ class AppFixtures extends Fixture
 
         $manager->flush(); // Save reference data first
 
-        // 4. Génération des Centres et Bureaux (Pour démo et stats)
-        $centreNames = [
-            'EPP Kpankpan',
-            'CEG Zogbo',
-            'Maison des Jeunes Agla',
-            'EPP Cadjehoun',
-            'CEG Gbégamey',
-            'Complexe Scolaire Ste Rita',
-            'EPP Fifadji',
-            'CEG Godomey',
-            'EPP Vèdoko',
-            'Maison du Peuple',
-            'CEG Sainte Rita',
-            'EPP Avaria',
-            'CEG Akpakpa Centre',
-            'EPP Sodjèatina',
-            'CEG Nokoué',
-            'EPP Dantokpa',
-            'CEG Le Méridien',
-            'EPP Ganhi',
-            'CEG Entente',
-            'EPP Sikècodji'
-        ];
-
-        $bureauSuffixes = ['Bureau A', 'Bureau B', 'Bureau C', 'Bureau D', 'Bureau E', 'Bureau F'];
-
-        // On récupère les entités persistées
-        $partisEntities = $manager->getRepository(Parti::class)->findAll();
-        $circosEntities = $manager->getRepository(Circonscription::class)->findAll();
-
-        // On crée quelques assesseurs de test
-        $assesseurs = [];
         for ($i = 0; $i < 5; $i++) {
             $user = new User();
             $user->setEmail((string) 'assesseur' . $i . '@surevote.bj');
@@ -152,110 +121,8 @@ class AppFixtures extends Fixture
             $user->setRoles(['ROLE_ASSESSEUR']);
             $user->setPassword($this->passwordHasher->hashPassword($user, 'password'));
             $manager->persist($user);
-            $assesseurs[] = $user;
         }
 
-        // On assigne le premier bureau de vote au compte de démo "assesseur@surevote.bj"
-        $demoAssesseur = $assesseur;
-        $assesseurs[] = $demoAssesseur;
-
-        // Création des Bureaux
-        $bureauCounter = 0;
-
-        foreach ($circosEntities as $index => $circo) {
-            // On ne s'attarde pas sur toutes les circonscriptions, on en peuple certaines
-            // Ou on met un bureau par circo + d'autres au hasard
-
-            // Créer 2 centres par circonscription
-            for ($c = 0; $c < 2; $c++) {
-                $centre = new CentreDeVote();
-                $centreName = $centreNames[array_rand($centreNames)] . ' ' . $circo->getCode();
-                $centre->setNom($centreName);
-                $centre->setCode('CTR-' . $circo->getCode() . '-' . $c);
-                $centre->setCirconscription($circo);
-                $centre->setAdresse('Quartier ' . $c . ' ' . ($circo->getVilles()[0] ?? 'Ville'));
-                $manager->persist($centre);
-
-                // Créer 2 à 3 bureaux par centre
-                $nbBureaux = rand(2, 3);
-                for ($b = 0; $b < $nbBureaux; $b++) {
-                    $bureau = new BureauDeVote();
-                    $bureau->setNom($bureauSuffixes[$b]);
-                    $bureau->setCode('BV-' . $circo->getCode() . '-' . $c . $b);
-                    $bureau->setCentre($centre);
-                    $inscrits = rand(300, 500);
-                    $bureau->setNombreInscrits($inscrits);
-
-                    $manager->persist($bureau);
-                    $bureauCounter++;
-
-                    // Assigner un assesseur (surtout pour le compte de démo)
-                    if ($bureauCounter === 1) {
-                        $assesseur->setAssignedBureau($bureau);
-                    } else if (rand(0, 10) > 8) { // Quelques bureaux assignés aléatoirement
-                        $randomAssesseur = $assesseurs[array_rand($assesseurs)];
-                        // Si l'assesseur n'a pas déjà un bureau
-                        if (!$randomAssesseur->getAssignedBureau()) {
-                            $randomAssesseur->setAssignedBureau($bureau);
-                        }
-                    }
-
-                    // --- Génération des Participations (Chart) ---
-                    // On simule une journée de 8h à 18h
-                    $hours = [8, 10, 12, 14, 16];
-                    $currentVotants = 0;
-
-                    foreach ($hours as $hour) {
-                        // Progression aléatoire (plus soutenue pour atteindre ~70%)
-                        $increment = rand(45, 85);
-                        $currentVotants += $increment;
-
-                        if ($currentVotants > $inscrits) {
-                            $currentVotants = $inscrits;
-                        }
-
-                        $participation = new Participation();
-                        $participation->setBureauDeVote($bureau);
-                        $participation->setAssesseur($demoAssesseur); // Peu importe l'auteur pour la stat
-                        $participation->setNombreVotants($currentVotants);
-
-                        // Heure du pointage (Basé sur la date de l'élection)
-                        $datePointage = \DateTimeImmutable::createFromInterface($election->getDateElection());
-                        $datePointage = $datePointage->setTimezone(new \DateTimeZone('Africa/Porto-Novo'));
-                        $datePointage = $datePointage->setTime($hour, rand(0, 59));
-
-                        $participation->setHeurePointage($datePointage);
-                        $manager->persist($participation);
-                    }
-
-                    // --- Génération des Résultats ---
-                    // Uniquement pour certains bureaux (simuler bureaux dépouillés)
-                    if (rand(0, 1)) {
-                        $votesRestants = $currentVotants;
-
-                        foreach ($partisEntities as $pIndex => $parti) {
-                            if ($pIndex === count($partisEntities) - 1) {
-                                $votes = $votesRestants;
-                            } else {
-                                $votes = (int) ($votesRestants * (rand(10, 40) / 100));
-                            }
-                            $votesRestants -= $votes;
-                            if ($votesRestants < 0)
-                                $votesRestants = 0;
-
-                            $resultat = new Resultat();
-                            $resultat->setBureauDeVote($bureau);
-                            $resultat->setParti($parti);
-                            $resultat->setNombreVoix($votes);
-                            $resultat->setIsValidated(true);
-                            $resultat->setAssesseur($demoAssesseur);
-                            $manager->persist($resultat);
-                        }
-                    }
-                }
-            }
-        }
-        
         $manager->flush();
     }
 }
