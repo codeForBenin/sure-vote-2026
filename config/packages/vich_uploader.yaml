@@ -1,0 +1,24 @@
+vich_uploader:
+  db_driver: orm
+  storage: flysystem
+
+  mappings:
+    vote_reports:
+        uri_prefix: '%env(MINIO_PUBLIC_URL)%/%env(AZURE_STORAGE_CONTAINER_PVS)%'
+        upload_destination: vote_reports.storage
+        namer: vich_uploader.namer_uniqid
+    
+    party_logos:
+        uri_prefix: '%env(MINIO_PUBLIC_URL)%/%env(AZURE_STORAGE_CONTAINER_LOGOS)%'
+        upload_destination: party_logos.storage
+        namer: vich_uploader.namer_uniqid
+
+    observation_images:
+        uri_prefix: '%env(MINIO_PUBLIC_URL)%/%env(AZURE_STORAGE_CONTAINER_IMAGES)%'
+        upload_destination: observation_images.storage
+        namer: vich_uploader.namer_uniqid
+
+    inscription_proofs:
+        uri_prefix: '%env(MINIO_PUBLIC_URL)%/%env(AZURE_STORAGE_CONTAINER_IMAGES)%'
+        upload_destination: observation_images.storage
+        namer: vich_uploader.namer_uniqid

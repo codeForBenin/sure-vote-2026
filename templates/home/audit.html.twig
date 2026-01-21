@@ -1,0 +1,141 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'audit.title'|trans|default('Journal d\'Audit Public') }}{% endblock %}
+
+{% block body %}
+	<main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+		<div class="text-center mb-16">
+			<h1 class="text-4xl font-black text-slate-900 mb-4 tracking-tight">{{ 'audit.title'|trans|default('Journal d\'Audit Public') }}</h1><p class="text-xl text-slate-500 max-w-2xl mx-auto">{{ 'audit.subtitle'|trans|default('Pour garantir l\'intégrité du scrutin, toutes les opérations critiques (observation signalée, participation ajoutée, résultats soumis ou modifiés) sont enregistrées de manière immuable sur ce registre public.') }}</p>
+		</div>
+
+		{% if logs is empty %}
+			<div class="text-center py-12 bg-slate-50 rounded-3xl border border-slate-100">
+				<i class="fas fa-history text-4xl text-slate-300 mb-4"></i>
+				<p class="text-slate-500 font-medium">Aucune activité enregistrée pour le moment.</p>
+			</div>
+		{% else %}
+			<div class="relative border-l-2 border-slate-200 ml-4 md:ml-6 space-y-8">
+				{% for log in logs %}
+					<div class="relative pl-8 md:pl-12">
+						{# Dot #}
+						<span class="absolute -left-[9px] top-1 w-4 h-4 rounded-full border-2 border-white 
+                            {% if log.action == 'RESULTATS_ENREGISTRE' %}bg-green-500{% elseif log.action == 'RESULTATS_MODIFIE' %}bg-orange-500{% elseif log.action == 'FRAUDE_TENTATIVE_DISTANCE' %}bg-red-500{% elseif log.action == 'PARTICIPATION_ENREGISTRE' %}bg-blue-500{% elseif log.action == 'OBSERVATION_SIGNALEE' %}bg-orange-500{% else %}bg-blue-500{% endif %}">
+                        </span>
+
+						<div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+							<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+								<div class="flex items-center gap-3">
+									{% if log.action == 'RESULTATS_ENREGISTRE' %}
+										<span class="px-3 py-1 rounded-full bg-green-50 text-green-700 text-xs font-bold uppercase tracking-wide">
+											<i class="fas fa-plus-circle mr-1"></i> Soumission des résultats
+										</span>
+									{% elseif log.action == 'RESULTATS_MODIFIE' %}
+										<span class="px-3 py-1 rounded-full bg-orange-50 text-orange-700 text-xs font-bold uppercase tracking-wide">
+											<i class="fas fa-edit mr-1"></i> Modification des résultats
+										</span>
+									{% elseif log.action == 'PARTICIPATION_ENREGISTRE' %}
+										<span class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wide">
+											<i class="fas fa-file-import mr-1"></i> Participation ajoutée
+										</span>
+                                    {% elseif log.action == 'OBSERVATION_SIGNALEE' %}
+										<span class="px-3 py-1 rounded-full bg-orange-50 text-orange-700 text-xs font-bold uppercase tracking-wide">
+											<i class="fas fa-exclamation-triangle mr-1"></i> Observation signalée
+										</span>
+                                    {% elseif log.action == 'FRAUDE_TENTATIVE_DISTANCE' %}
+										<span class="px-3 py-1 rounded-full bg-red-50 text-red-700 text-xs font-bold uppercase tracking-wide">
+											<i class="fas fa-exclamation-triangle mr-1"></i> Tentative de fraude
+										</span>
+                                    {% else %}
+                                        <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold uppercase tracking-wide">
+											{{ log.action }}
+										</span>
+									{% endif %}
+
+									<span class="text-sm text-slate-400 font-medium">
+										{{ log.createdAt|format_datetime('medium', 'medium', locale=app.request.locale) }}
+									</span>
+								</div>
+
+                                {# User Identity (Anonymised if needed) #}
+								<div class="flex items-center gap-2 text-sm font-bold text-slate-700">
+									<div class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs">
+										<i class="fas fa-user text-slate-400"></i>
+									</div>
+									{% if log.user %}
+                                        {# Nom Public : Prénom + Initiale #}
+										<span class="font-bold text-slate-900">{{ log.user.publicName }}</span>
+                                        
+                                        {% if 'ROLE_ADMIN' in log.user.roles %}
+                                            <span class="text-xs font-normal text-slate-400 border border-slate-200 px-1 rounded ml-1">Admin</span>
+                                        {% elseif 'ROLE_ASSESSEUR' in log.user.roles %}
+                                            <span class="text-xs font-normal text-benin-green border border-benin-green/20 bg-benin-green/5 px-1 rounded ml-1">Assesseur</span>
+                                        {% elseif 'ROLE_SUPERVISEUR' in log.user.roles %}
+                                            <span class="text-xs font-normal text-blue-500 border border-blue-200 bg-blue-50 px-1 rounded ml-1">Superviseur</span>
+                                        {% endif %}
+
+									{% else %}
+										Système
+									{% endif %}
+								</div>
+							</div>
+
+							<div class="text-slate-600 space-y-2">
+                                {% if log.details %}
+                                    <div class="bg-slate-50 rounded-lg p-3 text-sm font-mono text-slate-500 break-words">
+                                        {# On essaie de formater joliment si on connait la structure #}
+                                        {% if log.details.bureau is defined %}
+                                            <p><strong>Bureau :</strong> {{ log.details.bureau }}</p>
+                                        {% endif %}
+                                        
+                                        {% if log.action == 'RESULTATS_MODIFIE' %}
+                                            <p class="text-orange-600 mt-1"><i class="fas fa-exclamation-triangle mr-1"></i> Une modification a été apportée à un résultat existant.</p>
+                                        {% endif %}
+
+                                        <!-- Raw details for transparency -->
+                                        <details class="group mt-2">
+                                            <summary class="cursor-pointer text-xs text-slate-400 hover:text-slate-600 transition-colors">Voir les détails techniques (JSON)</summary>
+                                            <pre class="mt-2 text-xs overflow-x-auto p-2 bg-slate-100 rounded">{{ log.details|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+                                        </details>
+                                    </div>
+                                {% else %}
+                                    <p class="italic text-slate-400">Aucun détail technique disponible.</p>
+                                {% endif %}
+							</div>
+						</div>
+					</div>
+				{% endfor %}
+			</div>
+            
+            {# Pagination #}
+            {% if maxPages > 1 %}
+            <div class="mt-12 flex justify-center items-center gap-4">
+                {% if currentPage > 1 %}
+                    <a href="{{ path('app_public_audit', {page: currentPage - 1}) }}" class="px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 font-bold text-sm transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i> Précédent
+                    </a>
+                {% endif %}
+                
+                <span class="text-sm font-medium text-slate-500">
+                    Page <span class="text-slate-900 font-bold">{{ currentPage }}</span> sur {{ maxPages }}
+                </span>
+
+                {% if currentPage < maxPages %}
+                    <a href="{{ path('app_public_audit', {page: currentPage + 1}) }}" class="px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 font-bold text-sm transition-colors">
+                        Suivant <i class="fas fa-arrow-right ml-2"></i> 
+                    </a>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <div class="mt-12 text-center">
+                <p class="text-sm text-slate-400">
+                    <i class="fas fa-shield-alt mr-1"></i> 
+                    Registre d'audit immuable généré par SureVote v1.0
+                </p>
+            </div>
+		{% endif %}
+
+	</main>
+{% endblock %}
+

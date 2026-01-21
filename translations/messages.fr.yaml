@@ -1,0 +1,43 @@
+menu:
+  home: "Accueil"
+  find_center: "Trouver mon Centre de Vote"
+  stats: "Statistiques"
+  projections: "Projections"
+  infos: "Infos & Transparence"
+  login: "Connexion"
+
+infos:
+  title: "Informations & Transparence"
+  subtitle: "Tout ce que vous devez savoir sur le dispositif SureVote, l'élection en cours et notre engagement pour l'intégrité des données."
+  election_stats:
+    title: "L'Élection en Chiffres"
+    date: "Date du Scrutin"
+    inscrits: "Nombre d'Inscrits"
+    sieges: "Sièges à pourvoir"
+    fermeture: "Fermeture des bureaux"
+    no_election: "Aucune élection active n'est configurée actuellement."
+  mission:
+    title: "Notre Mission"
+    description: "est une plateforme indépendante de remontée et de centralisation des résultats électoraux, conçue pour renforcer la transparence et la confiance dans le processus démocratique."
+    point1: "Fiabilisation de la collecte des résultats via les PV numérisés."
+    point2: "Traçabilité complète des opérations de saisie et de modification."
+    point3: "Projections statistiques en temps réel pour une visibilité accrue."
+  privacy:
+    title: "Données & Confidentialité"
+    intro: "Dans le cadre de la sécurisation et de l'auditabilité de la plateforme, certaines données techniques sont collectées automatiquement lors de votre navigation et de vos actions (connexion, saisie de résultats)."
+    tech_data_title: "Données Techniques Enregistrées"
+    ip: "Adresse IP de connexion"
+    user_agent: "Identifiant du navigateur (User-Agent)"
+    timestamp: "Horodatage précis des actions"
+    disclaimer: "Ces données sont conservées uniquement à des fins d'audit de sécurité et de vérification de l'intégrité du scrutin. Elles ne sont ni partagées ni vendues à des tiers."
+  terms:
+    title: "Conditions d'Utilisation"
+    access: "L'accès à cette plateforme est strictement réservé au personnel accrédité (Assesseurs, Superviseurs, Administrateurs). Toute tentative d'accès non autorisé est enregistrée et passible de poursuites."
+    commitment_intro: "En utilisant SureVote, les utilisateurs s'engagent à :"
+    commitment1: "Saisir des informations sincères et conformes aux procès-verbaux physiques."
+    commitment2: "Ne pas divulguer leurs identifiants de connexion personnels."
+    commitment3: "Signaler immédiatement toute anomalie ou suspicion de compromission de compte."
+    warning: "Important : La falsification de résultats électoraux est une infraction grave punie par le Code Électoral."
+audit:
+  title: "Journal d'Audit Public"
+  subtitle: "Toutes les opérations critiques (observation signalée, participation ajoutée, résultats soumis ou modifiés) sont enregistrées de manière immuable sur ce registre public."

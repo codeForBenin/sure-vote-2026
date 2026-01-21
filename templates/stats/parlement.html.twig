@@ -1,0 +1,153 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Carte Probable & Comparateur - SureVote
+{% endblock %}
+
+{% block body %}
+	<div class="min-h-screen bg-slate-50 py-12" data-controller="comparateur" data-comparateur-parlement-value="{{ parlementData|json_encode|e('html_attr') }}" data-comparateur-data-value="{{ comparativeData|json_encode|e('html_attr') }}">
+		<div
+			class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+			<!-- HEADER -->
+			<div class="text-center mb-12">
+				<span class="inline-block px-4 py-1.5 rounded-full bg-benin-green/10 text-benin-green font-bold text-sm mb-4">
+					<i class="fas fa-flask mr-2"></i>
+					Laboratoire Statistique
+				</span>
+				<h1 class="text-4xl md:text-5xl font-black text-slate-900 mb-4">
+					Projection Parlementaire<br>
+					<span class="text-benin-green">& Comparateur</span>
+				</h1>
+				<p class="text-lg text-slate-500 max-w-2xl mx-auto">
+					Visualisez la composition probable de l'Assemblée nationale basée sur les remontées actuelles et comparez les performances des partis.
+				</p>
+			</div>
+
+			<!-- SECTION 1: HEMICYCLE -->
+			<div class="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-8 mb-12 relative overflow-hidden">
+				<div class="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+					<i class="fas fa-landmark text-9xl text-benin-green"></i>
+				</div>
+
+				<div
+					class="flex flex-col md:flex-row items-center gap-12">
+					<!-- CHART CONTAINER -->
+					<div
+						class="w-full md:w-2/3 h-[400px] flex items-center justify-center relative">
+						<!-- Le SVG/Canvas sera injecté ici par Stimulus -->
+						<div data-comparateur-target="hemicycle" class="w-full h-full relative"></div>
+
+						<!-- Stats centrales -->
+						<div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 mb-8 text-center">
+							<div class="text-5xl font-black text-slate-900">{{ totalSeats }}</div>
+							<div class="text-sm font-bold text-slate-400 uppercase tracking-wider">Sièges Estimés</div>
+						</div>
+					</div>
+
+
+					<!-- LEGEND -->
+					<div class="w-full md:w-1/3">
+						<h3 class="font-bold text-slate-800 text-lg mb-6 flex items-center gap-2">
+							<i class="fas fa-chart-pie text-benin-green"></i>
+							Répartition
+						</h3>
+						<div class="space-y-4 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
+							{% for p in parlementData %}
+								<div class="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+									<div class="flex items-center gap-3">
+										<span class="w-4 h-4 rounded-full shadow-sm" style="background-color: {{ p.color }}"></span>
+										<div>
+											<div class="font-bold text-slate-900">{{ p.sigle }}</div>
+											<div class="text-xs text-slate-500">{{ p.nom|u.truncate(20) }}</div>
+										</div>
+									</div>
+									<div class="text-right">
+										<span class="block font-black text-xl text-slate-800">{{ p.seats }}</span>
+										<span class="text-[10px] uppercase font-bold text-slate-400">Sièges</span>
+									</div>
+								</div>
+							{% endfor %}
+						</div>
+					</div>
+				</div>
+
+				<div class="mt-8 p-4 bg-benin-green/5 rounded-xl border border-benin-green/20 flex items-start gap-3">
+					<i class="fas fa-info-circle text-benin-green mt-1"></i>
+					<div class="text-sm text-benin-green">
+						<strong>Note méthodologique :</strong>
+						Cette projection est purement informative et basée sur les remontées brutes par circonscription. Le calcul final de la CENA peut différer (règles de quotient, redressement, contentieux).
+					</div>
+				</div>
+			</div>
+
+			<!-- SECTION 2: COMPARATEUR -->
+			<div class="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-8">
+				<div class="flex flex-col md:flex-row items-center justify-between mb-8 gap-6">
+					<div>
+						<h2 class="text-2xl font-black text-slate-900 flex items-center gap-3">
+							<span class="w-10 h-10 rounded-xl bg-benin-green/10 text-benin-green flex items-center justify-center text-lg">
+								<i class="fas fa-balance-scale"></i>
+							</span>
+							Comparateur de Performance
+						</h2>
+						<p class="text-slate-500 mt-1">Sélectionnez jusqu'à 2 partis pour comparer leurs scores circonscription par circonscription.</p>
+					</div>
+				</div>
+
+				<!-- CONTROLS -->
+				<div class="mb-8 p-6 bg-slate-50 rounded-2xl border border-slate-200">
+					<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4" data-comparateur-target="checkboxes">
+						{% for parti in partis %}
+							<label class="cursor-pointer group relative">
+								<input type="checkbox" value="{{ parti.id }}" data-action="change->comparateur#updateComparison" data-color="{{ parti.couleur ?? '#cbd5e1' }}" data-sigle="{{ parti.sigle }}" class="peer sr-only">
+
+								<div class="p-4 bg-white border-2 border-slate-200 rounded-xl flex flex-col items-center gap-2 transition-all duration-300 peer-checked:border-benin-green peer-checked:bg-benin-green/10 peer-checked:shadow-md group-hover:border-benin-green/30">
+									{% if parti.logoUrl %}
+										<img src="{{ vich_uploader_asset(parti, 'logoFile') }}" class="w-8 h-8 object-contain filter grayscale group-hover:grayscale-0 peer-checked:grayscale-0 transition-all">
+									{% else %}
+										<div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold">{{ parti.sigle|slice(0,4) }}</div>
+									{% endif %}
+									<span class="font-bold text-sm text-slate-600 peer-checked:text-benin-green">{{ parti.sigle }}</span>
+								</div>
+
+								<div class="absolute top-2 right-2 w-4 h-4 rounded-full bg-benin-green text-white text-[10px] flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity">
+									<i class="fas fa-check"></i>
+								</div>
+							</label>
+						{% endfor %}
+					</div>
+					<div class="mt-4 text-center text-sm font-bold text-red-500 hidden" data-comparateur-target="limitWarning">
+						<i class="fas fa-exclamation-triangle mr-1"></i>
+						Vous ne pouvez comparer que 2 partis à la fois.
+					</div>
+				</div>
+
+				<!-- TABLE -->
+				<div class="overflow-auto max-h-[800px] rounded-xl border border-slate-200 relative scroll-smooth shadow-inner">
+					<table class="w-full text-left border-collapse">
+						<thead>
+							<tr class="bg-slate-50 border-b border-slate-200">
+								<th class="p-4 font-bold text-slate-600 text-sm uppercase tracking-wider sticky top-0 left-0 z-30 bg-slate-50 border-r border-slate-200 shadow-sm">Circonscription</th>
+								<th class="p-4 font-bold text-slate-600 text-sm uppercase tracking-wider text-right w-40 sticky top-0 z-20 bg-slate-50 shadow-sm" data-comparateur-target="col1Header">Parti 1</th>
+								<th class="p-4 font-bold text-slate-600 text-sm uppercase tracking-wider text-right w-40 border-l border-slate-200 sticky top-0 z-20 bg-slate-50 shadow-sm" data-comparateur-target="col2Header">Parti 2</th>
+								<th class="p-4 font-bold text-slate-600 text-sm uppercase tracking-wider text-center w-32 border-l border-slate-200 sticky top-0 z-20 bg-slate-50 shadow-sm">Écart</th>
+								<th class="p-4 font-bold text-slate-600 text-sm uppercase tracking-wider text-center w-32 border-l border-slate-200 sticky top-0 z-20 bg-slate-50 shadow-sm">Gagnant</th>
+							</tr>
+						</thead>
+						<tbody
+							class="divide-y divide-slate-100" data-comparateur-target="tableBody">
+							<!-- Rows injected by JS -->
+							<tr class="bg-white">
+								<td colspan="5" class="p-8 text-center text-slate-400">
+									<i class="fas fa-mouse-pointer mb-2 text-2xl"></i><br>
+									Sélectionnez des partis ci-dessus pour voir la comparaison.
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+		</div>
+	</div>
+{% endblock %}

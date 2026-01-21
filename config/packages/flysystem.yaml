@@ -1,0 +1,46 @@
+# Read the documentation at https://github.com/thephpleague/flysystem-bundle/blob/master/docs/1-getting-started.md
+services:
+    # Service Client S3 (MinIO)
+    Aws\S3\S3Client:
+        arguments:
+            -
+                version: 'latest'
+                region: 'us-east-1'
+                endpoint: '%env(MINIO_SERVER_URL)%'
+                use_path_style_endpoint: true
+                credentials:
+                    key: '%env(MINIO_ROOT_USER)%'
+                    secret: '%env(MINIO_ROOT_PASSWORD)%'
+                http:
+                    verify: false # Désactiver la vérification SSL pour les certificats auto-signés
+
+    # Adapters setup for each "container" (bucket)
+    app.flysystem.adapter.pvs:
+        class: League\Flysystem\AwsS3V3\AwsS3V3Adapter
+        arguments:
+            - '@Aws\S3\S3Client'
+            - '%env(AZURE_STORAGE_CONTAINER_PVS)%'
+
+    app.flysystem.adapter.logos:
+        class: League\Flysystem\AwsS3V3\AwsS3V3Adapter
+        arguments:
+            - '@Aws\S3\S3Client'
+            - '%env(AZURE_STORAGE_CONTAINER_LOGOS)%'
+
+    app.flysystem.adapter.images:
+        class: League\Flysystem\AwsS3V3\AwsS3V3Adapter
+        arguments:
+            - '@Aws\S3\S3Client'
+            - '%env(AZURE_STORAGE_CONTAINER_IMAGES)%'
+
+flysystem:
+    storages:
+        vote_reports.storage:
+            adapter: 'app.flysystem.adapter.pvs'
+            public_url: '%env(MINIO_PUBLIC_URL)%/%env(AZURE_STORAGE_CONTAINER_PVS)%'
+        party_logos.storage:
+            adapter: 'app.flysystem.adapter.logos'
+            public_url: '%env(MINIO_PUBLIC_URL)%/%env(AZURE_STORAGE_CONTAINER_LOGOS)%'
+        observation_images.storage:
+            adapter: 'app.flysystem.adapter.images'
+            public_url: '%env(MINIO_PUBLIC_URL)%/%env(AZURE_STORAGE_CONTAINER_IMAGES)%'

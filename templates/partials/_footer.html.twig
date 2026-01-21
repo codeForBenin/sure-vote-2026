@@ -1,0 +1,59 @@
+<footer class="bg-white border-t border-slate-100 py-10 mt-auto">
+	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
+		<div class="flex items-center gap-3">
+			<div class="h-8 w-8 bg-slate-900 text-white rounded-lg flex items-center justify-center font-black text-xs">SV</div>
+			<p class="text-sm text-slate-500 font-medium">
+				&copy;
+				{{ "now"|date("Y") }}
+				<span class="text-slate-900 font-bold">SureVote</span>.
+				<span class="hidden sm:inline text-slate-400 mx-2">|</span>
+				<span class="block sm:inline text-xs mt-1 sm:mt-0">Initiative Citoyenne Pour la Transparence</span>
+			</p>
+		</div>
+
+		<nav class="flex flex-wrap justify-center gap-x-8 gap-y-2">
+{% if app.request.attributes.get('_route') != 'app_home' %}
+
+
+
+				<a href="{{ path('app_home') }}" class="text-sm font-bold text-slate-500 hover:text-benin-green transition-colors">
+					Accueil
+				</a>
+			{% endif %}
+{% if app.request.attributes.get('_route') != 'app_stats_participation' %}
+
+
+
+				<a href="{{ path('app_stats_participation') }}" class="text-sm font-bold text-slate-500 hover:text-benin-green transition-colors">
+					Statistiques
+				</a>
+			{% endif %}
+{% if app.request.attributes.get('_route') != 'app_projections' %}
+
+
+
+				<a href="{{ path('app_projections') }}" class="text-sm font-bold text-slate-500 hover:text-benin-green transition-colors">
+					Projections
+				</a>
+			{% endif %}
+{% if app.request.attributes.get('_route') != 'app_infos' %}
+
+
+
+				<a href="{{ path('app_infos') }}" class="text-sm font-bold text-benin-green hover:text-green-700 transition-colors flex items-center gap-2">
+					<i class="fas fa-info-circle"></i>
+					Infos & Transparence
+				</a>
+			{% endif %}
+{% if app.request.attributes.get('_route') != 'app_public_audit' %}
+	<a href="{{ path('app_public_audit') }}" class="text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors flex items-center gap-2">
+		<i class="fas fa-history"></i>
+		Journal d'audit
+	</a>
+{% endif %}
+
+
+
+		</nav>
+	</div>
+</footer>

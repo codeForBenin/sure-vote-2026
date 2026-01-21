@@ -1,0 +1,45 @@
+{% if centres is defined and centres is not empty %}
+
+    <ul class="absolute z-10 w-full bg-white border border-slate-200 rounded-xl shadow-xl mt-1 overflow-hidden divide-y divide-slate-100 max-h-96 overflow-y-auto">
+{% for centre in centres %}
+
+            {% set circo = centre.circonscription %}
+            <li>
+<a href="{{ path('app_public_resultats_search', {'q': centre.nom}) }}" class="block px-4 py-3 hover:bg-slate-50 transition-colors">
+
+                    <div class="flex items-center gap-3">
+                        <div class="flex-shrink-0">
+<i class="fas fa-school text-benin-green/40 text-lg"></i>
+
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-bold text-slate-800 truncate">
+{{ centre.nom }}
+
+                            </p>
+                            <p class="text-xs text-slate-500 truncate">
+<span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px] font-bold text-slate-600 mr-1">{{ centre.code }}</span>
+{{ centre.arrondissement|default(circo.nom) }}
+-
+{{ centre.commune|default('') }}
+-
+{{ centre.departement|default('') }}
+
+                            </p>
+                        </div>
+                        <i class="fas fa-chevron-right text-xs text-slate-300"></i>
+                    </div>
+                </a>
+            </li>
+        {% endfor %}
+{% if centres|length == 5 %}
+
+             <li>
+                 <div class="px-4 py-2 bg-slate-50 text-center text-xs text-slate-400 font-medium">
+                     Continuez à taper pour affiner...
+                 </div>
+             </li>
+         {% endif %}
+</ul>
+
+{% endif %}

@@ -1,0 +1,38 @@
+{% extends 'emails/base_email.html.twig' %}
+
+{% block title %}Nouvelle déclaration d'inscrits
+{% endblock %}
+
+{% block body %}
+	<h2 style="margin-top: 0; color: #0f172a; font-size: 20px;">Nouvelle Déclaration Reçue</h2>
+
+	<p>Bonjour Admin,</p>
+
+	<div class="alert alert-info">
+		Une nouvelle déclaration du nombre d'inscrits vient d'être soumise et nécessite votre validation.
+	</div>
+
+	<table style="width: 100%; border-collapse: collapse; margin: 24px 0;">
+		<tr>
+			<td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; color: #64748b; width: 40%;">Assesseur</td>
+			<td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; font-weight: 600;">{{ signalement.assesseur.prenom }}
+				{{ signalement.assesseur.nom }}</td>
+		</tr>
+		<tr>
+			<td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; color: #64748b;">Email</td>
+			<td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0;">{{ signalement.assesseur.email }}</td>
+		</tr>
+		<tr>
+			<td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; color: #64748b;">Centre de Vote</td>
+			<td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; font-weight: 600;">{{ signalement.centreDeVote.nom }}</td>
+		</tr>
+		<tr>
+			<td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; color: #64748b;">Total Inscrits</td>
+			<td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; font-size: 18px; color: #16a34a; font-weight: 700;">{{ signalement.nombreInscritsTotal }}</td>
+		</tr>
+	</table>
+
+	<p style="margin-top: 30px; text-align: center;">
+		<a href="{{ url('admin', {'crudAction': 'index', 'crudControllerFqcn': 'App\\Controller\\Admin\\SignalementInscritsCrudController'}) }}" class="btn">Accéder à l'administration</a>
+	</p>
+{% endblock %}

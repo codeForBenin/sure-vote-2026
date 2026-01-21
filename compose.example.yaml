@@ -1,0 +1,86 @@
+services:
+  ###> doctrine/doctrine-bundle ###
+  database:
+    image: postgres:${POSTGRES_VERSION:-16}-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-your_postgres_db}
+      # You should definitely change the password in production
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-your_postgres_password}
+      POSTGRES_USER: ${POSTGRES_USER:-your_postgres_user}
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-d", "${POSTGRES_DB:-your_postgres_db}", "-U", "${POSTGRES_USER:-your_postgres_user}" ]
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    networks:
+      - surevote_network
+    ports:
+      - "5434:5432"
+    volumes:
+      - database_data:/var/lib/postgresql/data:rw
+      # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
+      # - ./docker/db/data:/var/lib/postgresql/data:rw
+      ###< doctrine/doctrine-bundle ###
+  minio:
+    image: quay.io/minio/aistor/minio:latest
+    container_name: minio-server
+    restart: always
+    command: server /data --console-address ":9001" --certs-dir /etc/minio/certs
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    env_file: .env
+    volumes:
+      - $HOME/minio/certs:/etc/minio/certs
+      - $HOME/minio/data:/data
+      - $HOME/minio/minio.license:/minio.license
+    networks:
+      - surevote_network
+
+  php:
+    build:
+      context: .
+    restart: unless-stopped
+    environment:
+      SERVER_NAME: :80
+      MERCURE_PUBLISHER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET:-your_mercure_jwt_secret}
+      MERCURE_SUBSCRIBER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET:-your_mercure_jwt_secret}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-your_postgres_user}:${POSTGRES_PASSWORD:-your_postgres_password}@database:5432/${POSTGRES_DB:-your_postgres_db}?serverVersion=${POSTGRES_VERSION:-16}&charset=utf8
+      TRUSTED_HOSTS: ^.*$
+      TRUSTED_PROXIES: 127.0.0.1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+      # MinIO Configuration for PHP Container
+      MINIO_SERVER_URL: https://minio-server:9000
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-your_minio_user}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-your_minio_password}
+      MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL:-your_minio_public_url}
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - surevote_network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      # HTTP
+      - target: 80
+        published: ${HTTP_PORT:-7755}
+        protocol: tcp
+      # HTTPS
+      - target: 443
+        published: ${HTTPS_PORT:-7756}
+        protocol: tcp
+      # HTTP/3
+      - target: 443
+        published: ${HTTPS_PORT:-7756}
+        protocol: udp
+
+volumes:
+  caddy_data:
+  caddy_config: ###> doctrine/doctrine-bundle ###
+  data:
+  database_data:
+    ###< doctrine/doctrine-bundle ###
+
+networks:
+  surevote_network:
+    driver: bridge

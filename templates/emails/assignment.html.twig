@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Votre affectation - SureVote</title>
+</head>
+<body style="font-family: sans-serif; background-color: #f8fafc; padding: 20px;">
+	<div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+		<div style="text-align: center; margin-bottom: 20px;">
+			<img src="{{ absolute_url(asset('uploads/metadata/favicon.png')) }}" alt="SureVote Logo" style="width: 64px; height: auto;">
+		</div>
+
+		<h1 style="color: #0f172a; text-align: center; margin-bottom: 20px;">Compte Validé & Centre Assigné</h1>
+
+
+<p style="color: #475569; font-size: 16px; line-height: 1.5; margin-bottom: 20px;"></p>
+
+
+Bonjour
+<strong>{{ user.prenom|capitalize }}
+	{{ user.nom|upper }}</strong>,</p><p style="color: #475569; font-size: 16px; line-height: 1.5; margin-bottom: 20px;">
+Bonne nouvelle ! Votre compte assesseur a été validé par la supervision.</p>
+
+Vous avez été officiellement affecté au centre de vote suivant :</p>
+
+
+
+<div style="background-color: #f1f5f9; padding: 20px; border-radius: 8px; margin-bottom: 30px; text-align: center;">
+	<h2 style="color: #166534; margin: 0 0 10px 0; font-size: 20px;">{{ centre.nom }}</h2>
+
+<p style="margin: 0; color: #64748b;"></p>
+
+{{ centre.commune }}
+-
+{{ centre.arrondissement }}<br>
+<small>Département :
+	{{ centre.departement }}</small></p></div><p style="color: #475569; font-size: 16px; line-height: 1.5; margin-bottom: 30px; text-align: center;">Pour vous accompagner dans vos missions, nous avons préparé un guide interactif détaillant les 3 étapes clés de votre journée (Vérification, Déclaration, Pointage). Nous vous recommandons vivement de le consulter avant toute action.</p>
+
+<div style="text-align: center; margin-bottom: 20px;">
+	<a href="{{ absolute_url(path('app_assesseur_guide')) }}" style="display: inline-block; background-color: #d97706; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; margin-right: 10px;">
+		<i class="fas fa-book-open"></i>
+		Lire le Guide de Mission
+	</a>
+
+</div>
+
+
+<p style="color: #475569; font-size: 16px; line-height: 1.5; margin-bottom: 30px; text-align: center;"></p>
+
+Vous pouvez dès à présent vous connecter à votre espace pour accéder à la liste des bureaux de vote.</p>
+
+
+<div style="text-align: center;">
+	<a href="{{ absolute_url(path('app_login')) }}" style="display: inline-block; background-color: #166534; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold;">
+		Accéder à mon Espace Assesseur
+	</a>
+</div>
+
+<p style="margin-top: 40px; font-size: 12px; color: #94a3b8; text-align: center;">
+	Ceci est un message automatique de la plateforme SureVote Bénin.<br>
+	Merci de votre engagement pour la transparence.
+</p>
+
+</p></div></body>
+
+
+</html>

@@ -1,0 +1,138 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Acceuil - Sure Vote Bénin
+{% endblock %}
+
+
+{% block body %}
+	<div class="min-h-screen bg-slate-50">
+
+		<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+			<div class="grid lg:grid-cols-2 gap-12 items-center">
+				<div class="space-y-8 self-start">
+					<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-benin-green/10 text-benin-green text-xs font-bold uppercase tracking-widest">
+						<span class="relative flex h-2 w-2">
+							<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-benin-green opacity-75"></span>
+							<span class="relative inline-flex rounded-full h-2 w-2 bg-benin-green"></span>
+						</span>
+						En direct des urnes
+					</div>
+					<h1 class="text-3xl md:text-6xl font-black text-slate-900 leading-tight">
+
+						Suivez les résultats
+						<br/>
+						en
+						<span class="text-benin-green underline decoration-benin-yellow decoration-8 decoration-skip-ink">temps réel</span>.</h1>
+					<p class="text-lg text-slate-500 leading-relaxed max-w-xl">
+						Visualisez le taux de participation et les premiers décomptes des bureaux de vote à travers tout le territoire national béninois.</p>
+					<div class="flex gap-4">
+						<a href="{{ path('app_stats_participation') }}" class="relative bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex-1 hover:border-benin-green hover:shadow-xl hover:scale-105 transition-all duration-300 group cursor-pointer">
+							<span class="absolute top-4 right-4 flex h-3 w-3">
+								<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-benin-green opacity-75"></span>
+								<span class="relative inline-flex rounded-full h-3 w-3 bg-benin-green"></span>
+							</span>
+							<div class="text-3xl font-black text-slate-900 group-hover:text-benin-green transition-colors">{{ stat_participation }}%</div>
+							<div class="text-xs font-bold text-slate-400 uppercase mt-1">Participation (Provisoire)</div>
+							<div class="mt-2 text-[10px] font-bold text-benin-green flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+<i class="fas fa-chart-line mr-1"></i>
+Voir l'évolution
+
+							</div>
+						</a>
+						<a href="{{ path('app_stats_participation') }}" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex-1 hover:border-benin-green hover:shadow-xl hover:scale-105 transition-all duration-300 group cursor-pointer">
+							<div class="text-3xl font-black text-slate-900 group-hover:text-benin-green transition-colors">{{ stat_depouilles }}
+								<span class="text-lg text-slate-400 font-medium group-hover:text-benin-green/60 transition-colors">/
+{{ total_bureaux | number_format(0, ',',' ') }}</span>
+
+
+
+							</div>
+							<div class="text-xs font-bold text-slate-400 uppercase mt-1">Bureaux dépouillés</div>
+							<div class="mt-2 text-[10px] font-bold text-benin-green flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+<i class="fas fa-eye mr-1"></i>
+Détails
+
+</div>
+
+						</a>
+					</div>
+{# Regarder le resultat de mon centre de vote #}
+
+	<a href="{{ path('app_public_resultats_search') }}" class="bg-white p-6 rounded-2xl block w-full shadow-sm border border-slate-100 font-bold hover:border-benin-green hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer flex items-center justify-between">
+		Voir les résultats de votre centre de vote
+		<i class="fas fa-arrow-right mr-2"></i>
+	</a>
+
+
+				</div>
+				<div
+					class="relative bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden min-h-[500px] flex flex-col" data-controller="public-results">
+
+					<!-- Header Selection -->
+					<div class="p-8 border-b border-slate-100 bg-slate-50/50 flex gap-4 items-end">
+						<div class="flex-1">
+							<label for="circo-select" class="block text-xs font-bold text-slate-400 uppercase mb-2">Sélectionnez une zone</label>
+							<select id="circo-select" data-public-results-target="select" data-action="change->public-results#onCircoChange" disabled class="w-full bg-white border-slate-200 rounded-xl px-4 py-3 text-slate-700 font-bold focus:ring-2 focus:ring-benin-green focus:border-benin-green transition-shadow cursor-pointer">
+								<option>Chargement des circonscriptions...</option>
+							</select>
+						</div>
+						<button data-action="click->public-results#refresh" class="bg-white border border-slate-200 text-slate-500 hover:text-benin-green hover:border-benin-green p-3 rounded-xl transition-colors shadow-sm" title="Actualiser les résultats">
+							<i class="fas fa-sync-alt text-lg"></i>
+						</button>
+						<button data-action="click->public-results#share" class="bg-white border border-slate-200 text-slate-500 hover:text-benin-green hover:border-benin-green p-3 rounded-xl transition-colors shadow-sm" title="Télécharger / Partager la carte">
+							<i class="fas fa-share-alt text-lg"></i>
+						</button>
+					</div>
+
+					<!-- Content Area -->
+					<div
+						class="flex-1 p-8 relative flex flex-col">
+
+						<!-- Disclaimer -->
+						<div class="bg-amber-50 border border-amber-100 rounded-lg p-3 flex gap-3 mb-6">
+							<i class="fas fa-info-circle text-amber-500 mt-1"></i>
+							<div class="text-xs text-amber-800 leading-snug">
+								<span class="font-bold block mb-0.5">Note importante :</span>
+								Ces résultats proviennent de la compilation citoyenne des PV et ne sont pas officiels. Seule la CENA est habilitée à proclamer les résultats définitifs.
+							</div>
+						</div>
+
+						<!-- State: Placeholder -->
+						<div data-public-results-target="placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-center p-8 text-slate-400">
+							<i class="fas fa-map-marked-alt text-6xl mt-8 text-slate-200"></i>
+							<p class="text-lg font-medium">Choisissez une circonscription<br>pour voir le détail des votes.</p>
+						</div>
+
+						<!-- State: Loading -->
+						<div data-public-results-target="loading" class="hidden absolute inset-0 flex flex-col items-center justify-center text-center p-8">
+							<div class="w-12 h-12 border-4 border-benin-green border-t-transparent rounded-full animate-spin mb-4"></div>
+							<p class="text-slate-500 font-medium">Chargement des données en cours...</p>
+						</div>
+
+						<!-- State: Results -->
+						<div data-public-results-target="resultsArea" class="hidden h-full flex flex-col">
+							<div class="text-right">
+								<h2 data-public-results-target="circoName" class="text-3xl font-black text-slate-900 leading-none">...</h2>
+								<div data-public-results-target="circoSieges" class="text-sm font-bold text-slate-500 uppercase mt-1">Sélectionnez une zone</div>
+								<p data-public-results-target="circoVilles" class="text-xs text-slate-400 mt-2 max-w-sm ml-auto overflow-hidden text-ellipsis whitespace-nowrap"></p>
+
+								<a href="#" data-public-results-target="projectionsLink" class="invisible pointer-events-none mt-3 inline-flex items-center text-xs font-bold text-benin-green hover:underline">
+									<i class="fas fa-calculator mr-1"></i>
+									Voir simulation des sièges
+								</a>
+							</div>
+
+							<div
+								id="results-list" class="flex-1 overflow-y-auto pr-2 space-y-2"><!-- Results injected by JS here -->
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</main>
+
+
+	</div>
+
+{% endblock %}

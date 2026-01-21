@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Statistiques de Participation
+{% endblock %}
+
+{% block body %}
+	<div class="min-h-screen bg-slate-50">
+
+		<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+			<div class="text-center mb-12">
+				<h1 class="text-4xl font-black text-slate-900 mb-4 tracking-tight">Évolution de la Participation</h1>
+				<p class="text-xl text-slate-500 max-w-2xl mx-auto">
+					Suivi horaire du taux de participation national estimé sur la base des remontées des bureaux de vote.
+				</p>
+			</div>
+
+			<div class="max-w-4xl mx-auto">
+				<div class="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 p-8 md:p-12">
+					<div class="mb-8 flex items-center justify-between">
+						<div>
+							<h2 class="text-2xl font-bold text-slate-900">Courbe de progression</h2>
+							<p class="text-slate-400 text-sm">Mise à jour en temps réel</p>
+						</div>
+						<div class="flex items-center gap-2">
+							<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-benin-green/10 text-benin-green">
+								<span class="w-2 h-2 rounded-full bg-benin-green mr-2 animate-pulse"></span>
+								LIVE
+							</span>
+						</div>
+					</div>
+
+					<div class="relative h-96 w-full">
+						<canvas id="participationChart" data-controller="stats-chart" data-stats-chart-labels-value="{{ labels|json_encode|e('html_attr') }}" data-stats-chart-data-value="{{ data|json_encode|e('html_attr') }}"></canvas>
+					</div>
+
+					<div class="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+						{% for label in labels %}
+							<div class="bg-slate-50 rounded-xl p-4 text-center border border-slate-100">
+								<div class="text-xs font-bold text-slate-400 mb-1">{{ label }}</div>
+								<div class="text-xl font-black text-slate-900">{{ data[loop.index0] }}%</div>
+							</div>
+						{% endfor %}
+					</div>
+				</div>
+
+
+			</div>
+		</main>
+
+	</div>
+
+{% endblock %}

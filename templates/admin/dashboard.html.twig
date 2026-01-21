@@ -1,0 +1,139 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Résultats & Statistiques 🇧🇯
+{% endblock %}
+
+{% block flash_messages %}
+    {% include 'partials/_flash_messages.html.twig' %}
+{% endblock %}
+
+{% block main %}
+<link rel="stylesheet" href="{{ asset('css/dashboard-overview.css') }}">
+
+
+
+<div class="dashboard-stats">
+	<div class="stat-card green">
+		<i class="fas fa-users text-benin-green"></i>
+		<div class="value">{{ stat_participation }}%</div>
+		<div class="label">Participation globale</div>
+	</div>
+
+
+<div class="stat-card yellow">
+	<i class="fas fa-check-circle text-benin-yellow"></i>
+	<div class="value">{{ stat_depouilles }}%</div>
+	<div class="label">Bureaux dépouillés</div>
+</div>
+
+
+<div class="stat-card red">
+	<i class="fas fa-exclamation-triangle text-benin-red"></i>
+
+<div class="value" style="font-size: 1.5rem; line-height: 1.3; display: flex; flex-direction: column; align-items: flex-start;">
+	<div>
+		<span style="font-size: 2rem; color: #64748b;">{{ total_observations }}</span>
+		<span style="font-size: 0.875rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Observations</span>
+	</div>
+	<div>
+		dont
+		<span style="font-size: 2rem; color: var(--benin-red);">{{ urgent_count }}</span>
+		<span style="font-size: 0.875rem; color: var(--benin-red); font-weight: 700; text-transform: uppercase;">Critiques</span>
+	</div>
+</div></div></div>{% if urgent_alerts|length > 0 %}<div class="dashboard-section-urgent">
+<h3>
+	<i class="fas fa-bullhorn animate-pulse"></i>
+	Dernières remontées critiques
+</h3>
+<div class="alert-list">
+	{% for alert in urgent_alerts %}
+		<div class="alert-card">
+			<div class="content">
+				<p class="title">{{ alert.contenu }}</p>
+				<p class="meta">
+					<i class="fas fa-map-marker-alt mr-1"></i>
+{% if alert.bureauDeVote %}
+	{{ alert.bureauDeVote.nom }}
+	({{ alert.bureauDeVote.code }})
+{% elseif alert.centreDeVote %}
+	{{ alert.centreDeVote.nom }}
+	(Centre)
+{% else %}
+	Lieu inconnu
+{% endif %}
+-
+
+					<span style="font-weight: 600">{{ alert.assesseur.fullName }}</span>
+				</p>
+			</div>
+			<span class="time-badge">
+				{{ alert.createdAt|date('H:i') }}
+			</span>
+		</div>
+	{% endfor %}
+	<div class="text-center mt-4">
+		<a href="{{ ea_url().setController('App\\Controller\\Admin\\ObservationCrudController').setAction('index').set('filters[niveau][comparison]', '=').set('filters[niveau][value]', 'URGENT') }}" class="view-all-link">
+			Voir toutes les alertes &rarr;
+		</a>
+	</div>
+</div></div>
+
+{% endif %}
+
+
+<div class="dashboard-section">
+	<h3>📊 Derniers rapports PV reçus</h3>
+	{% if latest_results is defined and latest_results|length > 0 %}
+		<div class="pv-list" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem;">
+			{% for result in latest_results %}
+				{% set detailUrl = ea_url()
+					.setController('App\\Controller\\Admin\\ResultatCrudController')
+					.setAction('detail')
+					.setEntityId(result.id)
+				%}
+				<a href="{{ detailUrl }}" class="pv-card" style="display: flex; align-items: center; justify-content: space-between; background: white; padding: 1.25rem; border-radius: 1rem; border: 1px solid #f1f5f9; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.borderColor='#009739'; this.style.transform='translateY(-2px)';" onmouseout="this.style.borderColor='#f1f5f9'; this.style.transform='translateY(0)';">
+					<div class="info" style="display: flex; align-items: center; gap: 1rem;">
+						<div class="icon" style="width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: {{ result.parti.couleur }}20; color: {{ result.parti.couleur }}; font-weight: 900; font-size: 1.2rem;">
+							{{ result.parti.sigle|slice(0, 1) }}
+						</div>
+						<div>
+							<div style="font-weight: 800; color: #1e293b; font-size: 1.1rem;">
+								<span style="color: {{ result.parti.couleur }}">{{ result.parti.sigle }}</span>
+								<span style="color: #cbd5e1; margin: 0 0.5rem;">&bull;</span>
+								{{ result.nombreVoix }} voix
+							</div>
+							<div style="font-size: 0.85rem; color: #64748b; margin-top: 0.25rem;">
+								<i class="fas fa-vote-yea" style="margin-right: 0.3rem;"></i>
+								{{ result.bureauDeVote.nom }} ({{ result.bureauDeVote.code }})
+							</div>
+						</div>
+					</div>
+					<div class="meta" style="text-align: right;">
+						<span class="time-badge" style="display: inline-block; padding: 0.25rem 0.75rem; background: #f8fafc; color: #64748b; border-radius: 999px; font-size: 0.75rem; font-weight: 700;">
+							{{ result.updatedAt|date('d/m H:i') }}
+						</span>
+						<div style="margin-top: 0.5rem; font-size: 0.75rem; color: #94a3b8;">
+							{% if result.isValidated %}
+								<span style="color: #009739;"><i class="fas fa-check-circle"></i> Validé</span>
+							{% else %}
+								<span style="color: #fb923c;"><i class="fas fa-clock"></i> En attente</span>
+							{% endif %}
+						</div>
+					</div>
+				</a>
+			{% endfor %}
+		</div>
+		<div class="text-center mt-5">
+			<a href="{{ ea_url().setController('App\\Controller\\Admin\\ResultatCrudController').setAction('index') }}" class="view-all-link">
+				Voir tous les résultats &rarr;
+			</a>
+		</div>
+	{% else %}
+		<div class="empty-state" style="text-align: center; padding: 3rem 0; color: #94a3b8;">
+			<i class="fas fa-inbox fa-3x mb-4"></i>
+			<p class="italic">En attente des premières remontées du terrain...</p>
+		</div>
+	{% endif %}
+</div>
+
+{% endblock %}

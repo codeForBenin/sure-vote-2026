@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Configuration du Centre - Assesseur{% endblock %}
+
+{% block body %}
+	<div class="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+		<div class="max-w-xl mx-auto">
+			<div class="text-center mb-10">
+				<h1 class="text-3xl font-extrabold text-slate-900">
+					Configuration du Centre
+				</h1>
+				<p class="mt-2 text-lg text-slate-600">
+					Centre :
+					<span class="font-bold text-benin-green">{{ centre.nom }}</span>
+					<br>
+					<span class="text-sm">({{ centre.arrondissement }} - {{ centre.commune }})</span>
+				</p>
+			</div>
+
+			<div class="bg-white py-8 px-6 shadow-xl rounded-[2rem] border border-slate-100">
+
+				{{ form_start(form, {'attr': {'class': 'space-y-6'}}) }}
+
+                <div class="text-center p-4 bg-blue-50/50 rounded-2xl border border-blue-100 mb-6">
+                    <p class="text-sm text-blue-800 font-medium">
+                        Le système compte actuellement <span class="font-black text-xl text-blue-600">{{ currentSystemCount }}</span> postes de vote.
+                    </p>
+                    <p class="text-xs text-blue-600/70 mt-1">
+                        Si ce nombre est incorrect, corrigez-le ci-dessous.
+                    </p>
+                </div>
+
+				<div>
+					{{ form_label(form.nombreBureaux, 'Nombre de Postes de Vote (PV)', {'label_attr': {'class': 'block text-sm font-bold text-slate-700 mb-2'}}) }}
+					<div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                            <i class="fas fa-cubes"></i>
+                        </div>
+						{{ form_widget(form.nombreBureaux, {
+                            'attr': {
+                                'class': 'pl-11 appearance-none block w-full px-4 py-4 border border-slate-300 rounded-xl shadow-sm focus:outline-none focus:ring-benin-green focus:border-benin-green text-xl font-bold bg-slate-50',
+                                'min': 1
+                            }
+                        }) }}
+					</div>
+					{{ form_errors(form.nombreBureaux) }}
+                    <p class="mt-2 text-xs text-slate-500">
+                        Indiquez le nombre réel de PV ouverts physiquement dans ce centre.
+                    </p>
+				</div>
+
+				<div class="pt-4 flex flex-col gap-4">
+					{{ form_widget(form.submit, {
+                        'label': 'Valider la Configuration',
+                        'attr': {'class': 'w-full flex justify-center py-4 px-4 border border-transparent rounded-xl shadow-lg text-sm font-medium text-white bg-benin-green hover:bg-benin-green/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-benin-green transition-all font-bold text-lg cursor-pointer transform active:scale-95'}
+                    }) }}
+
+					<a href="{{ path('app_assesseur_dashboard') }}" class="w-full text-center py-3 px-4 rounded-xl text-sm font-bold text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-all">
+						Annuler
+					</a>
+				</div>
+
+				{{ form_end(form) }}
+			</div>
+		</div>
+	</div>
+{% endblock %}

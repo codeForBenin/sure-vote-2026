@@ -1,0 +1,9 @@
+{# templates/admin/field/vich_image.html.twig #}
+{% if field.value %}
+    {% set imageUrl = vich_uploader_asset(entity.instance, 'pvImageFile') %}
+    <a href="{{ imageUrl }}" target="_blank" title="Voir l'image en grand">
+        <img src="{{ imageUrl }}" style="max-height: 50px; border-radius: 4px; border: 1px solid #ddd; object-fit: contain;">
+    </a>
+{% else %}
+    <span class="badge badge-secondary" style="opacity: 0.5;">Aucun PV</span>
+{% endif %}

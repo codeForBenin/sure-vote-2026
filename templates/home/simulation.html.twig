@@ -1,0 +1,123 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Simulateur de Sièges - Sure Vote Bénin
+{% endblock %}
+
+{% block body %}
+	<div class="min-h-screen bg-slate-50 py-12" data-controller="simulation">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="mb-10 text-center">
+				<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold uppercase tracking-widest mb-4">
+					<i class="fas fa-calculator"></i>
+					Simulateur
+				</div>
+				<h1 class="text-3xl md:text-5xl font-black text-slate-900 mb-4">
+					Simulez la répartition
+					<span class="text-indigo-600">des sièges</span>
+				</h1>
+				<p class="text-lg text-slate-500 max-w-2xl mx-auto">
+					Choisissez une circonscription, entrez les voix estimées pour chaque parti et voyez instantanément la projection des sièges selon le Code Électoral.
+				</p>
+			</div>
+
+			<div
+				class="grid lg:grid-cols-12 gap-8">
+				<!-- Left: Inputs -->
+				<div
+					class="lg:col-span-5 space-y-6">
+
+					<!-- Circo Selector -->
+					<div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+						<label class="block text-sm font-bold text-slate-700 mb-2">Circonscription Électorale</label>
+						<select data-simulation-target="circoSelect" data-action="change->simulation#updateCirco" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 font-medium text-slate-700">
+							<option value="">Sélectionnez une zone...</option>
+							{% for circo in circonscriptions %}
+								<option value="{{ circo.id }}" data-sieges="{{ circo.sieges }}">
+									{{ circo.nom }}
+									({{ circo.sieges }}
+									sièges)
+								</option>
+							{% endfor %}
+						</select>
+
+						<div class="mt-4">
+							<label class="block text-sm font-bold text-slate-700 mb-2">Nombre de sièges à pourvoir</label>
+							<input type="number" data-simulation-target="seatsInput" data-action="input->simulation#calculate" placeholder="ex: 5" class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 font-bold text-lg text-center" min="1">
+						</div>
+					</div>
+
+					<!-- Parties Inputs -->
+					<div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+						<h3 class="font-bold text-slate-900 mb-4 flex items-center gap-2">
+							<i class="fas fa-vote-yea text-indigo-500"></i>
+							Suffrages par Parti
+						</h3>
+						<div class="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+							{% for parti in partis %}
+								{% if parti.sigle not in ['NULS', 'BLANCS'] %}
+									<div class="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100 hover:border-indigo-200 transition-colors">
+										<div class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center p-1 shadow-sm flex-shrink-0 relative overflow-hidden">
+											{% if parti.logoUrl %}
+												<img src="{{ vich_uploader_asset(parti, 'logoFile') }}" alt="{{ parti.sigle }}" class="w-full h-full object-contain">
+											{% else %}
+												<span class="text-xs font-bold text-slate-400">{{ parti.sigle|slice(0,2) }}</span>
+											{% endif %}
+										</div>
+										<div class="flex-1 min-w-0">
+											<div class="font-bold text-slate-900 text-sm truncate">{{ parti.sigle }}</div>
+											<div class="text-[10px] text-slate-500 truncate">{{ parti.nom }}</div>
+										</div>
+										<input type="number" data-simulation-target="partyInput" data-parti-id="{{ parti.id }}" data-action="input->simulation#calculate" placeholder="Voix" class="w-24 rounded-lg border-slate-300 text-right font-mono font-medium focus:border-indigo-500 focus:ring-indigo-500" min="0">
+									</div>
+								{% endif %}
+							{% endfor %}
+						</div>
+					</div>
+
+				</div>
+
+				<!-- Right: Results -->
+				<div class="lg:col-span-7">
+					<div class="sticky top-8">
+						<div
+							class="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden min-h-[400px] flex flex-col relative">
+							<!-- Header -->
+							<div class="bg-indigo-900 text-white p-6 relative overflow-hidden">
+								<div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-indigo-800 rounded-full opacity-50 blur-xl"></div>
+								<h2 class="text-xl font-bold relative z-10">Résultats de la simulation</h2>
+								<p class="text-indigo-200 text-sm relative z-10">Estimation basée sur le quotient électoral de :
+									<span data-simulation-target="quotientDisplay" class="font-mono font-bold text-white">-</span>
+								</p>
+							</div>
+
+							<!-- Results State -->
+							<div data-simulation-target="resultSection" class="hidden flex-1 flex flex-col">
+								<div class="overflow-x-auto">
+									<table class="w-full text-left" data-simulation-target="resultTable">
+										<thead class="bg-slate-50 text-xs uppercase text-slate-500 font-bold">
+											<tr>
+												<th class="px-6 py-4">Parti</th>
+												<th class="px-6 py-4 text-center">Voix</th>
+												<th class="px-6 py-4 text-center">% (Suffrages)</th>
+												<th class="px-6 py-4 text-center">Sièges</th>
+											</tr>
+										</thead>
+										<tbody
+											class="divide-y divide-slate-100"><!-- Rows injected by JS -->
+										</tbody>
+									</table>
+								</div>
+							</div>
+
+							<!-- Empty State -->
+							<div data-simulation-target="placeholder" class="flex-1 flex flex-col items-center justify-center p-12 text-center text-slate-400">
+								<i class="fas fa-chart-pie text-6xl mb-4 text-slate-200"></i>
+								<p class="font-medium">Entrez les données à gauche<br>pour voir la répartition.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

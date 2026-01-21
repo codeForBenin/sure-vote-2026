@@ -1,0 +1,51 @@
+# Read the documentation at https://github.com/thephpleague/flysystem-bundle/blob/master/docs/1-getting-started.md
+services:
+  # Service Client Azure Blob Storage
+  AzureOss\Storage\Blob\BlobServiceClient:
+    factory: ['AzureOss\Storage\Blob\BlobServiceClient', "fromConnectionString"]
+    arguments:
+      - "%env(AZURE_STORAGE_CONNECTION_STRING)%"
+
+  # Container Clients spécifiques pour chaque conteneur Azure
+  app.azure_container_client.pvs:
+    class: AzureOss\Storage\Blob\BlobContainerClient
+    factory: ['@AzureOss\Storage\Blob\BlobServiceClient', "getContainerClient"]
+    arguments:
+      - "%env(string:AZURE_STORAGE_CONTAINER_PVS)%"
+
+  app.azure_container_client.logos:
+    class: AzureOss\Storage\Blob\BlobContainerClient
+    factory: ['@AzureOss\Storage\Blob\BlobServiceClient', "getContainerClient"]
+    arguments:
+      - "%env(string:AZURE_STORAGE_CONTAINER_LOGOS)%"
+
+  app.azure_container_client.images:
+    class: AzureOss\Storage\Blob\BlobContainerClient
+    factory: ['@AzureOss\Storage\Blob\BlobServiceClient', "getContainerClient"]
+    arguments:
+      - "%env(string:AZURE_STORAGE_CONTAINER_IMAGES)%"
+
+  # Pages d'adaptateurs Flysystem pour chaque conteneur
+  app.flysystem.azure_adapter.pvs:
+    class: AzureOss\FlysystemAzureBlobStorage\AzureBlobStorageAdapter
+    arguments:
+      - "@app.azure_container_client.pvs"
+
+  app.flysystem.azure_adapter.logos:
+    class: AzureOss\FlysystemAzureBlobStorage\AzureBlobStorageAdapter
+    arguments:
+      - "@app.azure_container_client.logos"
+
+  app.flysystem.azure_adapter.images:
+    class: AzureOss\FlysystemAzureBlobStorage\AzureBlobStorageAdapter
+    arguments:
+      - "@app.azure_container_client.images"
+
+flysystem:
+  storages:
+    vote_reports.storage:
+      adapter: "app.flysystem.azure_adapter.pvs"
+    party_logos.storage:
+      adapter: "app.flysystem.azure_adapter.logos"
+    observation_images.storage:
+      adapter: "app.flysystem.azure_adapter.images"

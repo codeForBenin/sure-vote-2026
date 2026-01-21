@@ -1,0 +1,54 @@
+{% set flashes = app.flashes %}
+{% if flashes|length > 0 %}
+<div class="fixed top-24 right-4 z-[9999] w-full max-w-sm space-y-4 px-4 sm:px-0 pointer-events-none" data-controller="flash">
+
+{% for label, messages in flashes %}
+
+    {% for message in messages %}
+        {% set bgColor = 'bg-blue-50' %}
+        {% set textColor = 'text-blue-800' %}
+        {% set borderColor = 'border-blue-400' %}
+        {% set icon = 'info-circle' %}
+
+        {% if label == 'success' %}
+            {% set bgColor = 'bg-green-50' %}
+            {% set textColor = 'text-green-800' %}
+            {% set borderColor = 'border-green-400' %}
+            {% set icon = 'check-circle' %}
+        {% elseif label == 'error' or label == 'danger' %}
+            {% set bgColor = 'bg-red-50' %}
+            {% set textColor = 'text-red-800' %}
+            {% set borderColor = 'border-red-400' %}
+            {% set icon = 'exclamation-circle' %}
+        {% elseif label == 'warning' %}
+            {% set bgColor = 'bg-yellow-50' %}
+            {% set textColor = 'text-yellow-800' %}
+            {% set borderColor = 'border-yellow-400' %}
+            {% set icon = 'exclamation-triangle' %}
+        {% endif %}
+
+<div class="pointer-events-auto rounded-2xl {{ bgColor }} p-4 border border-l-4 {{ borderColor }} shadow-2xl relative transform transition-all duration-300 hover:scale-105" role="alert" data-controller="flash">
+	<div class="flex items-start">
+		<div class="flex-shrink-0 pt-0.5">
+
+                    <i class="fas fa-{{ icon }} {{ textColor }}"></i>
+                </div>
+<div class="ml-3 pr-6">
+	<p class="text-sm font-bold {{ textColor }}"></p>
+
+                        {{ message|raw }}
+                    </p>
+                </div>
+{# Bouton de fermeture via Stimulus #}
+<button type="button" data-action="click->flash#close" class="absolute top-2 right-2 {{ textColor }} opacity-50 hover:opacity-100 transition-opacity focus:outline-none p-1" aria-label="Close">
+
+	<i class="fas fa-times"></i>
+</button>
+
+            </div>
+        </div>
+    {% endfor %}
+{% endfor %}
+
+</div>{% endif %}
+

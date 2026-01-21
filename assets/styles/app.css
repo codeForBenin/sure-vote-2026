@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+@theme {
+  --color-benin-green: #008751;
+  --color-benin-yellow: #FCD116;
+  --color-benin-red: #E8112D;
+}

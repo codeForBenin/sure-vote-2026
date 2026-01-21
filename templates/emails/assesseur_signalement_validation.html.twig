@@ -1,0 +1,38 @@
+{% extends 'emails/base_email.html.twig' %}
+
+{% block title %}Validation de votre déclaration
+{% endblock %}
+
+{% block body %}
+	<h2 style="margin-top: 0; color: #0f172a; font-size: 20px;">Déclaration Validée !</h2>
+
+	<p>Bonjour
+		{{ signalement.assesseur.prenom }},</p>
+
+	<div class="alert alert-success">
+		Excellente nouvelle : Votre déclaration du nombre d'inscrits pour le centre
+		<strong>{{ signalement.centreDeVote.nom }}</strong>
+		a été officiellement approuvée.
+	</div>
+
+	<p style="margin-bottom: 24px;">
+		Le système est désormais déverrouillé pour ce centre. Vous avez déclaré un total de :
+	</p>
+
+	<div style="text-align: center; margin: 30px 0;">
+		<span style="font-size: 32px; font-weight: 800; color: #16a34a; background: #dcfce7; padding: 10px 24px; border-radius: 12px; border: 1px solid #bbf7d0;">
+			{{ signalement.nombreInscritsTotal }}
+			Inscrits
+		</span>
+	</div>
+
+	<p>Vous pouvez dès à présent :</p>
+	<ul style="color: #475569; padding-left: 20px; line-height: 1.8;">
+		<li>Pointer la participation horaire (toutes les 2h).</li>
+		<li>Saisir les résultats des dépouillements après la fermeture.</li>
+	</ul>
+
+	<p style="margin-top: 30px; text-align: center;">
+		<a href="{{ url('app_assesseur_dashboard') }}" class="btn">Accéder à mon tableau de bord</a>
+	</p>
+{% endblock %}

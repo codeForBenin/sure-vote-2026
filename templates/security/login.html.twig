@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion - Sure Vote
+{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+
+
+{% block body %}
+	<div class="min-h-screen flex items-center justify-center bg-linear-to-br from-benin-green/10 via-white to-benin-red/10 px-4">
+		<div class="max-w-md w-full">
+			<div class="text-center mb-10">
+				<h1 class="text-4xl font-black tracking-tight text-slate-900 mb-2">
+					SURE<span class="text-benin-green">VOTE</span>
+				</h1>
+				<p class="text-slate-500 font-medium">Bénin - Élections Législatives</p>
+			</div>
+
+
+			<form method="post" class="bg-white p-8 rounded-3xl shadow-2xl border border-slate-100 flex flex-col gap-6">
+				{% if error %}
+					<div class="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-medium border border-red-100 italic">
+						{{ error.messageKey|trans(error.messageData, 'security') }}
+					</div>
+				{% endif %}
+
+
+				<div>
+					<label for="inputEmail" class="block text-sm ml-2 font-semibold text-slate-700 mb-2">Email</label>
+
+					<input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-benin-green/20 focus:border-benin-green transition-all outline-hidden" placeholder="email@example.com" autocomplete="email" required autofocus></div>
+
+
+				<div>
+					<label for="inputPassword" class="block text-sm ml-2 font-semibold text-slate-700 mb-2">Mot de passe</label>
+
+					<input type="password" name="password" id="inputPassword" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-benin-green/20 focus:border-benin-green transition-all outline-hidden" placeholder="********" autocomplete="current-password" required></div>
+
+
+				<input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+
+				<button type="submit" class="w-full bg-benin-green hover:bg-benin-green/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-benin-green/20 transition-all transform hover:-translate-y-0.5 active:translate-y-0">
+					Se connecter
+				</button>
+
+				<hr class="my-4 border-slate-200">
+				<div class="text-center mt-2">
+					<p class="text-sm text-slate-500 flex flex-col gap-2">
+						Vous voulez devenir assesseur ?
+						<a href="{{ path('app_register') }}" class="font-bold text-benin-green hover:underline">Créer un compte</a>
+					</p>
+				</div>
+			</form>
+		</div>
+	</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'emails/base_email.html.twig' %}
+
+{% block title %}
+	{{ subject }}
+{% endblock %}
+
+{% block body %}
+	<h2 style="margin-top: 0; color: #0f172a; font-size: 20px;">Nouveau Message de Supervision</h2>
+
+	<div style="background-color: #f8fafc; border-left: 4px solid #4f46e5; padding: 20px; border-radius: 4px; margin: 24px 0;">
+		<h3 style="margin: 0 0 10px 0; font-size: 16px; color: #4f46e5;">{{ subject }}</h3>
+		<div style="color: #334155; white-space: pre-wrap;">{{ messageContent|e|nl2br }}</div>
+	</div>
+
+	<p style="color: #64748b; font-size: 14px; margin-top: 30px;">
+		Ce message vous a été envoyé par un superviseur via la plateforme SureVote.
+	</p>
+
+	<div style="text-align: center; margin-top: 30px;">
+		<a href="{{ url('app_assesseur_dashboard') }}" class="btn" style="background-color: #4f46e5;">Accéder à mon espace</a>
+	</div>
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Projections des Sièges - Sure Vote Bénin
+{% endblock %}
+
+{% block body %}
+	<div>
+		<main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 mt-6" data-controller="projections">
+
+			{% include 'partials/_flash_messages.html.twig' %}
+			<div class="text-center mb-10">
+				<h1 class="text-4xl font-black text-slate-900 mb-4">Répartition des Sièges</h1>
+				<p class="text-lg text-slate-500 max-w-2xl mx-auto">
+					Projection théorique basée sur le Code Électoral (Quotient électoral + Plus forte moyenne + Siège réservé femme).
+				</p>
+				{# Disclaimer #}
+				<div class="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-amber-50 border border-amber-100 rounded-lg text-amber-800 text-xs font-bold">
+					<i class="fas fa-exclamation-triangle"></i>
+					Simulation non officielle à but informatif uniquement.
+				</div>
+			</div>
+
+			<div
+				class="bg-white rounded-[2rem] shadow-xl border border-slate-200 overflow-hidden">
+
+				{# Header Select #}
+				<div class="p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row gap-4 items-center justify-between">
+					<div class="w-full sm:w-1/2">
+						<label for="circo-select" class="block text-xs font-bold text-slate-400 uppercase mb-2">Choisir une circonscription</label>
+						<select id="circo-select" data-projections-target="select" data-action="change->projections#onCircoChange" disabled class="w-full bg-white border-slate-200 rounded-xl px-4 py-3 text-slate-700 font-bold focus:ring-2 focus:ring-benin-green focus:border-benin-green transition-shadow cursor-pointer">
+							<option>Chargement...</option>
+						</select>
+					</div>
+					<div class="text-right">
+						<h2 data-projections-target="circoName" class="text-2xl font-black text-slate-900 leading-none">...</h2>
+						<div data-projections-target="circoSieges" class="text-xs font-bold text-slate-500 uppercase mt-1">Sélectionnez une zone</div>
+						<div class="mt-2 flex flex-col sm:flex-row gap-2 justify-end items-center">
+							<div class="hidden inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full border border-indigo-100 shadow-sm">
+								<span class="text-[10px] font-bold uppercase tracking-wide">Quotient Électoral :</span>
+								<span data-projections-target="quotientValue" class="font-black text-sm">0</span>
+							</div>
+							<div data-projections-target="statsBlancsNuls" class="hidden inline-flex items-center gap-2 px-3 py-1 bg-slate-100 text-slate-500 rounded-full border border-slate-200 shadow-sm" title="Ne compte pas dans les suffrages exprimés">
+								<span class="text-[10px] font-bold uppercase tracking-wide">Blancs & Nuls :</span>
+								<span data-projections-target="statsBlancsNulsValue" class="font-bold text-sm">0</span>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				{# Content #}
+				<div
+					class="p-0 min-h-[400px] relative">
+
+					{# Placeholder #}
+					<div data-projections-target="placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-center p-8 text-slate-300">
+						<i class="fas fa-chart-pie text-6xl mb-4 text-slate-100"></i>
+						<p class="text-lg font-medium text-slate-400">En attente de sélection...</p>
+					</div>
+
+					{# Loading #}
+					<div data-projections-target="loading" class="hidden absolute inset-0 flex flex-col items-center justify-center text-center p-8 bg-white/80 backdrop-blur-sm z-10">
+						<div class="w-12 h-12 border-4 border-benin-green border-t-transparent rounded-full animate-spin mb-4"></div>
+						<p class="font-bold text-slate-500">Calcul en cours...</p>
+					</div>
+
+					{# Result Table #}
+					<div data-projections-target="contentArea" class="hidden">
+						<div class="overflow-x-auto">
+							<table class="w-full text-left border-collapse">
+								<thead class="bg-slate-50 text-xs uppercase text-slate-500 font-bold tracking-wider">
+									<tr>
+										<th class="px-6 py-4 border-b border-slate-200 sticky left-0 bg-white border-r border-slate-100">Parti Politique</th>
+										<th class="px-6 py-4 border-b border-slate-200 text-right">Suffrages</th>
+										<th class="px-6 py-4 border-b border-slate-200 text-center w-32">Siège Femme</th>
+										<th class="px-6 py-4 border-b border-slate-200 text-center w-32">Sièges Ordinaires</th>
+										<th class="px-6 py-4 border-b border-slate-200 text-center w-32 bg-slate-100/50">Total Élus</th>
+									</tr>
+								</thead>
+								<tbody
+									data-projections-target="tableBody" class="divide-y divide-slate-100">{# JS injects rows here #}
+								</tbody>
+							</table>
+						</div>
+						<div class="p-6 bg-slate-50 border-t border-slate-100 text-xs text-slate-400 text-center italic">
+							Les sièges sont attribués selon le quotient électoral et la règle de la plus forte moyenne.
+														Le siège femme est attribué à la liste ayant obtenu le plus de voix.
+
+						</div>
+					</div>
+
+				</div>
+			</div>
+
+			{# Section Vérification Éligibilité (Seuil 20%) #}
+			<div class="mt-12 mb-12 bg-white rounded-[2rem] shadow-xl border border-slate-200 overflow-hidden">
+				<div class="p-8 border-b border-slate-100 bg-slate-50/50">
+					<h2 class="text-2xl font-black text-slate-900 mb-2">Vérification d'Éligibilité</h2>
+					<p class="text-sm text-slate-500 mb-6">
+						Sélectionnez un parti pour vérifier s'il franchit la barre des
+						<strong>20% des suffrages exprimés</strong>
+						dans chaque circonscription électorale.
+					</p>
+
+					<div class="max-w-md">
+						<label for="parti-select" class="block text-xs font-bold text-slate-400 uppercase mb-2">Choisir un parti politique</label>
+						<select id="parti-select" data-projections-target="partiSelect" data-action="change->projections#onPartiChange" class="w-full bg-white border-slate-200 rounded-xl px-4 py-3 text-slate-700 font-bold focus:ring-2 focus:ring-benin-green focus:border-benin-green transition-shadow cursor-pointer">
+							<option value="">Chargement des partis...</option>
+						</select>
+					</div>
+				</div>
+
+				<div
+					data-projections-target="eligibilityResult" class="hidden">{# Le contenu sera injecté ici par JS #}
+				</div>
+			</div>
+
+
+		</main>
+	</div>
+{% endblock %}

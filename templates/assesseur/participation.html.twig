@@ -1,0 +1,66 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Pointer Participation - Assesseur{% endblock %}
+
+{% block body %}
+
+
+    <main class="max-w-3xl mx-auto px-4 py-12">
+        <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-100">
+            <div class="mb-10 text-center">
+                <div class="h-20 w-20 bg-benin-green/10 text-benin-green rounded-3xl flex items-center justify-center mx-auto mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                </div>
+                <h1 class="text-3xl font-black text-slate-900 mb-2">Pointer la participation</h1>
+                <p class="text-slate-500 font-medium">Bureau: {{ bureau.nom }} (#{{ bureau.code }})</p>
+            </div>
+
+
+
+{{ form_start(form, {
+                'attr': {
+                    'id': 'participation-form',
+                    'data-controller': 'geolocation',
+                    'data-geolocation-dev-mode-value': app.environment == 'dev' ? 'true' : 'false'
+                }
+            }) }}
+
+                <div class="space-y-8">
+                    <div>
+                        {{ form_label(form.nombreVotants, null, {'label_attr': {'class': 'block text-sm font-black text-slate-400 uppercase tracking-widest mb-4 text-center'}}) }}
+                        {{ form_widget(form.nombreVotants) }}
+                        {% for error in form.nombreVotants.vars.errors %}
+                            <div class="text-sm font-bold text-red-500 mt-2 text-center bg-red-50 border border-red-100 p-2 rounded-lg">
+                                <i class="fas fa-exclamation-triangle mr-1"></i> {{ error.message }}
+                            </div>
+                        {% endfor %}
+                        <p class="text-xs text-slate-400 mt-4 text-center">Indiquez le nombre total d'émargements constatés sur la liste électorale à cet instant.</p>
+                    </div>
+
+<input type="hidden" name="lat" id="lat" data-geolocation-target="lat">
+<input type="hidden" name="lon" id="lon" data-geolocation-target="lon">
+
+
+<div id="geo-status" data-geolocation-target="status" class="flex items-center justify-center gap-3 py-4 px-6 rounded-2xl bg-slate-50 border border-slate-100 text-sm font-bold text-slate-500">
+
+                        <div class="animate-spin h-4 w-4 border-2 border-benin-green border-t-transparent rounded-full"></div>
+                        Localisation en cours...
+                    </div>
+
+<button type="submit" id="submit-btn" data-geolocation-target="submit" disabled class="w-full bg-slate-200 text-slate-500 py-5 rounded-[2rem] text-xl font-black shadow-xl transition-all cursor-not-allowed">
+
+                        Enregistrer le pointage
+                    </button>
+                    
+                    <p class="text-[10px] text-slate-400 uppercase font-black text-center tracking-tighter">
+                        En cliquant sur enregistrer, vous certifiez l'exactitude des informations transmises sous peine de sanctions.
+                    </p>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </main>
+</div>
+
+{% endblock %}

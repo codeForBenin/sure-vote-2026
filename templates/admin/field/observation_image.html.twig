@@ -1,0 +1,11 @@
+{# templates/admin/field/observation_image.html.twig #}
+{% if field.value %}
+	{% set imageUrl = vich_uploader_asset(entity.instance, 'imageFile') %}
+{% set maxHeight = ea().crud.currentAction == 'detail' ? '400px' : '50px' %}
+
+	<a href="{{ imageUrl }}" target="_blank" title="Voir l'image en grand">
+		<img src="{{ imageUrl }}" style="max-height: {{ maxHeight }}; border-radius: 4px; border: 1px solid #ddd; object-fit: contain;">
+	</a>
+{% else %}
+	<span class="badge badge-secondary" style="opacity: 0.5;">Aucune image</span>
+{% endif %}

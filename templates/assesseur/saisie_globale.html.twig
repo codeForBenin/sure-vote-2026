@@ -1,0 +1,157 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Saisie des Résultats -
+	{{ managedBureau.nom }}
+{% endblock %}
+
+{% block body %}
+
+	<main class="max-w-4xl mx-auto px-4 py-12">
+
+
+		<div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+			<div class="bg-slate-50 border-b border-slate-100 p-8 text-center">
+				<div class="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-white shadow-sm mb-4 text-2xl">🗳️</div>
+				<h1 class="text-2xl font-black text-slate-900 mb-2">Saisie des Résultats</h1>
+				<p class="text-slate-500 font-medium text-lg">
+					Bureau :
+					<span class="text-slate-900 font-bold">{{ managedBureau.nom }}</span>
+					<span class="px-2 py-0.5 bg-slate-200 rounded text-xs ml-2 font-mono">{{ managedBureau.code }}</span>
+<span>
+	{{ managedBureau.centre.arrondissement }}
+	-
+	{{ managedBureau.centre.commune }}
+	-
+	{{ managedBureau.centre.departement }}
+</span>
+
+
+				</p>
+			</div>
+
+			<div
+				class="p-8 md:p-12" data-controller="vote-counter geolocation" data-vote-counter-inscrits-value="{{ managedBureau.nombreInscrits }}">
+
+				{# Erreurs Globales du Formulaire #}
+				<div class="mb-6">
+					{{ form_errors(form) }}
+				</div>
+
+				{{ form_start(form, {'attr': {'class': 'space-y-10'}}) }}
+
+				{# Champs cachés pour la géolocalisation #}
+				<input type="hidden" name="lat" data-geolocation-target="lat">
+				<input
+				type="hidden" name="lon" data-geolocation-target="lon">
+
+				{# Status GPS #}
+				<div class="flex items-center justify-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100 text-sm font-bold text-slate-500 mb-6" data-geolocation-target="status">
+					<svg class="animate-spin h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24">
+						<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+						<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+					</svg>
+					Acquisition de la position GPS...
+				</div>
+
+				{# Section PV #}
+				<div class="p-6 bg-blue-50 border border-blue-100 rounded-3xl">
+					<h2 class="text-lg font-black text-blue-900 mb-4 flex items-center gap-2">
+						<i class="fas fa-camera text-blue-500"></i>
+						Photo du Procès-Verbal (PV)
+					</h2>
+					{% if existingPvName %}
+						<div class="mb-6 flex items-center gap-4 bg-white p-4 rounded-xl border border-blue-100 shadow-sm">
+							<div
+								class="h-16 w-16 bg-slate-100 rounded-lg overflow-hidden shrink-0 relative">
+								{# Utilisation de Vich pour générer l'URL (Azure ou Local) #}
+								{% if resultatWithPv %}
+									<img src="{{ vich_uploader_asset(resultatWithPv, 'pvImageFile') }}" class="w-full h-full object-cover">
+								{% else %}
+									{# Fallback legacy #}
+
+									<img src="{{ asset('uploads/pv/' ~ existingPvName) }}" class="w-full h-full object-cover">
+
+								{% endif %}
+
+							</div>
+							<div>
+								<div class="text-xs font-bold text-blue-400 uppercase tracking-wide">Fichier actuel</div>
+								<div class="text-sm font-bold text-slate-700 truncate max-w-[200px]">{{ existingPvName }}</div>
+								<div class="text-xs text-slate-400">Sélectionnez un fichier pour le remplacer.</div>
+							</div>
+						</div>
+					{% endif %}
+					<div class="form-group">
+						{{ form_widget(form.pvImageFile, {'attr': {'class': 'block w-full text-sm text-slate-500 file:mr-4 file:py-3 file:px-6 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer'}}) }}
+						{{ form_errors(form.pvImageFile) }}
+					</div>
+				</div>
+
+				<hr
+				class="border-slate-100">
+
+				{# Section Votes #}
+				<div>
+					<h2 class="text-xl font-black text-slate-900 mb-6 flex items-center gap-2">
+						<i class="fas fa-list-ol text-benin-green"></i>
+						Suffrages par Parti
+					</h2>
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+						{% for child in form %}
+							{% if child.vars.name starts with 'parti_' %}
+								<div class="bg-white border-2 border-slate-100 rounded-2xl p-4 hover:border-slate-300 transition-colors focus-within:border-benin-green focus-within:ring-4 focus-within:ring-benin-green/10" style="border-left-color: {{ child.vars.attr['data-parti-color'] }}; border-left-width: 6px;">
+									<div class="flex items-center justify-between mb-2">
+										<label for="{{ child.vars.id }}" class="font-bold text-slate-700 block select-none cursor-pointer flex-1">
+											{{ child.vars.label }}
+										</label>
+										<div class="h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-black text-white" style="background-color: {{ child.vars.attr['data-parti-color'] }}">
+											{{ child.vars.attr['data-parti-sigle'] }}
+										</div>
+									</div>
+									{{ form_widget(child, {'attr': {
+                                        'class': 'w-full text-3xl font-black px-6 py-4 rounded-2xl border-2 border-slate-100 focus:border-benin-green outline-none text-right',
+                                        'data-vote-counter-target': 'input',
+                                        'type': 'number'
+                                    }}) }}
+									{{ form_errors(child) }}
+								</div>
+							{% endif %}
+						{% endfor %}
+					</div>
+				</div>
+
+				{# Total Verification Box #}
+				<div class="bg-slate-800 text-white p-6 rounded-2xl flex items-center justify-between sticky bottom-4 shadow-xl z-20">
+					<div>
+						<div class="text-xs uppercase tracking-widest text-slate-400 font-bold mb-1">Total Voix Saisies</div>
+						<div class="text-3xl font-black font-mono">
+							<span data-vote-counter-target="displayTotal">0</span>
+							<span class="text-slate-500 text-lg">/
+								{{ managedBureau.nombreInscrits|number_format(0, ',', ' ') }}</span>
+
+
+						</div>
+					</div>
+					<div data-vote-counter-target="warning" class="hidden text-red-400 font-bold text-sm bg-red-900/30 px-4 py-2 rounded-lg border border-red-500/30">
+						<i class="fas fa-exclamation-circle mr-2"></i>
+						Dépassement du nombre d'inscrits !
+					</div>
+				</div>
+
+				<div class="pt-6">
+					<button type="submit" data-vote-counter-target="submitButton" data-geolocation-target="submit" disabled class="w-full py-4 px-6 bg-slate-200 text-slate-500 cursor-not-allowed rounded-2xl font-black text-lg shadow-lg transition-all flex items-center justify-center gap-3">
+						<i class="fas fa-paper-plane"></i>
+						{% if existingPvName %}Modifier{% else %}Enregistrer
+						{% endif %}
+						le Résultat
+					</button>
+					<p class="text-center text-xs text-slate-400 mt-4">
+						En cliquant sur enregistrer, vous certifiez l'exactitude des données saisies conformément au procès-verbal.
+					</p>
+				</div>
+
+				{{ form_end(form) }}
+			</div>
+		</div>
+	</main>
+{% endblock %}

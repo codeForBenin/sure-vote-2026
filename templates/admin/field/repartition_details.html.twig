@@ -1,0 +1,39 @@
+{# templates/admin/field/repartition_details.html.twig #}
+{% if field.value is iterable and field.value|length > 0 %}
+    <div class="table-responsive">
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr>
+                    <th>ID Bureau</th>
+                    <th>Inscrits Signalés</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for item in field.value %}
+                <tr>
+                    <td>
+                        <span class="badge badge-secondary">{{ item.bureau_id ?? 'N/A' }}</span>
+                    </td>
+                    <td>
+                        <strong>{{ item.inscrits ?? 0 }}</strong>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th>Total calculé</th>
+                    <th>
+                        {% set sum = 0 %}
+                        {% for item in field.value %}
+                            {% set sum = sum + (item.inscrits|default(0)) %}
+                        {% endfor %}
+                        {{ sum }}
+                    </th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+{% else %}
+    <span class="badge badge-secondary">Aucun détail saisi</span>
+{% endif %}

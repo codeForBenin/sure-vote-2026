@@ -1,0 +1,413 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tableau de Bord - Assesseur
+{% endblock %}
+
+
+{% block body %}
+	<div class="min-h-screen bg-slate-50">
+
+		<main
+			class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+			<!-- Messages de la Direction (Broadcast) -->
+			{% for message in messages %}
+				<div class="mb-6 p-5 rounded-2xl flex items-start gap-4 shadow-sm border animate-bounce-in
+						{% if message.type == 'URGENT' %}
+							bg-red-50 border-red-200 text-red-900
+						{% elseif message.type == 'IMPORTANT' %}
+							bg-orange-50 border-orange-200 text-orange-900
+						{% else %}
+							bg-blue-50 border-blue-200 text-blue-900
+						{% endif %}">
+
+
+					<div class="shrink-0 pt-0.5">
+						{% if message.type == 'URGENT' %}
+							<div class="p-2 bg-red-100 text-red-600 rounded-lg animate-pulse">
+								<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewbox="0 0 24 24" stroke="currentColor">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+								</svg>
+							</div>
+						{% else %}
+							<div class="p-2 bg-white/60 text-current rounded-lg">
+								<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewbox="0 0 24 24" stroke="currentColor">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+								</svg>
+							</div>
+						{% endif %}
+					</div>
+					<div class="flex-1">
+						<div class="flex justify-between items-start">
+							<h4 class="font-black text-sm uppercase mb-1 tracking-wide">{{ message.titre }}</h4>
+							<span class="text-[10px] bg-black/5 px-2 py-1 rounded font-mono opacity-80">{{ message.createdAt|date('H:i') }}</span>
+						</div>
+						<p class="text-sm font-medium leading-relaxed opacity-90">{{ message.message|nl2br }}</p>
+					</div>
+				</div>
+			{% endfor %}
+
+			<h2 class="text-2xl font-black text-slate-900 mb-6 ml-6">Bonjour
+				{{ app.user.prenom }}
+				{{ app.user.nom }}</h2>
+
+			{% if bureauxStats is not empty %}
+				{% set firstBureau = bureauxStats[0].entity %}
+				{% set centre = firstBureau.centre %}
+
+				<div class="mb-10 flex flex-col gap-6">
+					<div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+						<div class="flex justify-between items-start mb-2">
+							<div>
+								<h2 class="text-xs font-black text-benin-green uppercase tracking-widest mb-2">
+									{% if isSupervisor %}Centre de Vote{% else %}Bureau de Vote
+									{% endif %}
+								</h2>
+								<h1 class="text-3xl lg:text-4xl font-black text-slate-900">
+									{% if isSupervisor %}
+										{{ centre.nom }}
+									{% else %}
+										{{ firstBureau.nom }}
+									{% endif %}
+								</h1>
+								<p class="text-slate-500 mt-2 font-medium">
+									{% if isSupervisor %}
+										{{ centre.arrondissement|default(centre.circonscription.nom) }}
+										—
+										{{ centre.commune|default('') }}
+									{% else %}
+										{{ centre.nom }}
+										—
+										{{ centre.circonscription.nom }}
+									{% endif %}
+								</p>
+							</div>
+							{% if not isSupervisor %}
+								<div class="bg-slate-900 text-white hidden lg:block px-4 py-2 rounded-xl font-mono font-bold">#{{ firstBureau.code }}</div>
+							{% endif %}
+						</div>
+					</div>
+				{% endif %}
+
+				<div
+					class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+					<!-- Liste des Bureaux -->
+					<div class="lg:col-span-2 space-y-6">
+						<h3 class="text-2xl font-black text-slate-900 mb-3 ml-6">Liste des postes de vote de votre centre</h3>
+						{% for stat in bureauxStats %}
+							{% set bureau = stat.entity %}
+
+							<div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 relative overflow-hidden group hover:border-benin-green/30 transition-all">
+
+								<div class="flex justify-between items-start mb-6">
+									<div>
+										<div class="flex items-center gap-2 mb-1">
+											<h3 class="text-xl font-bold text-slate-900">{{ bureau.nom }}</h3>
+											<span class="bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">{{ bureau.code }}</span>
+										</div>
+										<div class="flex items-center gap-4 text-sm text-slate-500">
+											<span>
+												<i class="fas fa-users mr-1 opacity-50"></i>
+												{{ bureau.nombreInscrits }}
+												inscrits</span>
+										</div>
+									</div>
+									<div class="text-right">
+										<div class="text-2xl font-black text-benin-green">{{ stat.nombreVotants }}</div>
+										<div class="text-[10px] uppercase font-bold text-slate-400">Votants</div>
+									</div>
+								</div>
+
+								<!-- Actions Grid -->
+
+
+								<!-- Actions Grid -->
+
+								<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+									{% if isLocked|default(false) %}
+										<div class="col-span-1 sm:col-span-2 p-4 bg-slate-100 border border-slate-200 rounded-2xl flex items-center gap-4 opacity-75 cursor-not-allowed">
+											<div class="h-10 w-10 bg-slate-200 rounded-xl flex items-center justify-center text-slate-400">
+												<i class="fas fa-lock"></i>
+											</div>
+											<div>
+												<h4 class="text-xs font-bold text-slate-600 uppercase tracking-wide">Action Requise</h4>
+												<p class="text-xs text-slate-500">Déclarez les inscrits pour déverrouiller ce poste.</p>
+											</div>
+										</div>
+									{% elseif not stat.hasInscritsDefined %}
+										<!-- CAS OU LE BUREAU N'A PAS D'INSCRITS (0) : ACTION BLOQUÉE -->
+										<div class="col-span-1 sm:col-span-2 p-4 bg-slate-100 border border-slate-200 rounded-2xl flex items-center gap-4 opacity-75 cursor-not-allowed">
+											<div class="h-10 w-10 bg-slate-200 rounded-xl flex items-center justify-center text-slate-400">
+												<i class="fas fa-exclamation-triangle"></i>
+											</div>
+											<div>
+												<h4 class="text-xs font-bold text-slate-600 uppercase tracking-wide">Inscrits Manquants</h4>
+												<p class="text-xs text-slate-500">Veuillez renseigner les inscrits du centre pour activer ce poste.</p>
+											</div>
+										</div>
+
+
+									{% else %}
+										<!-- Bouton Participation -->
+										<a href="{{ path('app_assesseur_participation', {id: bureau.id}) }}" class="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl hover:bg-benin-green/10 hover:text-benin-green transition-colors border border-slate-100">
+											<div class="h-10 w-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-slate-400 group-hover:text-benin-green">
+												<i class="fas fa-user-check"></i>
+											</div>
+											<div>
+												<div class="text-sm font-bold">Pointer la participation
+												</div>
+												<div class="text-xs opacity-60">Combien ont déjà voté ?</div>
+											</div>
+										</a>
+
+										<!-- Bouton Saisie resultats -->
+										{% if not isSaisieOuverte|default(true) %}
+											<div class="flex items-center gap-3 p-4 bg-slate-100 rounded-2xl opacity-60 cursor-not-allowed border border-slate-200">
+												<div class="h-10 w-10 bg-slate-200 rounded-xl flex items-center justify-center text-slate-400">
+													<i class="fas fa-lock"></i>
+												</div>
+												<div>
+													<div class="text-sm font-bold">Saisie Fermée</div>
+													<div class="text-xs opacity-60">Délai dépassé</div>
+												</div>
+											</div>
+										{% elseif stat.isSaisi %}
+											<a href="{{ path('app_assesseur_saisie_resultats', {id: bureau.id}) }}" class="flex items-center gap-3 p-4 bg-green-50 rounded-2xl border border-green-100 hover:bg-green-100 transition-colors">
+												<div class="h-10 w-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-green-600">
+													<i class="fas fa-check-circle"></i>
+												</div>
+												<div>
+													<div class="text-sm font-bold text-green-800">Résultats Saisis</div>
+													<div class="text-xs text-green-600">Modifier</div>
+												</div>
+											</a>
+										{% else %}
+											<a href="{{ path('app_assesseur_saisie_resultats', {id: bureau.id}) }}" class="flex items-center gap-3 p-4 bg-benin-red/5 rounded-2xl border border-benin-red/10 hover:bg-benin-red/10 transition-colors">
+												<div class="h-10 w-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-benin-red">
+													<i class="fas fa-file-signature"></i>
+												</div>
+												<div>
+													<div class="text-sm font-bold text-benin-red mb-0.5">Saisir Résultats</div>
+													{% if stat.isVoteComplet %}
+														<div class="text-[10px] font-bold bg-slate-900 text-white inline-block px-1.5 py-0.5 rounded">VOTE COMPLET</div>
+													{% else %}
+														<div class="text-xs opacity-60">En attente</div>
+													{% endif %}
+												</div>
+											</a>
+										{% endif %}
+									{% endif %}
+								</div>
+
+								{% if stat.isSaisi and stat.detailsResultats is defined and stat.detailsResultats is not empty %}
+									<details class="mt-6 pt-6 border-t border-slate-100 group/details">
+										<summary class="flex items-center justify-between cursor-pointer list-none mb-4 focus:outline-hidden">
+											<h4 class="text-[10px] hover:text-slate-600 hover:bg-slate-100 px-2 py-1 font-black text-slate-400 uppercase tracking-widest">Détail du dépouillement</h4>
+											<span class="text-slate-400 transform transition-transform group-open/details:rotate-180">
+												<i class="fas fa-chevron-down"></i>
+											</span>
+										</summary>
+
+										<div class="space-y-3 animate-fade-in-up">
+											{% for resultat in stat.detailsResultats %}
+												<div class="flex items-center justify-between group/line">
+													<div
+														class="flex items-center gap-3">
+														{# Logo si dispo #}
+														{% if resultat.parti.logoUrl %}
+															<img src="{{ vich_uploader_asset(resultat.parti, 'logoFile') }}" alt="{{ resultat.parti.sigle }}" class="h-8 w-8 object-contain bg-white rounded-full border border-slate-200 p-0.5">
+														{% else %}
+															<div class="h-8 w-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white border border-slate-200" style="background-color: {{ resultat.parti.couleur }}">
+																{{ resultat.parti.sigle|slice(0, 4) }}
+															</div>
+														{% endif %}
+														<div class="font-bold text-slate-700 text-sm">{{ resultat.parti.nom }}</div>
+													</div>
+													<div class="flex justify-between w-auto items-center gap-3">
+														<div class="hidden sm:block h-1.5 w-16 bg-slate-100 rounded-full overflow-hidden">
+															{% set percent = (stat.sommeVoix > 0) ? (resultat.nombreVoix / stat.sommeVoix * 100) : 0 %}
+															<div class="h-full bg-benin-green" style="width: {{ percent }}%"></div>
+
+														</div>
+														<div class="font-mono flex items-center gap-2 font-bold text-slate-900 w-auto text-right">{{ resultat.nombreVoix }}
+															<span class="text-xs opacity-60 hidden sm:block">({{ percent|number_format(2, ",", ".") }}%)</span>
+														</div>
+
+													</div>
+												</div>
+											{% endfor %}
+										</div>
+									</details>
+								{% endif %}
+
+							</div>
+						{% else %}
+							<div class="p-8 text-center bg-white rounded-[2rem] border border-dashed border-slate-200">
+								<p class="text-slate-400">Aucun bureau de vote assigné.</p>
+							</div>
+						{% endfor %}
+					</div>
+
+
+					<!-- Sidebar / Aide & Stats -->
+					<div
+						class="space-y-6">
+
+
+						<!-- Guide de Mission -->
+						<a href="{{ path('app_assesseur_guide') }}" class="group bg-blue-50 p-6 rounded-[2rem] shadow-sm border border-blue-100 hover:bg-blue-100 transition-all flex items-center justify-between">
+							<div class="flex items-center gap-5">
+								<div class="h-12 w-12 bg-blue-200 text-blue-700 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+									<i class="fas fa-book-open text-xl"></i>
+								</div>
+								<div>
+									<h3 class="text-lg font-bold text-blue-900 mb-1">Guide de Mission</h3>
+									<p class="text-blue-700/70 text-xs">Comment utiliser cet espace ?</p>
+								</div>
+							</div>
+							<div class="h-10 w-10 rounded-full bg-white/50 flex items-center justify-center text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-all">
+								<i class="fas fa-chevron-right"></i>
+							</div>
+						</a>
+
+						<!-- Déclaration Inscrits -->
+						<!-- Déclaration Inscrits -->
+						<a href="{{ path('app_assesseur_declarer_inscrits') }}" class="group p-6 rounded-[2rem] shadow-sm border transition-all flex items-center justify-between
+								                           {% if not isInscritsValidated|default(false) %}
+								                                bg-orange-50 border-orange-300 hover:bg-orange-100 ring-2 ring-orange-200 ring-offset-2
+								                           {% else %}
+								                                bg-white border-slate-200 hover:border-benin-green hover:shadow-lg
+								                           {% endif %}">
+							<div class="flex items-center gap-5">
+
+								<div class="h-12 w-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110
+										{% if not isInscritsValidated|default(false) %}
+											bg-orange-200 text-orange-700
+										{% else %}
+											bg-benin-green/10 text-benin-green
+										{% endif %}">
+
+									<i class="fas fa-clipboard-list text-xl"></i>
+								</div>
+								<div>
+									<h3 class="text-lg font-bold mb-1 {% if not isInscritsValidated|default(false) %} text-orange-900 {% else %} text-slate-800 {% endif %}">Inscrits du Centre</h3>
+									{% if not isInscritsValidated|default(false) %}
+										<div class="flex items-center gap-2">
+											<span class="animate-pulse h-2 w-2 rounded-full bg-orange-600"></span>
+											<p class="text-orange-700 text-xs font-bold uppercase tracking-wider">Action Requise</p>
+										</div>
+									{% else %}
+										<p class="text-slate-400 text-xs">Déclarer ou modifier le total</p>
+									{% endif %}
+
+								</div>
+							</div>
+							<div class="h-10 w-10 rounded-full flex items-center justify-center transition-all
+																				                                {% if not isInscritsValidated|default(false) %} bg-orange-200 text-orange-700 group-hover:bg-orange-600 group-hover:text-white {% else %} bg-slate-50 text-slate-400 group-hover:bg-benin-green group-hover:text-white {% endif %}">
+
+								<i class="fas fa-chevron-right"></i>
+							</div>
+						</a>
+
+						<!-- Configuration Centre -->
+						{% if app.user.assignedCentre is defined and app.user.assignedCentre %}
+							<a href="{{ path('app_assesseur_config') }}" class="group p-6 rounded-[2rem] shadow-sm border transition-all flex items-center justify-between
+																																		   {% if not app.user.assignedCentre.isConfigValidated %}
+																																				bg-orange-50 border-orange-300 hover:bg-orange-100 ring-2 ring-orange-200 ring-offset-2
+																																		   {% else %}
+																																				bg-white border-slate-200 hover:border-benin-green hover:shadow-lg
+																																		   {% endif %}">
+								<div class="flex items-center gap-5">
+									<div class="h-12 w-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110
+																																															{% if not app.user.assignedCentre.isConfigValidated %} bg-orange-200 text-orange-700 {% else %} bg-benin-green/10 text-benin-green {% endif %}">
+										<i class="fas fa-cogs text-xl"></i>
+									</div>
+									<div>
+										<h3 class="text-lg font-bold mb-1 {% if not app.user.assignedCentre.isConfigValidated %} text-orange-900 {% else %} text-slate-800 {% endif %}">Configuration</h3>
+										{% if not app.user.assignedCentre.isConfigValidated %}
+											<div class="flex items-center gap-2">
+												<span class="animate-pulse h-2 w-2 rounded-full bg-orange-600"></span>
+												<p class="text-orange-700 text-xs font-bold uppercase tracking-wider">Vérification Requise</p>
+											</div>
+										{% else %}
+											<p class="text-slate-400 text-xs">Postes de Vote :
+												{{ app.user.assignedCentre.nombreBureauxReels|default(app.user.assignedCentre.bureaux|length) }}</p>
+										{% endif %}
+									</div>
+								</div>
+								<div class="h-10 w-10 rounded-full flex items-center justify-center transition-all
+																																									{% if not app.user.assignedCentre.isConfigValidated %} bg-orange-200 text-orange-700 group-hover:bg-orange-600 group-hover:text-white {% else %} bg-slate-50 text-slate-400 group-hover:bg-benin-green group-hover:text-white {% endif %}">
+									<i class="fas fa-chevron-right"></i>
+								</div>
+							</a>
+						{% endif %}
+
+
+						<!-- Observations -->
+						<a href="{{ path('app_assesseur_observations') }}" class="group bg-slate-800 p-6 rounded-[2rem] shadow-lg border border-slate-700 hover:bg-slate-700 transition-all flex items-center justify-between">
+							<div class="flex items-center gap-5">
+								<div class="h-12 w-12 bg-white/10 text-white rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+									<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewbox="0 0 24 24" stroke="currentColor">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+									</svg>
+								</div>
+								<div>
+									<h3 class="text-lg font-bold text-white mb-1">Observations</h3>
+									<p class="text-slate-400 text-xs">Signaler un incident global</p>
+								</div>
+							</div>
+							<div class="h-10 w-10 rounded-full bg-white/5 flex items-center justify-center text-white/50 group-hover:bg-white/20 group-hover:text-white transition-all">
+								<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewbox="0 0 20 20" fill="currentColor">
+									<path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+								</svg>
+							</div>
+						</a>
+						<!-- Résumé Journée -->
+						<div class="bg-slate-900 text-white p-8 rounded-[2.5rem] shadow-xl">
+							<h3 class="text-lg font-bold mb-6">Résumé de la journée</h3>
+							<div class="space-y-6">
+								<div class="flex justify-between items-center border-b border-white/10 pb-4">
+
+									<span class="text-white/60 text-sm">Ouverture</span>
+									<span class="font-mono font-bold">
+										{% if election is defined and election and election.heureOuverture is defined %}
+											{{ election.heureOuverture|date('H:i') }}
+										{% else %}
+											08:00
+										{% endif %}
+									</span>
+								</div>
+								<div class="flex justify-between items-center border-b border-white/10 pb-4">
+									<span class="text-white/60 text-sm">Fermeture</span>
+									<span class="font-mono font-bold">
+										{% if election is defined and election and election.heureFermeture is defined %}
+											{{ election.heureFermeture|date('H:i') }}
+										{% else %}
+											16:00
+										{% endif %}
+									</span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Rappel Sécurité -->
+						<div class="bg-benin-yellow/10 border border-benin-yellow/20 p-8 rounded-[2.5rem]">
+							<h3 class="font-bold text-benin-yellow-800 mb-4 flex items-center gap-2">
+								<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewbox="0 0 20 20" fill="currentColor">
+									<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+								</svg>
+								Rappel Sécurité</h3>
+							<p class="text-sm text-benin-yellow-900/70 leading-relaxed">
+								Vous pouvez pointer la participation et saisir les résultats pour
+								<strong>tous les bureaux</strong>
+								affichés ci-contre.
+								<br><br>
+								La position du centre de vote ({{ centre.nom|default('...') }}) sera utilisée pour valider votre géolocalisation.
+							</p>
+						</div>
+
+
+					</div>
+				</div>
+			</main>
+		</div>
+	{% endblock %}

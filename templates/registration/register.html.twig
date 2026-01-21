@@ -1,0 +1,144 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription Assesseur
+{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+
+{% block body %}
+	<div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+		<div class="sm:mx-auto sm:w-full sm:max-w-md p-2 sm:p-0">
+			<h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+				Devenir Assesseur
+			</h2>
+			<p class="mt-2  text-center text-sm text-gray-600">
+				Rejoignez l'équipe de supervision pour l'élection législative du 11 janvier 2026.
+			</p>
+		</div>
+
+		<div class="my-8 p-2 sm:p-0 sm:mx-auto sm:w-full sm:max-w-xl">
+			<div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+
+				{{ form_start(registrationForm, {'attr': {'class': 'space-y-6'}}) }}
+
+				<div class="grid grid-cols-2 gap-4">
+					{{ form_row(registrationForm.nom, {
+							'label_class': 'block text-sm font-medium text-gray-700',
+							'attr': {'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-benin-green focus:border-benin-green sm:text-sm'}
+						}) }}
+					{{ form_row(registrationForm.prenom, {
+							'label_class': 'block text-sm font-medium text-gray-700',
+							'attr': {'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-benin-green focus:border-benin-green sm:text-sm'}
+						}) }}
+				</div>
+
+				{{ form_row(registrationForm.email, {
+						'label_class': 'block text-sm font-medium text-gray-700',
+						'attr': {'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-benin-green focus:border-benin-green sm:text-sm'}
+					}) }}
+
+				{{ form_row(registrationForm.plainPassword.first, {
+						'label_class': 'block text-sm font-medium text-gray-700',
+						'attr': {'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-benin-green focus:border-benin-green sm:text-sm'}
+					}) }}
+				{{ form_row(registrationForm.plainPassword.second, {
+						'label_class': 'block text-sm font-medium text-gray-700',
+						'attr': {'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-benin-green focus:border-benin-green sm:text-sm'}
+					}) }}
+
+				<hr class="border-gray-200 my-6"/>
+
+				<h3 class="text-lg font-medium text-gray-900 mb-4">Votre Localisation</h3>
+
+<div class="mb-4">
+	{{ form_row(registrationForm.departement, {
+                        'label_class': 'block text-sm font-medium text-gray-700',
+                        'attr': {'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-benin-green focus:border-benin-green sm:text-sm'}
+                    }) }}
+</div>
+
+
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-3">
+					{{ form_row(registrationForm.commune, {
+							'label_class': 'block text-sm font-medium text-gray-700',
+							'attr': {'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-benin-green focus:border-benin-green sm:text-sm'}
+						}) }}
+					{{ form_row(registrationForm.arrondissement, {
+							'label_class': 'block text-sm font-medium text-gray-700',
+							'attr': {'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-benin-green focus:border-benin-green sm:text-sm'}
+						}) }}
+				</div>
+
+				<div class="mt-4">
+					{{ form_row(registrationForm.lieuDeResidence, {
+							'label_class': 'block text-sm font-medium text-gray-700',
+							'attr': {
+								'class': 'appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-benin-green focus:border-benin-green sm:text-sm'
+							}
+						}) }}
+					<span class="text-sm mt-2 ml-2 text-gray-500">Précisez votre quartier ou village pour faciliter votre affectation.</span>
+				</div>
+
+				<hr class="border-gray-200 my-6"/>
+
+				<div class="space-y-4">
+					<div class="flex items-start">
+						<div class="flex items-center h-5">
+							{{ form_widget(registrationForm.agreeGeolocation, {'attr': {'class': 'focus:ring-benin-green h-4 w-4 text-benin-green border-gray-300 rounded'}}) }}
+						</div>
+						<div class="ml-3 text-sm">
+							{{ form_label(registrationForm.agreeGeolocation, null, {'label_attr': {'class': 'font-medium text-gray-700'}}) }}
+							<p class="text-gray-500 text-xs mt-0.5">La géolocalisation permet de certifier que vous êtes physiquement présent sur les lieux.</p>
+							{{ form_errors(registrationForm.agreeGeolocation) }}
+						</div>
+					</div>
+
+					<div class="flex items-start">
+						<div class="flex items-center h-5">
+							{{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'focus:ring-benin-green h-4 w-4 text-benin-green border-gray-300 rounded'}}) }}
+						</div>
+						<div class="ml-3 text-sm">
+							{{ form_label(registrationForm.agreeTerms, null, {'label_attr': {'class': 'font-medium text-gray-700'}}) }}
+							<p class="text-gray-500 text-xs mt-0.5">En cochant cette case, vous acceptez nos
+								<a href="{{ path('app_infos') }}" class="text-benin-green hover:underline">Conditions d'Utilisation</a>
+								et notre Politique de Confidentialité.</p>
+							{{ form_errors(registrationForm.agreeTerms) }}
+						</div>
+					</div>
+				</div>
+
+
+				<div class="pt-6">
+					<button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-benin-green hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-benin-green">
+						S'inscrire
+					</button>
+				</div>
+
+				{{ form_end(registrationForm) }}
+
+				<div class="mt-6">
+					<div class="relative">
+						<div class="absolute inset-0 flex items-center">
+							<div class="w-full border-t border-gray-300"></div>
+						</div>
+						<div class="relative flex justify-center text-sm">
+							<span class="px-2 bg-white text-gray-500">
+								Déjà un compte ?
+							</span>
+						</div>
+					</div>
+
+					<div class="mt-6 text-center">
+						<a href="{{ path('app_login') }}" class="font-medium text-benin-green hover:text-green-500">
+							Se connecter
+						</a>
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+	</div>
+{% endblock %}

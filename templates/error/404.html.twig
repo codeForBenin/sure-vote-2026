@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Page non trouvée - Sure Vote{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+    <div class="max-w-md w-full text-center">
+        <div class="h-24 w-24 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+        </div>
+        
+        <h1 class="text-3xl font-black text-slate-900 mb-2">Page introuvable</h1>
+        <p class="text-slate-600 mb-8 font-medium">La page que vous recherchez n'existe pas ou a été déplacée.</p>
+        
+        <a href="{{ path('app_home') }}" class="block w-full bg-benin-green text-white font-bold py-4 rounded-xl shadow-lg hover:bg-benin-green/90 transition-all">
+            Retour à l'accueil
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,149 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Guide de l'Assesseur - SureVote
+{% endblock %}
+
+{% block body %}
+	<div class="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+		<div
+			class="max-w-4xl mx-auto space-y-8">
+
+			<!-- En-tête -->
+			<div class="text-center">
+				<h1 class="text-3xl font-black text-slate-900 mb-4">Bienvenue sur votre Espace Assesseur</h1>
+				<p class="text-lg text-slate-600 max-w-2xl mx-auto">
+					Votre rôle est crucial pour la transparence de ce scrutin. Voici les 3 étapes clés de votre mission aujourd'hui.
+				</p>
+			</div>
+
+			<!-- Alerte Emails -->
+			<!-- Alerte Emails -->
+			<div class="bg-benin-yellow/10 border-l-4 border-benin-yellow p-4 rounded-r-lg shadow-sm animate-fade-in-up">
+				<div class="flex">
+					<div class="flex-shrink-0">
+						<i class="fas fa-info-circle text-benin-yellow-600"></i>
+					</div>
+					<div class="ml-3">
+						<p class="text-sm text-benin-yellow-900">
+							<strong>Important :</strong>
+							Nous communiquons principalement par email. Pensez à vérifier régulièrement votre boîte de réception ainsi que votre dossier
+							<strong>Spam/Indésirables</strong>, car nos messages peuvent s'y glisser.
+						</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Étapes -->
+			<div
+				class="space-y-6">
+
+				<!-- Étape 1 : Configuration -->
+				<div class="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 flex flex-col md:flex-row gap-8 items-start animate-fade-in-up" style="animation-delay: 100ms;">
+					<div class="shrink-0">
+						<div class="h-16 w-16 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center text-2xl font-black shadow-inner">
+							1
+						</div>
+					</div>
+					<div class="space-y-4 flex-1">
+						<h2 class="text-xl font-bold text-slate-900 flex items-center gap-3">
+							Vérification de la Configuration
+							<span class="bg-orange-100 text-orange-700 text-[10px] px-2 py-1 rounded-full uppercase tracking-wider font-bold">Prioritaire</span>
+						</h2>
+						<p class="text-slate-600 leading-relaxed">
+							Dès votre arrivée, vérifiez que le nombre de
+							<strong>Postes de Vote (PV)</strong>
+							affichés correspond à la réalité de votre centre.
+						</p>
+						<ul class="space-y-2 text-sm text-slate-500">
+							<li class="flex items-start gap-2">
+								<i class="fas fa-check text-benin-green mt-1"></i>
+								<span>Si le nombre est correct,
+									<strong>validez-le</strong>
+									via le bouton "Configuration" pour confirmer la configuration.</span>
+							</li>
+							<li class="flex items-start gap-2">
+								<i class="fas fa-exclamation-triangle text-orange-500 mt-1"></i>
+								<span>Si le nombre diffère, utilisez le même bouton pour signaler le nombre réel à l'administrateur.</span>
+							</li>
+						</ul>
+					</div>
+				</div>
+
+				<!-- Étape 2 : Inscrits -->
+				<div class="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 flex flex-col md:flex-row gap-8 items-start animate-fade-in-up" style="animation-delay: 200ms;">
+					<div class="shrink-0">
+						<div class="h-16 w-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-2xl font-black shadow-inner">
+							2
+						</div>
+					</div>
+					<div class="space-y-4 flex-1">
+						<h2 class="text-xl font-bold text-slate-900">Déclaration des Inscrits</h2>
+						<p class="text-slate-600 leading-relaxed">
+							Avant l'ouverture du scrutin, vous devez renseigner le nombre d'inscrits pour chaque poste de vote.
+						</p>
+						<div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+							<p class="text-sm text-slate-700 font-medium mb-2">
+								<i class="fas fa-info-circle text-blue-500 mr-2"></i>Pourquoi c'est important ?</p>
+							<p class="text-sm text-slate-500">
+								Cette étape
+								<strong>déverrouille</strong>
+								les fonctionnalités de pointage. Tant que les inscrits ne sont pas validés, vous ne pourrez pas saisir de participations.
+							</p>
+						</div>
+					</div>
+				</div>
+
+				<!-- Étape 3 : Pointage -->
+				<div class="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 flex flex-col md:flex-row gap-8 items-start animate-fade-in-up" style="animation-delay: 300ms;">
+					<div class="shrink-0">
+						<div class="h-16 w-16 bg-benin-green/10 text-benin-green rounded-2xl flex items-center justify-center text-2xl font-black shadow-inner">
+							3
+						</div>
+					</div>
+					<div class="space-y-4 flex-1">
+						<h2 class="text-xl font-bold text-slate-900">Suivi Opérationnel</h2>
+						<p class="text-slate-600 leading-relaxed">
+							Tout au long de la journée, votre tableau de bord vous permet de remonter les informations terrain.
+						</p>
+						<ul class="space-y-3 text-sm text-slate-500">
+							<li class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors">
+								<span class="h-8 w-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
+									<i class="fas fa-user-check"></i>
+								</span>
+								<span>
+									<strong>Participation :</strong>
+									À renseigner toutes les 30 minutes pour chaque PV.</span>
+							</li>
+							<li class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors">
+								<span class="h-8 w-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
+									<i class="fas fa-bullhorn"></i>
+								</span>
+								<span>
+									<strong>Observations :</strong>
+									Pour signaler tout incident ou anomalie majeure.</span>
+							</li>
+							<li class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors">
+								<span class="h-8 w-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
+									<i class="fas fa-file-signature"></i>
+								</span>
+								<span>
+									<strong>Dépouillement :</strong>
+									À la clôture, saisissez les résultats finaux par PV.</span>
+							</li>
+						</ul>
+					</div>
+				</div>
+
+			</div>
+
+			<!-- Action -->
+			<div class="text-center pt-8 animate-fade-in-up" style="animation-delay: 400ms;">
+				<a href="{{ path('app_assesseur_dashboard') }}" class="inline-flex items-center gap-3 px-8 py-4 bg-benin-green text-white rounded-xl font-bold text-lg hover:bg-benin-green/90 transition-all shadow-lg hover:shadow-benin-green/30 transform hover:-translate-y-1">
+					J'ai compris, accéder au tableau de bord
+					<i class="fas fa-arrow-right"></i>
+				</a>
+			</div>
+
+		</div>
+	</div>
+{% endblock %}

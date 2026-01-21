@@ -1,0 +1,43 @@
+menu:
+  home: Home
+  find_center: Find my Polling Station
+  stats: Statistics
+  projections: Projections
+  infos: Info & Transparency
+  login: Login
+
+infos:
+  title: Information & Transparency
+  subtitle: Everything you need to know about the SureVote system, the ongoing election, and our commitment to data integrity.
+  election_stats:
+    title: Election in Numbers
+    date: Election Date
+    inscrits: Registered Voters
+    sieges: Seats to Fill
+    fermeture: Polls Closing Time
+    no_election: No active election is currently configured.
+  mission:
+    title: Our Mission
+    description: is an independent platform for reporting and centralizing election results, designed to strengthen transparency and trust in the democratic process.
+    point1: Reliable result collection via digitized official reports (PVs).
+    point2: Complete traceability of data entry and modification operations.
+    point3: Real-time statistical projections for increased visibility.
+  privacy:
+    title: Data & Privacy
+    intro: As part of the platform's security and auditability, certain technical data is automatically collected during your navigation and actions (login, result entry).
+    tech_data_title: Recorded Technical Data
+    ip: Connection IP Address
+    user_agent: Browser Identifier (User-Agent)
+    timestamp: Precise Timestamp of Actions
+    disclaimer: This data is retained solely for security auditing and verifying the integrity of the vote. It is neither shared nor sold to third parties.
+  terms:
+    title: Terms of Use
+    access: Access to this platform is strictly reserved for accredited personnel (Assessors, Supervisors, Administrators). Any unauthorized access attempt is recorded and liable to prosecution.
+    commitment_intro: "By using SureVote, users commit to:"
+    commitment1: Enter sincere information consistent with physical official reports.
+    commitment2: Not disclose their personal login credentials.
+    commitment3: Immediately report any anomaly or suspicion of account compromise.
+    warning: "Important: Falsification of election results is a serious offense punishable by the Electoral Code."
+audit:
+  title: Public Audit Log
+  subtitle: "All critical operations (observed report, added participation, submitted or modified results) are immutably recorded in this public registry."

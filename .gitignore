@@ -1,0 +1,47 @@
+
+###> symfony/framework-bundle ###
+/.env.local
+/.env.dev
+/.env.local.php
+/.env
+/.env.test
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.cache/
+###< phpunit/phpunit ###
+
+###> symfony/asset-mapper ###
+/public/assets/
+/assets/vendor/
+###< symfony/asset-mapper ###
+
+# Local Docker overrides
+compose.override.yaml
+
+# Data files
+centres_test.ods
+
+###> user content ###
+/public/uploads/pv/*
+!/public/uploads/pv/.gitignore
+/public/uploads/logos/*
+!/public/uploads/logos/.gitignore
+# /convert_import.py
+# /import_electoral_data.csv
+/centres_test.ods
+# /Dockerfile
+# /docker-entrypoint.sh
+/migrations/*
+!/migrations/.gitignore
+/minio*
+/compose.yaml
+/gen_ods.php
+###< user content ###
+

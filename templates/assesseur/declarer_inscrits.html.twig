@@ -1,0 +1,129 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Déclaration des Inscrits - Assesseur
+{% endblock %}
+
+{% block body %}
+	<div class="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+		<div class="max-w-2xl mx-auto">
+			<div class="text-center mb-10">
+				<h1 class="text-3xl font-extrabold text-slate-900">
+					Déclaration des Inscrits
+				</h1>
+				<p class="mt-2 text-lg text-slate-600">
+					Centre :
+					<span class="font-bold text-benin-green">{{ centre.nom }}</span>
+					<br>
+					<span class="text-sm">({{ centre.arrondissement }}
+						-
+						{{ centre.commune }})</span>
+				</p>
+				{% if existingSignalement %}
+					<div class="mt-4 p-3 bg-green-50 text-green-800 rounded-lg inline-block">
+						<i class="fas fa-info-circle mr-2"></i>
+						Vous modifiez une déclaration existante du
+						{{ existingSignalement.createdAt|date('d/m/Y H:i') }}
+					</div>
+				{% endif %}
+			</div>
+
+			<div class="bg-white py-8 px-6 shadow-xl rounded-2xl sm:px-10 border border-slate-100" data-controller="signalement">
+
+				{{ form_start(form, {'attr': {'class': 'space-y-6'}}) }}
+
+				{# Nom (Pré-rempli, Lecture Seule ou caché si on veut) #}
+				<div>
+					{{ form_label(form.auteurNom, null, {'label_attr': {'class': 'block text-sm font-medium text-slate-700'}}) }}
+					<div class="mt-1">
+						{{ form_widget(form.auteurNom, {'attr': {'class': 'appearance-none block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm bg-slate-100 cursor-not-allowed', 'readonly': 'readonly'}}) }}
+					</div>
+					{{ form_errors(form.auteurNom) }}
+				</div>
+
+				{# Centre de Vote (Caché et pré-rempli pour le contrôleur) #}
+				<div
+					class="relative hidden">
+					<!-- Champ pour la recherche, caché ici car on force l'ID -->
+					<input type="text" data-signalement-target="searchInput">
+					<div data-signalement-target="searchResults"></div>
+
+					{# Input Hidden pour l'ID, avec valeur pré-remplie et target pour le controller #}
+					{{ form_widget(form.centreId, {'value': centre.id, 'attr': {'data-signalement-target': 'centreIdInput'}}) }}
+				</div>
+
+
+				{# Total Inscrits #}
+				<div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
+					<div class="flex items-center justify-between mb-2">
+						{{ form_label(form.nombreInscritsTotal, null, {'label_attr': {'class': 'block text-sm font-bold text-slate-700'}}) }}
+						<i class="fas fa-calculator text-blue-400"></i>
+					</div>
+
+					<div class="mt-1">
+						{{ form_widget(form.nombreInscritsTotal, {
+                            'attr': {
+                                'class': 'appearance-none block w-full px-4 py-3 border border-slate-300 rounded-xl shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-lg font-bold',
+                                'data-signalement-target': 'totalInput'
+                            }
+                        }) }}
+					</div>
+					<p class="text-xs text-slate-500 mt-2">Ce total doit correspondre à la somme des inscrits par poste ci-dessous.</p>
+				</div>
+
+				{# Zone Dynamique des Bureaux #}
+				<div class="mt-6">
+					<label class="block text-sm font-medium text-slate-700 mb-4">Détail par Poste de Vote</label>
+					<div data-signalement-target="bureauxContainer" class="bg-slate-50 p-4 rounded-lg border border-dashed border-slate-300 min-h-[100px]">
+						<div class="text-center text-slate-400 text-sm mt-4">
+							<i class="fas fa-spinner fa-spin"></i>
+							Chargement des postes...
+						</div>
+					</div>
+				</div>
+
+				{# Champ caché JSON #}
+				<div class="hidden">
+					{{ form_widget(form.repartitionBureauxJson, {'attr': {'data-signalement-target': 'jsonInput'}}) }}
+				</div>
+
+				{# Preuve Image #}
+				<div class="mt-6">
+					<label class="block text-sm font-medium text-slate-700 mb-2">Preuve Photo (Registre ou Feuille affichée)</label>
+					<div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 border-dashed rounded-md hover:bg-slate-50 transition-colors cursor-pointer relative group">
+						<div class="space-y-1 text-center">
+							<i class="fas fa-camera text-4xl text-slate-400 mb-3 group-hover:text-blue-500 transition-colors"></i>
+							<div class="flex text-sm text-slate-600 justify-center">
+								<label for="{{ form.preuveImageFile.vars.id }}" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+									<span>Télécharger une photo</span>
+									{{ form_widget(form.preuveImageFile, {'attr': {'class': 'sr-only'}}) }}
+								</label>
+							</div>
+							<p class="text-xs text-slate-500">PNG, JPG, WEBP jusqu'à 10MB</p>
+							{% if existingSignalement and existingSignalement.preuveImageName %}
+								<p class="text-xs text-green-600 font-bold mt-2">
+									<i class="fas fa-check"></i>
+									Fichier actuel :
+									{{ existingSignalement.preuveImageName }}
+								</p>
+							{% endif %}
+						</div>
+					</div>
+					{{ form_errors(form.preuveImageFile) }}
+				</div>
+
+				<div class="pt-8 flex flex-col gap-4">
+					<button type="submit" class="w-full flex justify-center py-4 px-4 border border-transparent rounded-xl shadow-lg text-sm font-medium text-white bg-benin-green hover:bg-benin-green/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-benin-green transition-all font-bold text-lg transform active:scale-95">
+						<i class="fas fa-save mr-2 mt-1"></i>
+						{{ existingSignalement ? 'Mettre à jour la déclaration' : 'Enregistrer la déclaration' }}
+					</button>
+
+					<a href="{{ path('app_assesseur_dashboard') }}" class="w-full flex justify-center py-3 px-4 border border-slate-300 rounded-xl shadow-sm text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-all">
+						Annuler
+					</a>
+				</div>
+
+				{{ form_end(form) }}
+			</div>
+		</div>
+	</div>
+{% endblock %}

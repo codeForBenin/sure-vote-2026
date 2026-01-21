@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Logs Système ({{ env }})
+{% endblock %}
+
+{% block body %}
+	<div class="container mx-auto px-4 py-8">
+		<div class="flex justify-between items-center mb-6">
+			<h1 class="text-2xl font-bold text-slate-900">
+				<i class="fas fa-terminal mr-2"></i>
+				Logs Système
+				<span class="text-sm font-normal text-slate-500">({{ env }})</span>
+			</h1>
+			<p class="text-sm text-slate-500">Date du serveur :
+				{{ date_du_serveur }}</p>
+			<a href="{{ path('admin_system_logs') }}" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded text-slate-700 font-bold transition-colors">
+				<i class="fas fa-sync-alt mr-2"></i>
+				Rafraîchir
+			</a>
+		</div>
+
+		<div class="bg-slate-900 text-slate-100 p-4 rounded-xl shadow-lg border border-slate-700 font-mono text-sm overflow-x-auto h-[80vh] overflow-y-auto">
+			<div class="mb-4 text-xs text-slate-500 border-b border-slate-700 pb-2">
+				Fichier :
+				{{ logPath }}
+			</div>
+
+			{% for line in logs %}
+				{% set colorClass = 'text-slate-300' %}
+				{% if 'CRITICAL' in line or 'ERROR' in line %}
+					{% set colorClass = 'text-red-400 font-bold' %}
+				{% elseif 'WARNING' in line %}
+					{% set colorClass = 'text-yellow-400' %}
+				{% elseif 'INFO' in line %}
+					{% set colorClass = 'text-blue-300' %}
+				{% elseif 'request.CRITICAL' in line %}
+					{% set colorClass = 'text-red-500 bg-red-900/20' %}
+				{% endif %}
+
+				<div class="{{ colorClass }} whitespace-pre-wrap hover:bg-white/5 py-0.5 px-1 border-b border-white/5">
+					{{ line }}
+				</div>
+			{% else %}
+				<div class="text-slate-500 italic">Aucun log disponible.</div>
+			{% endfor %}
+		</div>
+	</div>
+{% endblock %}

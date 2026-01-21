@@ -1,0 +1,169 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Résultats Bureau
+	{{ bureau.code }}
+	- Sure Vote
+{% endblock %}
+
+
+{% block body %}
+	<div class="min-h-screen bg-slate-50 py-12">
+		<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+
+			<div class="mb-8">
+<a href="javascript:history.back()" class="inline-flex items-center text-sm font-bold text-slate-500 hover:text-benin-green transition-colors mb-4">
+
+
+
+					<i class="fas fa-arrow-left mr-2"></i>
+Retour à la recherche</a>
+
+				<div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-100">
+					<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+						<div>
+							<div class="flex items-center gap-3 mb-2">
+
+								<span class="px-3 py-1 hidden md:block rounded-full bg-benin-green/10 text-benin-green text-sm font-bold">
+
+
+									{{ bureau.code }}
+								</span>
+								<span class="text-slate-400 font-medium">
+
+									{{ bureau.centre.arrondissement }}
+									-
+									{{ bureau.centre.commune }}</span>
+							</div>
+							<h1 class="text-3xl font-black text-slate-900 mb-2">{{ bureau.nom }}</h1>
+							<p class="text-slate-500 font-medium text-lg">
+								<i class="fas fa-vote-yea mr-2 text-slate-400"></i>
+								{{ bureau.centre.nom }}</p>
+
+							{% if bureau.centre.nom %}
+								{% if bureau.centre.villageQuartier %}
+									<span class="mx-2 text-slate-300">|</span>
+									{{ bureau.centre.villageQuartier }}
+									({{bureau.centre.arrondissement}})
+								{% endif %}
+							{% endif %}
+						</p>
+					</div>
+					<div class="text-right">
+						<div class="text-sm font-bold text-slate-400 uppercase">Inscrits</div>
+						<div class="text-3xl font-black text-slate-900">{{ bureau.nombreInscrits|number_format(0, ',', ' ') }}</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<div
+			class="grid lg:grid-cols-3 gap-8">
+			<!-- Results Column -->
+			<div class="lg:col-span-2 space-y-6">
+				<div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+					<div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+
+						<h2 class="font-bold text-slate-800">Résultats du dépouillement dans ce bureau
+						</h2>
+					</div>
+					{% if resultats is empty %}
+						<div class="p-12 text-center text-slate-500">
+							<i class="fas fa-box-open text-4xl mb-4 text-slate-300"></i>
+							<p>Aucun résultat saisi pour le moment.</p>
+						</div>
+					{% else %}
+						<div class="divide-y divide-slate-100">
+							{% for resultat in resultats %}
+								{# Calcul pourcentage par rapport aux VOTANTS (estimés) ou aux INSCRITS ? Généralement inscrits ou exprimés #}
+								{# Ici on va faire simple : pourcentage / inscrits pour voir la représentativité, ou barre relative #}
+								{% set percent = bureau.nombreInscrits > 0 ? (resultat.nombreVoix / bureau.nombreInscrits) * 100 : 0 %}
+
+									<div class="p-6 hover:bg-slate-50 transition-colors"> <div class="flex items-center gap-4">
+
+										{% if resultat.parti.logoUrl %}
+											<img src="{{ vich_uploader_asset(resultat.parti, 'logoFile') }}" onerror="this.onerror=null;this.src='{{ asset('uploads/logos/' ~ resultat.parti.logoUrl) }}'" alt="{{ resultat.parti.sigle }}" class="w-12 h-12 object-contain rounded-lg bg-slate-50 p-1 border border-slate-200">
+
+
+										{% else %}
+											<div class="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 font-bold text-xs uppercase border border-slate-200">
+
+												{{ resultat.parti.sigle|slice(0,4) }}</div>
+										{% endif %}
+										<div class="flex-1">
+											<div class="flex items-center justify-between mb-2">
+												<div>
+
+													<h3 class="font-bold text-slate-900">{{ resultat.parti.nom }}
+														<span class="text-slate-400 text-sm font-normal">({{ resultat.parti.sigle }})</span>
+													</h3>
+												</div>
+												<div class="text-right">
+
+													<span class="block font-black text-lg text-slate-900">{{ resultat.nombreVoix|number_format(0, ',', ' ') }}
+														voix</span>
+												</div>
+											</div>
+
+											<div
+												class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+												{# Use style width for simple bar #}
+												<div class="h-full rounded-full transition-all duration-500" style="width: {{ percent }}%; background-color: {{ resultat.parti.couleur ?? '#10B981' }}"></div>
+											</div>
+										</div>
+									</div>
+								</div>
+							{% endfor %}
+						</div>
+					{% endif %}
+				</div>
+			</div>
+
+
+			<!-- Sidebar / Evidence -->
+			<div class="space-y-6">
+				<div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+					<div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+						<h2 class="font-bold text-slate-800">Preuve du résultat (Procès-verbal)</h2>
+					</div>
+					<div class="p-6">
+						{% if resultatWithPv %}
+
+
+							{# Tiny inline script for basic lightbox functionality #}
+
+							<div class="group relative aspect-[3/4] bg-slate-100 rounded-xl overflow-hidden border border-slate-200 cursor-zoom-in" onclick="if(this.classList.contains('fixed')){ this.classList.remove('fixed','inset-0','z-50','bg-black/95','p-8','cursor-zoom-out','h-screen'); this.classList.add('cursor-zoom-in','aspect-[3/4]'); this.querySelector('img').classList.remove('h-full','object-contain'); this.querySelector('img').classList.add('object-cover'); } else { this.classList.add('fixed','inset-0','z-50','bg-black/95','p-8','cursor-zoom-out','h-screen'); this.classList.remove('cursor-zoom-in','aspect-[3/4]'); this.querySelector('img').classList.add('h-full','object-contain'); this.querySelector('img').classList.remove('object-cover'); }">
+								<img src="{{ vich_uploader_asset(resultatWithPv, 'pvImageFile') }}" alt="PV du bureau" class="w-full h-full object-cover transition-all duration-300">
+
+
+								<div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+									<span class="text-white font-bold bg-black/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/20">
+
+										<i class="fas fa-search-plus mr-2"></i>
+										Agrandir</span>
+								</div>
+							</div>
+							<p class="text-xs text-slate-400 text-center mt-3">Cliquez sur l'image pour l'agrandir</p>
+						{% else %}
+							<div class="aspect-[3/4] bg-slate-50 rounded-xl border border-slate-200 border-dashed flex flex-col items-center justify-center text-center p-6 text-slate-400">
+								<i class="fas fa-file-image text-3xl mb-3"></i>
+								<span class="text-sm">Le PV n'a pas encore été téléversé.</span>
+							</div>
+						{% endif %}
+					</div>
+				</div>
+
+
+				<div class="bg-blue-50 border border-blue-100 rounded-2xl p-6">
+					<div class="flex gap-3">
+						<i class="fas fa-shield-alt text-blue-500 mt-1"></i>
+						<div class="text-sm text-blue-900">
+							<span class="font-bold block mb-1">Protection des données</span>
+							Ces résultats sont issus de la compilation citoyenne. En cas de doute, référez-vous au PV disponible ci-dessus.
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>{% endblock %}
