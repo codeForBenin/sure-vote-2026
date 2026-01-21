@@ -43,7 +43,7 @@ centres_test.ods
 /minio*
 /compose.yaml
 /gen_ods.php
-/data/*
+/data
 ###< user content ###
 
 
